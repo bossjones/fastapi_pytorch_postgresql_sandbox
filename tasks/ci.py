@@ -423,7 +423,7 @@ def pytest(
     if mypy:
         _cmd += r" --mypy "
 
-    _cmd += r" --cov-config=setup.cfg --verbose --cov-append --cov-report=term-missing --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate  --showlocals --tb=short --cov=fastapi_pytorch_postgresql_sandbox tests"
+    _cmd += r" --cov-config=setup.cfg --verbose --cov-append --cov-report=term-missing --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate  --showlocals --tb=short --cov=fastapi_pytorch_postgresql_sandbox ."
 
     resp = ctx.run(_cmd)
     if not resp.ok:
