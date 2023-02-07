@@ -23,10 +23,7 @@ def is_supported():
 
     os_arch = platform.system()
 
-    if os_arch != "Windows":
-        return True
-
-    return False
+    return os_arch != "Windows"
 
 
 _SYMBOLS = _MAIN if is_supported() else _FALLBACKS

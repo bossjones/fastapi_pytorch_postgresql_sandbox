@@ -2,20 +2,20 @@
 ci tasks
 """
 import logging
-from invoke import task, call
-import click
-from tasks.utils import get_compose_env
-
-from .utils import (
-    COLOR_WARNING,
-    COLOR_DANGER,
-    COLOR_SUCCESS,
-    COLOR_CAUTION,
-    COLOR_STABLE,
-)
 import sys
 
+import click
+from invoke import call, task
+from tasks.utils import get_compose_env
+
 from .ml_logger import get_logger  # noqa: E402
+from .utils import (
+    COLOR_CAUTION,
+    COLOR_DANGER,
+    COLOR_STABLE,
+    COLOR_SUCCESS,
+    COLOR_WARNING,
+)
 
 LOGGER = get_logger(__name__, provider="Invoke CI", level=logging.INFO)
 
@@ -43,7 +43,7 @@ xargs rm -rf
     """
 
     if verbose >= 1:
-        msg = "{}".format(_cmd)
+        msg = f"{_cmd}"
         click.secho(msg, fg=COLOR_SUCCESS)
 
     ctx.run(_cmd)
@@ -72,7 +72,7 @@ rm -f cov.xml
     """
 
     if verbose >= 1:
-        msg = "{}".format(_cmd)
+        msg = f"{_cmd}"
         click.secho(msg, fg=COLOR_SUCCESS)
 
     ctx.run(_cmd)
@@ -80,10 +80,15 @@ rm -f cov.xml
 
 @task
 def pylint(
-    ctx, loc="local", tests=False, everything=False, specific="", error_only=False,
+    ctx,
+    loc="local",
+    tests=False,
+    everything=False,
+    specific="",
+    error_only=False,
 ):
     """
-    pylint preprocessing_data_loader.py folder
+    pylint fastapi_pytorch_postgresql_sandbox folder
     Usage: inv ci.pylint
     """
     env = get_compose_env(ctx, loc=loc)
@@ -101,19 +106,19 @@ def pylint(
         )
     elif everything:
         ctx.run(
-            "pylint --output-format=colorized --rcfile ./lint-configs-python/python/pylintrc tests preprocessing_data_loader.py",
+            "pylint --output-format=colorized --rcfile ./lint-configs-python/python/pylintrc tests fastapi_pytorch_postgresql_sandbox",
         )
     elif specific:
         ctx.run(
-            f"pylint --output-format=colorized --disable=all --enable={specific} --rcfile ./lint-configs-python/python/pylintrc tests preprocessing_data_loader.py",
+            f"pylint --output-format=colorized --disable=all --enable={specific} --rcfile ./lint-configs-python/python/pylintrc tests fastapi_pytorch_postgresql_sandbox",
         )
     elif error_only:
         ctx.run(
-            f"pylint --output-format=colorized --disable=all --enable=F,E --rcfile ./lint-configs-python/python/pylintrc tests preprocessing_data_loader.py",
+            "pylint --output-format=colorized --disable=all --enable=F,E --rcfile ./lint-configs-python/python/pylintrc tests fastapi_pytorch_postgresql_sandbox",
         )
     else:
         ctx.run(
-            "pylint --output-format=colorized --disable=all --enable=F,E --rcfile ./lint-configs-python/python/pylintrc preprocessing_data_loader.py",
+            "pylint --output-format=colorized --disable=all --enable=F,E --rcfile ./lint-configs-python/python/pylintrc fastapi_pytorch_postgresql_sandbox",
         )
 
 
@@ -134,12 +139,33 @@ def mypy(ctx, loc="local", verbose=0):
 
     # ctx.run("mypy --config-file ./lint-configs-python/python/mypy.ini pytorch_lab tests")
     ctx.run(
-        "mypy --config-file ./lint-configs-python/python/mypy.ini preprocessing_data_loader.py tests",
+        "mypy --config-file ./lint-configs-python/python/mypy.ini fastapi_pytorch_postgresql_sandbox tests",
+    )
+
+
+@task(incrementable=["verbose"])
+def sourcery(ctx, loc="local", verbose=0):
+    """
+    sourcery pytorch_lab folder
+    Usage: inv ci.sourcery
+    """
+    env = get_compose_env(ctx, loc=loc)
+
+    # Only display result
+    ctx.config["run"]["echo"] = True
+
+    # Override run commands env variables one key at a time
+    for k, v in env.items():
+        ctx.config["run"]["env"][k] = v
+
+    ctx.run(
+        "sourcery review --in-place --enable default --enable google-python-style-guide .",
     )
 
 
 @task(
-    pre=[call(clean, loc="local")], incrementable=["verbose"],
+    pre=[call(clean, loc="local")],
+    incrementable=["verbose"],
 )
 def black(ctx, loc="local", check=False, debug=False, verbose=0, tests=False):
     """
@@ -166,7 +192,7 @@ def black(ctx, loc="local", check=False, debug=False, verbose=0, tests=False):
     if tests:
         _cmd += "tests tasks "
 
-    _cmd += "preprocessing_data_loader.py"
+    _cmd += "fastapi_pytorch_postgresql_sandbox"
 
     if verbose >= 1:
         msg = "[black] bout to run command: \n"
@@ -177,7 +203,8 @@ def black(ctx, loc="local", check=False, debug=False, verbose=0, tests=False):
 
 
 @task(
-    pre=[call(clean, loc="local")], incrementable=["verbose"],
+    pre=[call(clean, loc="local")],
+    incrementable=["verbose"],
 )
 def setup_cfg_fmt(ctx, loc="local", check=False, debug=False, verbose=0, tests=False):
     """
@@ -204,11 +231,12 @@ def setup_cfg_fmt(ctx, loc="local", check=False, debug=False, verbose=0, tests=F
 
 
 @task(
-    pre=[call(clean, loc="local")], incrementable=["verbose"],
+    pre=[call(clean, loc="local")],
+    incrementable=["verbose"],
 )
 def isort(ctx, loc="local", check=False, dry_run=False, verbose=0, diff=False):
     """
-    isort preprocessing_data_loader.py module. Some of the arguments were taken from the starlette contrib scripts. Tries to align w/ black to prevent having to reformat multiple times.
+    isort fastapi_pytorch_postgresql_sandbox module. Some of the arguments were taken from the starlette contrib scripts. Tries to align w/ black to prevent having to reformat multiple times.
 
     To check mode only(does not make changes permenantly):
         Usage: inv ci.isort --check -vvv
@@ -235,15 +263,15 @@ def isort(ctx, loc="local", check=False, dry_run=False, verbose=0, diff=False):
     if verbose >= 2:
         _cmd += " --verbose"
 
-    _cmd += " preprocessing_data_loader.py tests"
+    _cmd += " fastapi_pytorch_postgresql_sandbox tests"
 
     if verbose >= 1:
-        msg = "{}".format(_cmd)
+        msg = f"{_cmd}"
         click.secho(msg, fg=COLOR_SUCCESS)
 
     if dry_run:
         click.secho(
-            "[isort] DRY RUN mode enabled, not executing command: {}".format(_cmd),
+            f"[isort] DRY RUN mode enabled, not executing command: {_cmd}",
             fg=COLOR_CAUTION,
         )
     else:
@@ -273,7 +301,7 @@ def verify_python_version(ctx, loc="local", check=True, debug=False):
 @task
 def pre_start(ctx, loc="local", check=True, debug=False):
     """
-    pre_start preprocessing_data_loader.py module
+    pre_start fastapi_pytorch_postgresql_sandbox module
     """
     env = get_compose_env(ctx, loc=loc)
 
@@ -284,7 +312,7 @@ def pre_start(ctx, loc="local", check=True, debug=False):
     for k, v in env.items():
         ctx.config["run"]["env"][k] = v
 
-    # ctx.run("python preprocessing_data_loader.py/api/tests_pre_start.py")
+    # ctx.run("python fastapi_pytorch_postgresql_sandbox/api/tests_pre_start.py")
 
 
 @task(incrementable=["verbose"])
@@ -395,7 +423,7 @@ def pytest(
     if mypy:
         _cmd += r" --mypy "
 
-    _cmd += r" --cov-config=setup.cfg --verbose --cov-append --cov-report=term-missing --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate  --showlocals --tb=short --cov=preprocessing_data_loader.py tests"
+    _cmd += r" --cov-config=setup.cfg --verbose --cov-append --cov-report=term-missing --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate  --showlocals --tb=short --cov=fastapi_pytorch_postgresql_sandbox tests"
 
     resp = ctx.run(_cmd)
     if not resp.ok:
@@ -505,25 +533,24 @@ def monkeytype(
     for k, v in env.items():
         ctx.config["run"]["env"][k] = v
 
-    # NOTE: https://monkeytype.readthedocs.io/en/stable/faq.html#why-did-my-test-coverage-measurement-stop-working
-    _cmd = r"""monkeytype run "`command -v pytest`" --no-cov --verbose --mypy --showlocals --tb=short tests"""
-
     if test:
+        # NOTE: https://monkeytype.readthedocs.io/en/stable/faq.html#why-did-my-test-coverage-measurement-stop-working
+        _cmd = r"""monkeytype run "`command -v pytest`" --no-cov --verbose --mypy --showlocals --tb=short tests"""
+
         if verbose >= 1:
-            msg = "{}".format(_cmd)
+            msg = f"{_cmd}"
             click.secho(msg, fg=COLOR_SUCCESS)
 
         if dry_run:
             click.secho(
-                "[monkeytype] DRY RUN mode enabled, not executing command: {}".format(
-                    _cmd,
-                ),
+                f"[monkeytype] DRY RUN mode enabled, not executing command: {_cmd}",
                 fg=COLOR_CAUTION,
             )
         else:
             ctx.run(_cmd)
 
-    _cmd_stub = r"""
+    if stub:
+        _cmd_stub = r"""
 modules_array=()
 while IFS= read -r line; do
     modules_array+=( "$line" )
@@ -542,18 +569,16 @@ done
 
     """
 
-    if stub:
         if dry_run:
             click.secho(
-                "[monkeytype] DRY RUN mode enabled, not executing command: \n\n{}".format(
-                    _cmd_stub,
-                ),
+                f"[monkeytype] DRY RUN mode enabled, not executing command: \n\n{_cmd_stub}",
                 fg=COLOR_CAUTION,
             )
         else:
             ctx.run(_cmd_stub)
 
-    _cmd_apply = r"""
+    if apply:
+        _cmd_apply = r"""
 modules_array=()
 while IFS= read -r line; do
     modules_array+=( "$line" )
@@ -565,18 +590,9 @@ do
     monkeytype apply ${element}
 done
     """
-    #     _cmd_apply = r"""
-    # find stubs -type f -name '*.pyi' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 monkeytype -v apply FILE
-    #     """
-
-    # find stubs -type f -name '*.pyi' ! -name '*.venv' -print0 | xargs -I FILE -t -0 -n1 monkeytype -v apply FILE
-
-    if apply:
         if dry_run:
             click.secho(
-                "[monkeytype] DRY RUN mode enabled, not executing command: \n\n{}".format(
-                    _cmd_apply,
-                ),
+                f"[monkeytype] DRY RUN mode enabled, not executing command: \n\n{_cmd_apply}",
                 fg=COLOR_CAUTION,
             )
         else:
@@ -612,10 +628,7 @@ def autoflake(
     for k, v in env.items():
         ctx.config["run"]["env"][k] = v
 
-    # To remove all unused imports (whether or not they are from the standard library), use the --remove-all-unused-imports option.
-    _cmd = "autoflake"
-    _cmd += " --recursive --remove-unused-variables"
-
+    _cmd = "autoflake" + " --recursive --remove-unused-variables"
     if remove_all_unused_imports:
         _cmd += " --remove-all-unused-imports "
 
@@ -626,17 +639,17 @@ def autoflake(
         _cmd += " --in-place"
 
     _cmd += " --exclude=__init__.py"
-    _cmd += " preprocessing_data_loader.py"
+    _cmd += " fastapi_pytorch_postgresql_sandbox"
     _cmd += " tests"
     _cmd += " tasks"
 
     if verbose >= 1:
-        msg = "{}".format(_cmd)
+        msg = f"{_cmd}"
         click.secho(msg, fg=COLOR_SUCCESS)
 
     if dry_run:
         click.secho(
-            "[autoflake] DRY RUN mode enabled, not executing command: {}".format(_cmd),
+            f"[autoflake] DRY RUN mode enabled, not executing command: {_cmd}",
             fg=COLOR_CAUTION,
         )
     else:
@@ -670,12 +683,12 @@ def clean_pyi(ctx, loc="local", verbose=0, dry_run=False):
     _cmd = r"""find . -name '*.pyi' -exec rm -fv {} +"""
 
     if verbose >= 1:
-        msg = "{}".format(_cmd)
+        msg = f"{_cmd}"
         click.secho(msg, fg=COLOR_SUCCESS)
 
     if dry_run:
         click.secho(
-            "[monkeytype] DRY RUN mode enabled, not executing command: {}".format(_cmd),
+            f"[monkeytype] DRY RUN mode enabled, not executing command: {_cmd}",
             fg=COLOR_CAUTION,
         )
     else:

@@ -90,7 +90,7 @@ def detect_os(ctx, loc="local", verbose=0):
         ctx.config["run"]["env"][k] = v
 
     res_os = ctx.run("uname -s")
-    ctx.config["run"]["env"]["OS"] = "{}".format(res_os.stdout)
+    ctx.config["run"]["env"]["OS"] = f"{res_os.stdout}"
 
     if ctx.config["run"]["env"]["OS"] == "Windows_NT":
         ctx.config["run"]["env"]["DETECTED_OS"] = "Windows"
@@ -98,7 +98,7 @@ def detect_os(ctx, loc="local", verbose=0):
         ctx.config["run"]["env"]["DETECTED_OS"] = ctx.config["run"]["env"]["OS"]
 
     if verbose >= 1:
-        msg = "[detect-os] Detected: {}".format(ctx.config["run"]["env"]["DETECTED_OS"])
+        msg = f'[detect-os] Detected: {ctx.config["run"]["env"]["DETECTED_OS"]}'
         click.secho(msg, fg=COLOR_SUCCESS)
 
     if ctx.config["run"]["env"]["DETECTED_OS"] == "Darwin":
@@ -140,7 +140,7 @@ pgrep -f "pytorch_lab/web.py" || true
         msg = "[serve] kill running app server: "
         click.secho(msg, fg=COLOR_SUCCESS)
 
-        msg = "{}".format(_cmd)
+        msg = f"{_cmd}"
         click.secho(msg, fg=COLOR_SUCCESS)
 
     ctx.run(_cmd)
@@ -188,7 +188,7 @@ pgrep -f "pytorch_lab/web.py" || true
         msg = "[serve] kill running app server: "
         click.secho(msg, fg=COLOR_SUCCESS)
 
-        msg = "{}".format(_cmd)
+        msg = f"{_cmd}"
         click.secho(msg, fg=COLOR_SUCCESS)
 
     ctx.run(_cmd)
@@ -245,7 +245,7 @@ pip install -r requirements-doc.txt
         msg = "[install] Install dependencies: "
         click.secho(msg, fg=COLOR_SUCCESS)
 
-        msg = "{}".format(_cmd)
+        msg = f"{_cmd}"
         click.secho(msg, fg=COLOR_SUCCESS)
 
     ctx.run(_cmd)
@@ -283,7 +283,7 @@ pip freeze > freeze.before.txt
         msg = "[freeze] freeze deps: "
         click.secho(msg, fg=COLOR_SUCCESS)
 
-        msg = "{}".format(_cmd)
+        msg = f"{_cmd}"
         click.secho(msg, fg=COLOR_SUCCESS)
 
     ctx.run(_cmd)
@@ -334,7 +334,7 @@ pip-compile --output-file requirements-test.txt requirements-test.in
         msg = "[pip-deps] Install dependencies: "
         click.secho(msg, fg=COLOR_SUCCESS)
 
-        msg = "{}".format(_cmd)
+        msg = f"{_cmd}"
         click.secho(msg, fg=COLOR_SUCCESS)
 
     ctx.run(_cmd)
@@ -372,11 +372,9 @@ def pip_tools(
 
     if upgrade and package:
         if verbose >= 1:
-            msg = "[pip-tools] Looks like we're upgrading a specific package: '{}'".format(
-                package,
-            )
+            msg = f"[pip-tools] Looks like we're upgrading a specific package: '{package}'"
             click.secho(msg, fg=COLOR_SUCCESS)
-        _cmd += r" --upgrade-package '{}'".format(package)
+        _cmd += f" --upgrade-package '{package}'"
 
     if dev:
         if verbose >= 1:
@@ -400,7 +398,7 @@ def pip_tools(
         msg = "[pip-tools] Rendering dependencies ... "
         click.secho(msg, fg=COLOR_SUCCESS)
 
-        msg = "{}".format(_cmd)
+        msg = f"{_cmd}"
         click.secho(msg, fg=COLOR_SUCCESS)
 
     if dev and test:
@@ -409,7 +407,7 @@ def pip_tools(
 
     if dry_run:
         click.secho(
-            "[pip-tools] DRY RUN mode enabled, not executing command: {}".format(_cmd),
+            f"[pip-tools] DRY RUN mode enabled, not executing command: {_cmd}",
             fg=COLOR_CAUTION,
         )
     else:
@@ -419,13 +417,11 @@ def pip_tools(
         msg = "[pip-tools] Upgrading packages"
         click.secho(msg, fg=COLOR_SUCCESS)
 
-        _upgrade_cmd = r"pip install -U {}".format(package)
+        _upgrade_cmd = f"pip install -U {package}"
 
         if dry_run:
             click.secho(
-                "[pip-tools] DRY RUN mode enabled, not executing command: {}".format(
-                    _upgrade_cmd,
-                ),
+                f"[pip-tools] DRY RUN mode enabled, not executing command: {_upgrade_cmd}",
                 fg=COLOR_CAUTION,
             )
         else:
@@ -461,7 +457,7 @@ cp -fv ./contrib/.ptpython_config.py ~/ptpython/config.py
         msg = "[contrib] Install configs: "
         click.secho(msg, fg=COLOR_SUCCESS)
 
-        msg = "{}".format(_cmd)
+        msg = f"{_cmd}"
         click.secho(msg, fg=COLOR_SUCCESS)
 
     ctx.run(_cmd)
@@ -484,7 +480,7 @@ cd && rsync -r --exclude ultron8_venv --exclude .vagrant --exclude .git --exclud
     """
 
     if verbose >= 1:
-        msg = "{}".format(_cmd)
+        msg = f"{_cmd}"
         click.secho(msg, fg=COLOR_SUCCESS)
 
     ctx.run(_cmd)
@@ -509,7 +505,7 @@ find . -name '__pycache__' -exec rm -frv {} +
     """
 
     if verbose >= 1:
-        msg = "{}".format(_cmd)
+        msg = f"{_cmd}"
         click.secho(msg, fg=COLOR_SUCCESS)
 
     ctx.run(_cmd)
@@ -539,7 +535,7 @@ pip install -e .
     """
 
     if verbose >= 1:
-        msg = "{}".format(_cmd)
+        msg = f"{_cmd}"
         click.secho(msg, fg=COLOR_SUCCESS)
 
     ctx.run(_cmd)
@@ -580,7 +576,7 @@ jupyter nbextension enable --py widgetsnbextension --sys-prefix
     """
 
     if verbose >= 1:
-        msg = "{}".format(_cmd)
+        msg = f"{_cmd}"
         click.secho(msg, fg=COLOR_SUCCESS)
 
     ctx.run(_cmd)
@@ -606,7 +602,7 @@ pip install -e .
     """
 
     if verbose >= 1:
-        msg = "{}".format(_cmd)
+        msg = f"{_cmd}"
         click.secho(msg, fg=COLOR_SUCCESS)
 
     ctx.run(_cmd)
@@ -642,7 +638,7 @@ nmap -p 11267,3000,5678,6666 localhost
     """
 
     if verbose >= 1:
-        msg = "{}".format(_cmd)
+        msg = f"{_cmd}"
         click.secho(msg, fg=COLOR_SUCCESS)
 
     ctx.run(_cmd)
@@ -670,7 +666,7 @@ ps aux | grep 'python pytorch_lab/web.py' | awk '{print $2}' | head -1
     """
 
     if verbose >= 1:
-        msg = "{}".format(_cmd)
+        msg = f"{_cmd}"
         click.secho(msg, fg=COLOR_SUCCESS)
 
     pid_res = ctx.run(_cmd)
@@ -682,7 +678,7 @@ pstree -p {}
     )
 
     if verbose >= 1:
-        msg = "{}".format(_cmd)
+        msg = f"{_cmd}"
         click.secho(msg, fg=COLOR_SUCCESS)
 
     ctx.run(_cmd)

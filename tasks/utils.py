@@ -54,7 +54,7 @@ def _check_exe(exe):
     """Look for executable"""
     exe_path = which(exe)
     if not exe_path:
-        msg = "Couldn't find `{}`.\n".format(exe)
+        msg = f"Couldn't find `{exe}`.\n"
         raise Exit(msg)
 
 
@@ -84,20 +84,14 @@ def get_compose_env(c, loc="docker", name=None):
     # environment variables have priority over what's inside invoke.yaml
     for key in env:
         if key in os.environ:
-            env[key] = "{}".format(os.getenv(key))
+            env[key] = f"{os.getenv(key)}"
 
     for key in list(env):
         # print("ENV: {}".format(key))
         if key not in ENV_WHITELIST:
             del env[key]
 
-    if name:
-        if name in env:
-            return env[name]
-
-    # print("type(ENV) = {}".format(type(env)))
-
-    return env
+    return env[name] if name and name in env else env
 
 
 def confirm():
@@ -221,14 +215,13 @@ def scm(dir=None):
 
 
 def _popen(cmd_arg):
-    devnull = open("/dev/null")
-    cmd = subprocess.Popen(cmd_arg, stdout=subprocess.PIPE, stderr=devnull, shell=True)
-    retval = cmd.stdout.read().strip()
-    err = cmd.wait()
-    cmd.stdout.close()
-    devnull.close()
+    with open("/dev/null") as devnull:
+        cmd = subprocess.Popen(cmd_arg, stdout=subprocess.PIPE, stderr=devnull, shell=True)
+        retval = cmd.stdout.read().strip()
+        err = cmd.wait()
+        cmd.stdout.close()
     if err:
-        raise RuntimeError("Failed to close %s stream" % cmd_arg)
+        raise RuntimeError(f"Failed to close {cmd_arg} stream")
     return retval
 
 
@@ -242,15 +235,15 @@ def _popen_stdout(cmd_arg, cwd=None):
         bufsize=4096,
         shell=True,
     )
-    Console.message("BEGIN: {}".format(cmd_arg))
+    Console.message(f"BEGIN: {cmd_arg}")
     # output, err = cmd.communicate()
 
     for line in iter(cmd.stdout.readline, b""):
         # Print line
         _line = line.rstrip()
-        Console.message(">>> {}".format(_line.decode("utf-8")))
+        Console.message(f'>>> {_line.decode("utf-8")}')
 
-    Console.message("END: {}".format(cmd_arg))
+    Console.message(f"END: {cmd_arg}")
 
 
 # Higher level functions
@@ -272,21 +265,18 @@ def copy_f(src, dst):
 
 def git_clone(repo_url, dest, sha="master"):
     # First check if folder exists
-    if not os.path.exists(dest):
-        # check if folder is a git repo
-        if scm(dest) != "git":
-            clone_cmd = "git clone {repo} {dest}".format(repo=repo_url, dest=dest)
-            _popen_stdout(clone_cmd)
+    if not os.path.exists(dest) and scm(dest) != "git":
+        clone_cmd = "git clone {repo} {dest}".format(repo=repo_url, dest=dest)
+        _popen_stdout(clone_cmd)
 
-            # CD to directory
-            with cd(dest):
-                checkout_cmd = "git checkout {sha}".format(sha=sha)
-                _popen_stdout(checkout_cmd)
+        # CD to directory
+        with cd(dest):
+            checkout_cmd = "git checkout {sha}".format(sha=sha)
+            _popen_stdout(checkout_cmd)
 
 
 def whoami():
-    whoami = _popen("who")
-    return whoami
+    return _popen("who")
 
 
 def environ_append(key, value, separator=" ", force=False):
@@ -334,11 +324,9 @@ def mkdir_p(path):
     try:
         os.makedirs(path)
     except OSError as exc:  # Python >2.5
-        if exc.errno == errno.EEXIST and os.path.isdir(path):
-            pass
-        else:
+        if exc.errno != errno.EEXIST or not os.path.isdir(path):
             raise
 
 
 def dump_env_var(var):
-    Console.message("Env Var:{}={}".format(var, os.environ.get(var, "<EMPTY>")))
+    Console.message(f'Env Var:{var}={os.environ.get(var, "<EMPTY>")}')

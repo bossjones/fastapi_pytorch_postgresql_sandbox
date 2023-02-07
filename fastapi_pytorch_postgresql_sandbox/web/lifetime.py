@@ -119,7 +119,7 @@ def setup_prometheus(app: FastAPI) -> None:  # pragma: no cover
 
 def register_startup_event(
     app: FastAPI,
-) -> Callable[[], Awaitable[None]]:  # pragma: no cover
+) -> Callable[[], Awaitable[None]]:    # pragma: no cover
     """
     Actions to run on application startup.
 
@@ -138,14 +138,13 @@ def register_startup_event(
         init_rabbit(app)
         # await init_kafka(app)
         setup_prometheus(app)
-        pass  # noqa: WPS420
 
     return _startup
 
 
 def register_shutdown_event(
     app: FastAPI,
-) -> Callable[[], Awaitable[None]]:  # pragma: no cover
+) -> Callable[[], Awaitable[None]]:    # pragma: no cover
     """
     Actions to run on application's shutdown.
 
@@ -160,6 +159,5 @@ def register_shutdown_event(
         await shutdown_rabbit(app)
         # await shutdown_kafka(app)
         stop_opentelemetry(app)
-        pass  # noqa: WPS420
 
     return _shutdown

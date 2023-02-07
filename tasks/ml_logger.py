@@ -164,14 +164,12 @@ class LoopDetector(logging.Filter):
         self._recent_lines.append(record.getMessage())
 
         counter = collections.Counter(list(self._recent_lines))
-        repeated_lines = [
+        if repeated_lines := [
             line
             for line, count in counter.most_common()
             if count > self.LINE_REPETITION_THRESHOLD
             and line not in self._supressed_lines
-        ]
-
-        if repeated_lines:
+        ]:
             for line in repeated_lines:
                 self._supressed_lines[line] = self.LINE_HISTORY_SIZE
 
@@ -339,8 +337,7 @@ def get_lm_from_tree(loggertree: LoggerModel, find_me: str) -> LoggerModel:
     else:
         for ch in loggertree.children:
             LOGGER.debug(f"Looking in: {ch.name}")
-            i = get_lm_from_tree(ch, find_me)
-            if i:
+            if i := get_lm_from_tree(ch, find_me):
                 return i
 
 
@@ -351,8 +348,7 @@ def generate_tree() -> LoggerModel:
         name="root", level=logging.getLogger().getEffectiveLevel(), children=[],
     )
     nodesm = {}
-    items = list(logging.root.manager.loggerDict.items())  # type: ignore
-    items.sort()
+    items = sorted(logging.root.manager.loggerDict.items())
     for name, loggeritem in items:
         if isinstance(loggeritem, logging.PlaceHolder):
             nodesm[name] = nodem = LoggerModel(name=name, children=[])
@@ -361,10 +357,7 @@ def generate_tree() -> LoggerModel:
                 name=name, level=loggeritem.getEffectiveLevel(), children=[],
             )
         i = name.rfind(".", 0, len(name) - 1)  # same formula used in `logging`
-        if i == -1:
-            parentm = rootm
-        else:
-            parentm = nodesm[name[:i]]
+        parentm = rootm if i == -1 else nodesm[name[:i]]
         parentm.children.append(nodem)
     return rootm
 
@@ -383,8 +376,7 @@ if __name__ == "__main__":
     def dump_logger(logger_name: str):
         LOGGER.debug(f"getting logger {logger_name}")
         rootm = generate_tree()
-        lm = get_lm_from_tree(rootm, logger_name)
-        return lm
+        return get_lm_from_tree(rootm, logger_name)
 
     LOGGER.info("TESTING TESTING 1-2-3")
     printout()
