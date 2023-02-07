@@ -1,0 +1,38 @@
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+src_paths = ["fastapi_pytorch_postgresql_sandbox",]
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true
+allow_subclassing_any = true
+allow_untyped_calls = true
+pretty = true
+show_error_codes = true
+implicit_reexport = true
+allow_untyped_decorators = true
+warn_unused_ignores = false
+warn_return_any = false
+namespace_packages = true
+
+# Remove this and add `types-redis`
+# when the issue https://github.com/python/typeshed/issues/8242 is resolved.
+[[tool.mypy.overrides]]
+module = [
+    'redis.asyncio'
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning",
+    "ignore:.*unclosed.*:ResourceWarning",
+]
+env = [
+    "FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_BASE=fastapi_pytorch_postgresql_sandbox_test",
+]
+
+[tool.poetry2conda]
+name = "fastapi_pytorch_postgresql_sandbox3"

@@ -1,0 +1,136 @@
+version: '3.9'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: ./deploy/Dockerfile
+    image: fastapi_pytorch_postgresql_sandbox:${FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_VERSION:-latest}
+    restart: always
+    env_file:
+    - .env
+    labels:
+      # Enables traefik for this container.
+    - traefik.enable=true
+    - traefik.http.routers.fastapi_pytorch_postgresql_sandbox.rule=Host(`${FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_TRAEFIK_HOST:-fastapi_pytorch_postgresql_sandbox.localhost}`)
+    - traefik.http.routers.fastapi_pytorch_postgresql_sandbox.entrypoints=http
+    - traefik.http.routers.fastapi_pytorch_postgresql_sandbox.service=fastapi_pytorch_postgresql_sandbox
+    - traefik.http.services.fastapi_pytorch_postgresql_sandbox.loadbalancer.server.port=${FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_PORT:-8000}
+    networks:
+    - default
+    - traefik-shared
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rmq:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_HOST: 0.0.0.0
+      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_HOST: fastapi_pytorch_postgresql_sandbox-db
+      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_PORT: 5432
+      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_USER: fastapi_pytorch_postgresql_sandbox
+      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_PASS: fastapi_pytorch_postgresql_sandbox
+      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_BASE: fastapi_pytorch_postgresql_sandbox
+      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_RABBIT_HOST: fastapi_pytorch_postgresql_sandbox-rmq
+      TESTKAFKA_KAFKA_BOOTSTRAP_SERVERS: '["fastapi_pytorch_postgresql_sandbox-kafka:9092"]'
+
+  db:
+    image: postgres:13.8-bullseye
+    hostname: fastapi_pytorch_postgresql_sandbox-db
+    environment:
+      POSTGRES_PASSWORD: "fastapi_pytorch_postgresql_sandbox"
+      POSTGRES_USER: "fastapi_pytorch_postgresql_sandbox"
+      POSTGRES_DB: "fastapi_pytorch_postgresql_sandbox"
+    volumes:
+    - fastapi_pytorch_postgresql_sandbox-db-data:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: pg_isready -U fastapi_pytorch_postgresql_sandbox
+      interval: 2s
+      timeout: 3s
+      retries: 40
+
+  migrator:
+    image: fastapi_pytorch_postgresql_sandbox:${FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_VERSION:-latest}
+    restart: "no"
+    command: alembic upgrade head
+    environment:
+      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_HOST: fastapi_pytorch_postgresql_sandbox-db
+      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_PORT: 5432
+      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_USER: fastapi_pytorch_postgresql_sandbox
+      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_PASS: fastapi_pytorch_postgresql_sandbox
+      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_BASE: fastapi_pytorch_postgresql_sandbox
+    depends_on:
+      db:
+        condition: service_healthy
+
+  redis:
+    image: bitnami/redis:6.2.5
+    hostname: "fastapi_pytorch_postgresql_sandbox-redis"
+    restart: always
+    environment:
+      ALLOW_EMPTY_PASSWORD: "yes"
+    healthcheck:
+      test: redis-cli ping
+      interval: 1s
+      timeout: 3s
+      retries: 50
+
+  rmq:
+    image: rabbitmq:3.9.16-alpine
+    hostname: "fastapi_pytorch_postgresql_sandbox-rmq"
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+      RABBITMQ_DEFAULT_VHOST: "/"
+    healthcheck:
+      test: rabbitmq-diagnostics check_running -q
+      interval: 3s
+      timeout: 3s
+      retries: 50
+
+  zookeeper:
+    image: "bitnami/zookeeper:3.7.1"
+    hostname: "fastapi_pytorch_postgresql_sandbox-zookeeper"
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: "yes"
+      ZOO_LOG_LEVEL: "ERROR"
+    healthcheck:
+      test: zkServer.sh status
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+  kafka:
+    image: "bitnami/kafka:3.2.0"
+    hostname: "fastapi_pytorch_postgresql_sandbox-kafka"
+    environment:
+      KAFKA_BROKER_ID: "1"
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_CFG_LISTENERS: "PLAINTEXT://0.0.0.0:9092"
+      KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://fastapi_pytorch_postgresql_sandbox-kafka:9092"
+      KAFKA_CFG_ZOOKEEPER_CONNECT: "fastapi_pytorch_postgresql_sandbox-zookeeper:2181"
+    healthcheck:
+      test: kafka-topics.sh --list --bootstrap-server localhost:9092
+      interval: 1s
+      timeout: 3s
+      retries: 30
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+
+
+
+volumes:
+  fastapi_pytorch_postgresql_sandbox-db-data:
+    name: fastapi_pytorch_postgresql_sandbox-db-data
+
+networks:
+  # Network for traefik.
+  traefik-shared:
+    name: traefik-shared
