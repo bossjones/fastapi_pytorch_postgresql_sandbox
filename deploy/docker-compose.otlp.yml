@@ -1,8 +1,8 @@
 services:
-  api:
-    environment:
-      # Adds opentelemetry endpoint.
-      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_OPENTELEMETRY_ENDPOINT: "http://otel-collector:4317"
+  # api:
+  #   environment:
+  #     # Adds opentelemetry endpoint.
+  #     FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_OPENTELEMETRY_ENDPOINT: "http://otel-collector:4317"
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.53.0

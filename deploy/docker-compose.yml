@@ -1,42 +1,42 @@
 version: '3.9'
 
 services:
-  api:
-    build:
-      context: .
-      dockerfile: ./deploy/Dockerfile
-    image: fastapi_pytorch_postgresql_sandbox:${FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_VERSION:-latest}
-    restart: always
-    env_file:
-    - .env
-    labels:
-      # Enables traefik for this container.
-    - traefik.enable=true
-    - traefik.http.routers.fastapi_pytorch_postgresql_sandbox.rule=Host(`${FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_TRAEFIK_HOST:-fastapi_pytorch_postgresql_sandbox.localhost}`)
-    - traefik.http.routers.fastapi_pytorch_postgresql_sandbox.entrypoints=http
-    - traefik.http.routers.fastapi_pytorch_postgresql_sandbox.service=fastapi_pytorch_postgresql_sandbox
-    - traefik.http.services.fastapi_pytorch_postgresql_sandbox.loadbalancer.server.port=${FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_PORT:-8000}
-    networks:
-    - default
-    - traefik-shared
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      rmq:
-        condition: service_healthy
-      kafka:
-        condition: service_healthy
-    environment:
-      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_HOST: 0.0.0.0
-      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_HOST: fastapi_pytorch_postgresql_sandbox-db
-      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_PORT: 5432
-      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_USER: fastapi_pytorch_postgresql_sandbox
-      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_PASS: fastapi_pytorch_postgresql_sandbox
-      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_BASE: fastapi_pytorch_postgresql_sandbox
-      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_RABBIT_HOST: fastapi_pytorch_postgresql_sandbox-rmq
-      TESTKAFKA_KAFKA_BOOTSTRAP_SERVERS: '["fastapi_pytorch_postgresql_sandbox-kafka:9092"]'
+  # api:
+  #   build:
+  #     context: .
+  #     dockerfile: ./deploy/Dockerfile
+  #   image: fastapi_pytorch_postgresql_sandbox:${FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_VERSION:-latest}
+  #   restart: always
+  #   env_file:
+  #   - .env
+  #   labels:
+  #     # Enables traefik for this container.
+  #   - traefik.enable=true
+  #   - traefik.http.routers.fastapi_pytorch_postgresql_sandbox.rule=Host(`${FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_TRAEFIK_HOST:-fastapi_pytorch_postgresql_sandbox.localhost}`)
+  #   - traefik.http.routers.fastapi_pytorch_postgresql_sandbox.entrypoints=http
+  #   - traefik.http.routers.fastapi_pytorch_postgresql_sandbox.service=fastapi_pytorch_postgresql_sandbox
+  #   - traefik.http.services.fastapi_pytorch_postgresql_sandbox.loadbalancer.server.port=${FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_PORT:-8000}
+  #   networks:
+  #   - default
+  #   - traefik-shared
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #     rmq:
+  #       condition: service_healthy
+  #     kafka:
+  #       condition: service_healthy
+  #   environment:
+  #     FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_HOST: 0.0.0.0
+  #     FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_HOST: fastapi_pytorch_postgresql_sandbox-db
+  #     FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_PORT: 5432
+  #     FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_USER: fastapi_pytorch_postgresql_sandbox
+  #     FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_PASS: fastapi_pytorch_postgresql_sandbox
+  #     FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_BASE: fastapi_pytorch_postgresql_sandbox
+  #     FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_RABBIT_HOST: fastapi_pytorch_postgresql_sandbox-rmq
+  #     TESTKAFKA_KAFKA_BOOTSTRAP_SERVERS: '["fastapi_pytorch_postgresql_sandbox-kafka:9092"]'
 
   db:
     image: postgres:13.8-bullseye
@@ -54,19 +54,19 @@ services:
       timeout: 3s
       retries: 40
 
-  migrator:
-    image: fastapi_pytorch_postgresql_sandbox:${FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_VERSION:-latest}
-    restart: "no"
-    command: alembic upgrade head
-    environment:
-      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_HOST: fastapi_pytorch_postgresql_sandbox-db
-      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_PORT: 5432
-      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_USER: fastapi_pytorch_postgresql_sandbox
-      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_PASS: fastapi_pytorch_postgresql_sandbox
-      FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_BASE: fastapi_pytorch_postgresql_sandbox
-    depends_on:
-      db:
-        condition: service_healthy
+  # migrator:
+  #   image: fastapi_pytorch_postgresql_sandbox:${FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_VERSION:-latest}
+  #   restart: "no"
+  #   command: alembic upgrade head
+  #   environment:
+  #     FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_HOST: fastapi_pytorch_postgresql_sandbox-db
+  #     FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_PORT: 5432
+  #     FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_USER: fastapi_pytorch_postgresql_sandbox
+  #     FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_PASS: fastapi_pytorch_postgresql_sandbox
+  #     FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_BASE: fastapi_pytorch_postgresql_sandbox
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
 
   redis:
     image: bitnami/redis:6.2.5

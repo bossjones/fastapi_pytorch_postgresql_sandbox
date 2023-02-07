@@ -59,7 +59,7 @@ dependencies:
   - invoke
   - logging_tree
   - loguru
-  - pydantic[email]
+  - pydantic[email,dotenv]
   - picklescan
   - git+https://github.com/openai/CLIP.git@main#egg=clip
   - git+https://github.com/Birch-san/k-diffusion.git@mps#egg=k-diffusion
@@ -71,11 +71,9 @@ dependencies:
   - watermark
   - pyfiglet
   - pynguin
-      # - memray
   - torch-tb-profiler
   - fastapi
   - uvicorn
-  - pydantic
   - yarl
   - ujson
   - ormar

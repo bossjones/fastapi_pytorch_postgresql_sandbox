@@ -1,6 +1,6 @@
-FROM python:3.9.6-slim-buster
+FROM python:3.10.9-bullseye
 RUN apt-get update && apt-get install -y \
-  gcc \
+  gcc build-essential cmake \
   && rm -rf /var/lib/apt/lists/*
 
 
