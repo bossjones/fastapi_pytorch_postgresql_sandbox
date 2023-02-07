@@ -1,5 +1,5 @@
-[tool.poetry]
-name = "fastapi_pytorch_postgresql_sandbox"
+# [tool.poetry]
+# name = "fastapi_pytorch_postgresql_sandbox"
 
 [tool.isort]
 profile = "black"

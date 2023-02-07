@@ -18,6 +18,7 @@ repos:
   rev: v2.1.0
   hooks:
   - id: pretty-format-yaml
+    exclude: ^.*meta.yaml$
     args:
     - --autofix
     - --preserve-quotes
