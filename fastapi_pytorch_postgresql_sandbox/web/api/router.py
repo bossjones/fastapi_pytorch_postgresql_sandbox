@@ -1,10 +1,9 @@
 from fastapi.routing import APIRouter
 
-from fastapi_pytorch_postgresql_sandbox.web.api import (
+from fastapi_pytorch_postgresql_sandbox.web.api import (  # kafka,
     docs,
     dummy,
     echo,
-    kafka,
     monitoring,
     rabbit,
     redis,
@@ -17,4 +16,4 @@ api_router.include_router(echo.router, prefix="/echo", tags=["echo"])
 api_router.include_router(dummy.router, prefix="/dummy", tags=["dummy"])
 api_router.include_router(redis.router, prefix="/redis", tags=["redis"])
 api_router.include_router(rabbit.router, prefix="/rabbit", tags=["rabbit"])
-api_router.include_router(kafka.router, prefix="/kafka", tags=["kafka"])
+# api_router.include_router(kafka.router, prefix="/kafka", tags=["kafka"])

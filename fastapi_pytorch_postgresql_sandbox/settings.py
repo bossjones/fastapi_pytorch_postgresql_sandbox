@@ -73,9 +73,9 @@ class Settings(BaseSettings):
     # E.G. http://localhost:4317
     opentelemetry_endpoint: Optional[str] = None
 
-    kafka_bootstrap_servers: list[str] = [
-        "fastapi_pytorch_postgresql_sandbox-kafka:9092",
-    ]
+    # kafka_bootstrap_servers: list[str] = [
+    #     "fastapi_pytorch_postgresql_sandbox-kafka:9092",
+    # ]
 
     @property
     def db_url(self) -> URL:

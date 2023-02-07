@@ -6,7 +6,8 @@ import pytest
 from aio_pika import Channel
 from aio_pika.abc import AbstractExchange, AbstractQueue
 from aio_pika.pool import Pool
-from aiokafka import AIOKafkaProducer
+
+# from aiokafka import AIOKafkaProducer
 from fakeredis import FakeServer
 from fakeredis.aioredis import FakeConnection
 from fastapi import FastAPI
@@ -16,13 +17,14 @@ from sqlalchemy.engine import create_engine
 
 from fastapi_pytorch_postgresql_sandbox.db.config import database
 from fastapi_pytorch_postgresql_sandbox.db.utils import create_database, drop_database
-from fastapi_pytorch_postgresql_sandbox.services.kafka.dependencies import (
-    get_kafka_producer,
-)
-from fastapi_pytorch_postgresql_sandbox.services.kafka.lifetime import (
-    init_kafka,
-    shutdown_kafka,
-)
+
+# from fastapi_pytorch_postgresql_sandbox.services.kafka.dependencies import (
+#     get_kafka_producer,
+# )
+# from fastapi_pytorch_postgresql_sandbox.services.kafka.lifetime import (
+#     init_kafka,
+#     shutdown_kafka,
+# )
 from fastapi_pytorch_postgresql_sandbox.services.rabbit.dependencies import (
     get_rmq_channel_pool,
 )
@@ -155,17 +157,17 @@ async def test_queue(
         await queue.delete(if_unused=False, if_empty=False)
 
 
-@pytest.fixture
-async def test_kafka_producer() -> AsyncGenerator[AIOKafkaProducer, None]:
-    """
-    Creates kafka's producer.
+# @pytest.fixture
+# async def test_kafka_producer() -> AsyncGenerator[AIOKafkaProducer, None]:
+#     """
+#     Creates kafka's producer.
 
-    :yields: kafka's producer.
-    """
-    app_mock = Mock()
-    await init_kafka(app_mock)
-    yield app_mock.state.kafka_producer
-    await shutdown_kafka(app_mock)
+#     :yields: kafka's producer.
+#     """
+#     app_mock = Mock()
+#     await init_kafka(app_mock)
+#     yield app_mock.state.kafka_producer
+#     await shutdown_kafka(app_mock)
 
 
 @pytest.fixture
@@ -188,7 +190,7 @@ async def fake_redis_pool() -> AsyncGenerator[ConnectionPool, None]:
 def fastapi_app(
     fake_redis_pool: ConnectionPool,
     test_rmq_pool: Pool[Channel],
-    test_kafka_producer: AIOKafkaProducer,
+    # test_kafka_producer: AIOKafkaProducer,
 ) -> FastAPI:
     """
     Fixture for creating FastAPI app.
@@ -198,7 +200,7 @@ def fastapi_app(
     application = get_app()
     application.dependency_overrides[get_redis_pool] = lambda: fake_redis_pool
     application.dependency_overrides[get_rmq_channel_pool] = lambda: test_rmq_pool
-    application.dependency_overrides[get_kafka_producer] = lambda: test_kafka_producer
+    # application.dependency_overrides[get_kafka_producer] = lambda: test_kafka_producer
     return application  # noqa: WPS331
 
 

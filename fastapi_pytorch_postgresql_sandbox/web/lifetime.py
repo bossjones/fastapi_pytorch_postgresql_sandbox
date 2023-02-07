@@ -20,10 +20,11 @@ from prometheus_fastapi_instrumentator.instrumentation import (
 )
 
 from fastapi_pytorch_postgresql_sandbox.db.config import database
-from fastapi_pytorch_postgresql_sandbox.services.kafka.lifetime import (
-    init_kafka,
-    shutdown_kafka,
-)
+
+# from fastapi_pytorch_postgresql_sandbox.services.kafka.lifetime import (
+#     init_kafka,
+#     shutdown_kafka,
+# )
 from fastapi_pytorch_postgresql_sandbox.services.rabbit.lifetime import (
     init_rabbit,
     shutdown_rabbit,
@@ -135,7 +136,7 @@ def register_startup_event(
         setup_opentelemetry(app)
         init_redis(app)
         init_rabbit(app)
-        await init_kafka(app)
+        # await init_kafka(app)
         setup_prometheus(app)
         pass  # noqa: WPS420
 
@@ -157,7 +158,7 @@ def register_shutdown_event(
         await database.disconnect()
         await shutdown_redis(app)
         await shutdown_rabbit(app)
-        await shutdown_kafka(app)
+        # await shutdown_kafka(app)
         stop_opentelemetry(app)
         pass  # noqa: WPS420
 
