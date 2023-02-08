@@ -1,3 +1,6 @@
+""" mlops """
+from __future__ import annotations
+
 import os
 import os.path
 
@@ -18,17 +21,14 @@ assert (
 ), "mlxtend verison should be 0.19.0 or higher"
 
 import argparse
-import os
-from itertools import product
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 import matplotlib
 import numpy as np
 
 # SOURCE: https://github.com/rasbt/deeplearning-models/blob/35aba5dc03c43bc29af5304ac248fc956e1361bf/pytorch_ipynb/helper_evaluate.py
 import torch
-import torch.nn.functional as F
 import torch.nn.parallel
 import torch.optim
 import torch.profiler
@@ -40,30 +40,29 @@ from mlxtend.plotting import plot_confusion_matrix
 from PIL import Image
 from torch.utils.tensorboard import SummaryWriter
 
+# # SOURCE: https://github.com/pytorch/vision/blob/main/references/classification/train.py
+# def _get_cache_path(filepath) -> str:
+#     """_summary_
 
-# SOURCE: https://github.com/pytorch/vision/blob/main/references/classification/train.py
-def _get_cache_path(filepath) -> str:
-    """_summary_
+#     Args:
+#         filepath (_type_): _description_
 
-    Args:
-        filepath (_type_): _description_
+#     Returns:
+#         str: _description_
+#     """
+#     import hashlib
 
-    Returns:
-        str: _description_
-    """
-    import hashlib
-
-    file_path_hash = hashlib.sha1(filepath.encode()).hexdigest()
-    cache_path = os.path.join(
-        "~",
-        ".torch",
-        "vision",
-        "datasets",
-        "imagefolder",
-        file_path_hash[:10] + ".pt",
-    )
-    cache_path = os.path.expanduser(cache_path)
-    return cache_path
+#     file_path_hash = hashlib.sha1(filepath.encode()).hexdigest()
+#     cache_path = os.path.join(
+#         "~",
+#         ".torch",
+#         "vision",
+#         "datasets",
+#         "imagefolder",
+#         file_path_hash[:10] + ".pt",
+#     )
+#     cache_path = os.path.expanduser(cache_path)
+#     return cache_path
 
 
 def get_pil_image_channels(image_path: str) -> int:
@@ -84,7 +83,7 @@ def get_pil_image_channels(image_path: str) -> int:
     return pil_img_tensor.shape[0]
 
 
-def convert_pil_image_to_rgb_channels(image_path: str):
+def convert_pil_image_to_rgb_channels(image_path: str) -> Image:
     """Convert Pil image to have the appropriate number of color channels
 
     Args:
@@ -169,7 +168,7 @@ def from_pil_image_to_plt_display(
 def create_writer(
     experiment_name: str,
     model_name: str,
-    extra: str = None,
+    extra: str | None = None,
 ) -> SummaryWriter:
     """Creates a torch.utils.tensorboard.writer.SummaryWriter() instance saving to a specific log_dir.
 
@@ -193,8 +192,8 @@ def create_writer(
         # The above is the same as:
         writer = SummaryWriter(log_dir="runs/2022-06-04/data_10_percent/effnetb2/5_epochs/")
     """
-    import os
-    from datetime import datetime
+    import os  # pylint: disable=import-outside-toplevel
+    from datetime import datetime  # pylint: disable=import-outside-toplevel
 
     # Get timestamp of current date (all experiments on certain day live in same folder)
     timestamp = datetime.now().strftime(
@@ -241,137 +240,137 @@ def show_confusion_matrix_helper(
         plt.show()
 
 
-def compute_accuracy(
-    model: torch.nn.Module,
-    data_loader: torch.utils.data.DataLoader,
-    device: str,
-):
-    """_summary_
+# def compute_accuracy(
+#     model: torch.nn.Module,
+#     data_loader: torch.utils.data.DataLoader,
+#     device: Union[str, torch.device],
+# ):
+#     """_summary_
 
-    Args:
-        model (torch.nn.Module): _description_
-        data_loader (torch.utils.data.DataLoader): _description_
-        device (str): _description_
+#     Args:
+#         model (torch.nn.Module): _description_
+#         data_loader (torch.utils.data.DataLoader): _description_
+#         device (str): _description_
 
-    Returns:
-        _type_: _description_
-    """
-    model.eval()
-    with torch.no_grad():
-        correct_pred, num_examples = 0, 0
-        for features, targets in data_loader:
-            features = features.to(device)
-            targets = targets.to(device)
+#     Returns:
+#         _type_: _description_
+#     """
+#     model.eval()
+#     with torch.no_grad():
+#         correct_pred, num_examples = 0, 0
+#         for features, targets in data_loader:
+#             features = features.to(device)
+#             targets = targets.to(device)
 
-            logits = model(features)
-            if isinstance(logits, torch.distributed.rpc.api.RRef):
-                logits = logits.local_value()
-            _, predicted_labels = torch.max(logits, 1)
-            num_examples += targets.size(0)
-            correct_pred += (predicted_labels == targets).sum()
-    return correct_pred.float() / num_examples * 100
-
-
-def compute_epoch_loss(
-    model: torch.nn.Module,
-    data_loader: torch.utils.data.DataLoader,
-    device: str,
-) -> Any | float | torch.Tensor:
-    """_summary_
-
-    Args:
-        model (torch.nn.Module): _description_
-        data_loader (torch.utils.data.DataLoader): _description_
-        device (str): _description_
-
-    Returns:
-        Any | float | torch.Tensor: _description_
-    """
-    model.eval()
-    curr_loss, num_examples = 0.0, 0
-    with torch.no_grad():
-        for features, targets in data_loader:
-            features = features.to(device)
-            targets = targets.to(device)
-            logits = model(features)
-            if isinstance(logits, torch.distributed.rpc.api.RRef):
-                logits = logits.local_value()
-            loss = F.cross_entropy(logits, targets, reduction="sum")
-            num_examples += targets.size(0)
-            curr_loss += loss
-
-        curr_loss = curr_loss / num_examples
-        return curr_loss
+#             logits = model(features)
+#             if isinstance(logits, torch.distributed.rpc.api.RRef):
+#                 logits = logits.local_value()
+#             _, predicted_labels = torch.max(logits, 1)
+#             num_examples += targets.size(0)
+#             correct_pred += (predicted_labels == targets).sum()
+#     return correct_pred.float() / num_examples * 100
 
 
-def compute_confusion_matrix(
-    model: torch.nn.Module,
-    data_loader: torch.utils.data.DataLoader,
-    device,
-):
-    """_summary_
+# def compute_epoch_loss(
+#     model: torch.nn.Module,
+#     data_loader: torch.utils.data.DataLoader,
+#     device: Union[str, torch.device],
+# ) -> Any | float | torch.Tensor:
+#     """_summary_
 
-    Args:
-        model (torch.nn.Module): _description_
-        data_loader (torch.utils.data.DataLoader): _description_
-        device (_type_): _description_
+#     Args:
+#         model (torch.nn.Module): _description_
+#         data_loader (torch.utils.data.DataLoader): _description_
+#         device (str): _description_
 
-    Returns:
-        _type_: _description_
-    """
+#     Returns:
+#         Any | float | torch.Tensor: _description_
+#     """
+#     model.eval()
+#     curr_loss, num_examples = 0.0, 0
+#     with torch.no_grad():
+#         for features, targets in data_loader:
+#             features = features.to(device)
+#             targets = targets.to(device)
+#             logits = model(features)
+#             if isinstance(logits, torch.distributed.rpc.api.RRef):
+#                 logits = logits.local_value()
+#             loss = F.cross_entropy(logits, targets, reduction="sum")
+#             num_examples += targets.size(0)
+#             curr_loss += loss
 
-    all_targets, all_predictions = [], []
-    with torch.no_grad():
-        for features, targets in data_loader:
-            features = features.to(device)
-            targets = targets
-            logits = model(features)
-            _, predicted_labels = torch.max(logits, 1)
-            all_targets.extend(targets.to("cpu"))
-            all_predictions.extend(predicted_labels.to("cpu"))
-
-    all_predictions = all_predictions
-    all_predictions = np.array(all_predictions)
-    all_targets = np.array(all_targets)
-
-    class_labels = np.unique(np.concatenate((all_targets, all_predictions)))
-    if class_labels.shape[0] == 1:
-        if class_labels[0] != 0:
-            class_labels = np.array([0, class_labels[0]])
-        else:
-            class_labels = np.array([class_labels[0], 1])
-    n_labels = class_labels.shape[0]
-    z = list(zip(all_targets, all_predictions))
-    lst = [z.count(combi) for combi in product(class_labels, repeat=2)]
-    return np.asarray(lst)[:, None].reshape(n_labels, n_labels)
+#         curr_loss = curr_loss / num_examples
+#         return curr_loss
 
 
-def run_confusion_matrix(
-    model: torch.nn.Module,
-    test_dataloader: torch.utils.data.DataLoader,
-    device: torch.device,
-    class_names: List[str],
-) -> None:
-    """_summary_
+# def compute_confusion_matrix(
+#     model: torch.nn.Module,
+#     data_loader: torch.utils.data.DataLoader,
+#     device: Union[str, torch.device],
+# ) -> np.ndarray[Any, np.dtype]:
+#     """_summary_
 
-    Args:
-        model (torch.nn.Module): _description_
-        test_dataloader (torch.utils.data.DataLoader): _description_
-        device (torch.device): _description_
-        class_names (List[str]): _description_
-    """
+#     Args:
+#         model (torch.nn.Module): _description_
+#         data_loader (torch.utils.data.DataLoader): _description_
+#         device (_type_): _description_
 
-    cmat = compute_confusion_matrix(model, test_dataloader, device)
+#     Returns:
+#         _type_: _description_
+#     """
 
-    # cmat, type(cmat)
+#     all_targets, all_predictions = [], []
+#     with torch.no_grad():
+#         for features, targets in data_loader:
+#             features = features.to(device)
+#             targets = targets
+#             logits = model(features)
+#             _, predicted_labels = torch.max(logits, 1)
+#             all_targets.extend(targets.to("cpu"))
+#             all_predictions.extend(predicted_labels.to("cpu"))
 
-    show_confusion_matrix_helper(cmat, class_names)
+#     all_predictions = all_predictions
+#     all_predictions = np.array(all_predictions)
+#     all_targets = np.array(all_targets)
+
+#     class_labels = np.unique(np.concatenate((all_targets, all_predictions)))
+#     if class_labels.shape[0] == 1:
+#         if class_labels[0] != 0:
+#             class_labels = np.array([0, class_labels[0]])
+#         else:
+#             class_labels = np.array([class_labels[0], 1])
+#     n_labels = class_labels.shape[0]
+#     zipped = list(zip(all_targets, all_predictions))
+#     lst = [zipped.count(combi) for combi in product(class_labels, repeat=2)]
+#     return np.asarray(lst)[:, None].reshape(n_labels, n_labels)
+
+
+# def run_confusion_matrix(
+#     model: torch.nn.Module,
+#     test_dataloader: torch.utils.data.DataLoader,
+#     device: Union[str, torch.device],
+#     class_names: List[str],
+# ) -> None:
+#     """_summary_
+
+#     Args:
+#         model (torch.nn.Module): _description_
+#         test_dataloader (torch.utils.data.DataLoader): _description_
+#         device (torch.device): _description_
+#         class_names (List[str]): _description_
+#     """
+
+#     cmat = compute_confusion_matrix(model, test_dataloader, device)
+
+#     # cmat, type(cmat)
+
+#     show_confusion_matrix_helper(cmat, class_names)
 
 
 # def run_validate(
 #     model: torch.nn.Module,
 #     test_dataloader: torch.utils.data.DataLoader,
-#     device: torch.device,
+#     device: Union[str, torch.device],
 #     loss_fn: torch.nn.Module,
 # ):
 #     print(" Running in evaluate mode ...")

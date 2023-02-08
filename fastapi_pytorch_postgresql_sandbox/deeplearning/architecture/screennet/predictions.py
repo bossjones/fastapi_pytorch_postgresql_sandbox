@@ -12,6 +12,9 @@ from icecream import ic
 from rich import print
 from tqdm.auto import tqdm
 
+# from types import NoneType
+
+
 # import devices  # pylint: disable=import-error
 
 
@@ -47,7 +50,7 @@ assert (
 import argparse
 from pathlib import Path
 from timeit import default_timer as timer
-from typing import Dict, List
+from typing import Dict, List, Union
 from urllib.parse import urlparse
 
 import requests
@@ -82,7 +85,7 @@ def pred_and_store(
     model: torch.nn.Module,
     transform: torchvision.transforms,
     class_names: List[str],
-    device: torch.device = "",
+    device: Union[str, torch.device] = "",
 ) -> List[Dict]:
     """_summary_
 
@@ -164,9 +167,9 @@ def predict_from_dir(
     model: torch.nn.Module,
     transforms: torchvision.transforms,
     class_names: List[str],
-    device: torch.device,
+    device: Union[str, torch.device],
     args: argparse.Namespace,
-):
+) -> None:
     """wrapper function to perform predictions on individual files
 
     Args:
@@ -199,9 +202,9 @@ def predict_from_file(
     model: torch.nn.Module,
     transforms: torchvision.transforms,
     class_names: List[str],
-    device: torch.device,
+    device: Union[str, torch.device],
     args: argparse.Namespace,
-):
+) -> None:
     """wrapper function to perform predictions on individual files
 
     Args:
@@ -258,7 +261,7 @@ def download_and_predict(
     model: torch.nn.Module,
     data_path: pathlib.PosixPath,
     class_names: List[str],
-    device: torch.device = None,
+    device: Union[str, torch.device, None] = None,
 ) -> None:
     """_summary_
 
@@ -270,7 +273,7 @@ def download_and_predict(
         device (torch.device, optional): _description_. Defaults to None.
     """
     # Download custom image
-    urlparse(url).path
+    # urlparse(url).path
     fname = Path(urlparse(url).path).name
 
     # Setup custom image path

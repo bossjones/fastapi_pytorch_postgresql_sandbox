@@ -24,39 +24,39 @@ repos:
     - --preserve-quotes
     - --indent=2
 
-# - repo: https://github.com/sourcery-ai/sourcery
-#   rev: v1.0.4
-#   hooks:
-#   - id: sourcery
-#       # The best way to use Sourcery in a pre-commit hook:
-#       # * review only changed lines:
-#       # * omit the summary
-#     args: [--diff=git diff HEAD, --no-summary]
+- repo: https://github.com/sourcery-ai/sourcery
+  rev: v1.0.4
+  hooks:
+  - id: sourcery
+      # The best way to use Sourcery in a pre-commit hook:
+      # * review only changed lines:
+      # * omit the summary
+    args: [--diff=git diff HEAD, --no-summary]
 
 # - repo: local
 #   hooks:
 #   - id: black
 #     name: Format with Black
-#     entry: poetry run black
+#     entry: black
 #     language: system
 #     types: [python]
 
 #   - id: autoflake
 #     name: autoflake
-#     entry: poetry run autoflake
+#     entry: autoflake
 #     language: system
 #     types: [python]
 #     args: [--in-place, --remove-all-unused-imports, --remove-duplicate-keys]
 
 #   - id: isort
 #     name: isort
-#     entry: poetry run isort
+#     entry: isort
 #     language: system
 #     types: [python]
 
 #   - id: flake8
 #     name: Check with Flake8
-#     entry: poetry run flake8
+#     entry: flake8
 #     language: system
 #     pass_filenames: false
 #     types: [python]
@@ -64,7 +64,7 @@ repos:
 
 #   - id: mypy
 #     name: Validate types with MyPy
-#     entry: poetry run mypy
+#     entry: mypy
 #     language: system
 #     types: [python]
 #     pass_filenames: false

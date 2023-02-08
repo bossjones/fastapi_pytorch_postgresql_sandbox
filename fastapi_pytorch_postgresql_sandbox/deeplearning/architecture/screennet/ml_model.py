@@ -19,8 +19,6 @@ assert (
 
 # Continue with regular imports
 import mlxtend
-import torch
-import torchvision
 from torch import nn
 
 from fastapi_pytorch_postgresql_sandbox.deeplearning.architecture.screennet.config import (
@@ -32,7 +30,7 @@ assert (
 ), "mlxtend verison should be 0.19.0 or higher"
 
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Union
 
 import numpy as np
 
@@ -45,6 +43,8 @@ import torch.profiler
 import torch.utils.data
 import torch.utils.data.distributed
 import torchvision.models as models
+from torch.nn import CrossEntropyLoss
+from torch.optim import Adam
 
 # SOURCE: https://github.com/pytorch/pytorch/issues/78924
 torch.set_num_threads(1)
@@ -100,7 +100,7 @@ def validate_seed(seed: int) -> None:
 
 # boss: use this to instantiate a new model class with all the proper setup as before
 def create_effnetb0_model(
-    device: str,
+    device: Union[str, torch.device],
     class_names: List[str],
     settings: Settings,
 ) -> torch.nn.Module:
@@ -124,8 +124,9 @@ def create_effnetb0_model(
     for param in model.features.parameters():
         param.requires_grad = False
 
-    # Set the manual seeds
-    validate_seed(settings.seed)
+    if settings.seed:
+        # Set the manual seeds
+        validate_seed(settings.seed)
 
     # Get the length of class_names (one output unit for each class)
     output_shape = len(class_names)
@@ -148,7 +149,9 @@ def create_effnetb0_model(
 
 
 # wrapper function of common code
-def run_save_model_for_inference(model: torch.nn.Module) -> Tuple[pathlib.PosixPath]:
+def run_save_model_for_inference(
+    model: torch.nn.Module,
+) -> pathlib.Path:
     """Save model to disk
 
     Args:
@@ -166,9 +169,9 @@ def run_save_model_for_inference(model: torch.nn.Module) -> Tuple[pathlib.PosixP
 # wrapper function of common code
 def run_get_model_for_inference(
     model: torch.nn.Module,
-    device: torch.device,
+    device: Union[str, torch.device],
     class_names: List[str],
-    path_to_model: pathlib.PosixPath,
+    path_to_model: str,
     settings: Settings,
 ) -> torch.nn.Module:
     """wrapper function to load model .pth file from disk
@@ -225,7 +228,7 @@ def save_model_to_disk(my_model_name: str, model: torch.nn.Module) -> Path:
 # NOTE: https://pytorch.org/tutorials/beginner/saving_loading_models.html#saving-loading-model-for-inference
 def load_model_for_inference(
     save_path: str,
-    device: str,
+    device: Union[str, torch.device],
     class_names: List[str],
     settings: Settings,
 ) -> nn.Module:
@@ -285,6 +288,8 @@ class ImageClassifier:
         Args:
             seed (_type_, optional): _description_. Defaults to None.
         """
+        self.loss_fn: Union[None, CrossEntropyLoss] = None
+        self.optimizer: Union[None, Adam] = None
         self.class_names: List[str] = settings.class_names
         self.path_to_model: str = path_to_model
         self.settings: Settings = settings
@@ -296,6 +301,8 @@ class ImageClassifier:
         )
         self.model.name = settings.arch
 
+        self.load_model(pretrained=True)
+
     # def predict(self):
 
     def load_base_model(self) -> None:
@@ -303,7 +310,8 @@ class ImageClassifier:
 
     def set_seed(self) -> None:
         """_summary_"""
-        validate_seed(settings.seed)
+        if self.settings.seed:
+            validate_seed(self.settings.seed)
 
     # def load_weigths(self) -> None:
     #     """_summary_"""
@@ -331,11 +339,9 @@ class ImageClassifier:
             model = models.__dict__[settings.arch](weights=weights).to(device)
         else:
             ic(f"=> creating model '{settings.arch}'")
-            # breakpoint()
-            # weights = models.__dict__[settings.model_weights].DEFAULT.to(device)
-            # auto_transforms = weights.transforms()
             model = models.__dict__[settings.arch]()
-        model.name = settings.arch
+            model.name = settings.arch
+
         # Freeze all base layers in the "features" section of the model (the feature extractor) by setting requires_grad=False
         for param in model.features.parameters():
             param.requires_grad = False
@@ -355,9 +361,12 @@ class ImageClassifier:
 
         ic(next(model.parameters()).device)
 
-        nn.CrossEntropyLoss()
+        loss_fn: CrossEntropyLoss = nn.CrossEntropyLoss()
 
-        optimizer = torch.optim.Adam(model.parameters(), lr=settings.lr)
+        optimizer: Adam = torch.optim.Adam(model.parameters(), lr=settings.lr)
+
+        self.loss_fn = loss_fn
+        self.optimizer = optimizer
 
         # this is the part we really need
         if settings.weights:
@@ -371,31 +380,31 @@ class ImageClassifier:
                 settings,
             )
 
-    def configure_optimal_settings(self) -> None:
-        """_summary_"""
-        if not torch.cuda.is_available() and not torch.backends.mps.is_available():
-            ic("using CPU, this will be slow")
-        elif settings.gpu is not None and torch.cuda.is_available():
-            ic("GPU enabled")
-            torch.cuda.set_device(settings.gpu)
-            model = model.cuda(settings.gpu)
-        elif torch.backends.mps.is_available():
-            ic("MPS mode enabled")
-            device = torch.device("mps")
-            model = model.to(device)
-        elif settings.arch.startswith("alexnet") or settings.arch.startswith("vgg"):
-            ic(f"Using alexnet or vgg -> {settings.arch}")
-            model.features = torch.nn.DataParallel(model.features)
-            model.cuda()
-        else:
-            model = torch.nn.DataParallel(model).cuda()
+    # def configure_optimal_settings(self) -> None:
+    #     """_summary_"""
+    #     if not torch.cuda.is_available() and not torch.backends.mps.is_available():
+    #         ic("using CPU, this will be slow")
+    #     elif settings.gpu is not None and torch.cuda.is_available():
+    #         ic("GPU enabled")
+    #         torch.cuda.set_device(settings.gpu)
+    #         model = model.cuda(settings.gpu)
+    #     elif torch.backends.mps.is_available():
+    #         ic("MPS mode enabled")
+    #         device = torch.device("mps")
+    #         model = model.to(device)
+    #     elif settings.arch.startswith("alexnet") or settings.arch.startswith("vgg"):
+    #         ic(f"Using alexnet or vgg -> {settings.arch}")
+    #         model.features = torch.nn.DataParallel(model.features)
+    #         model.cuda()
+    #     else:
+    #         model = torch.nn.DataParallel(model).cuda()
 
-        if torch.cuda.is_available():
-            if settings.gpu:
-                device = torch.device(f"cuda:{settings.gpu}")
-            else:
-                device = torch.device("cuda")
-        elif torch.backends.mps.is_available():
-            device = torch.device("mps")
-        else:
-            device = torch.device("cpu")
+    #     if torch.cuda.is_available():
+    #         if settings.gpu:
+    #             device = torch.device(f"cuda:{settings.gpu}")
+    #         else:
+    #             device = torch.device("cuda")
+    #     elif torch.backends.mps.is_available():
+    #         device = torch.device("mps")
+    #     else:
+    #         device = torch.device("cpu")

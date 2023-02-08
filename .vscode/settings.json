@@ -5,6 +5,13 @@
     "--rcfile",
     "${workspaceFolder}/lint-configs-python/python/pylintrc"
   ],
+  "python.linting.mypyCategorySeverity.error": "Error",
+  "python.linting.mypyCategorySeverity.note": "Warning",
+  "python.linting.pylintCategorySeverity.warning": "Warning",
+  "python.linting.pylintCategorySeverity.error": "Error",
+  "python.linting.pylintCategorySeverity.convention": "Warning",
+  "python.linting.pylintCategorySeverity.fatal": "Error",
+  "python.linting.pylintCategorySeverity.refactor": "Warning",
   "python.analysis.completeFunctionParens": true,
   "python.analysis.indexing": true,
   "python.linting.pylintEnabled": true,
@@ -27,6 +34,8 @@
     "reportUnusedFunction": "warning",
     "reportUnusedClass": "warning",
   },
+  "editor.formatOnSave": true,
+  "python.linting.lintOnSave": true,
   "[python]": {
     "editor.tabSize": 4,
     "editor.formatOnSave": true,
@@ -58,7 +67,9 @@
     "--settings-file",
     "pyproject.toml",
     "--extend-skip-glob",
-    "*/site-packages/*"
+    "*/site-packages/*",
+    "--profile",
+    "black"
   ],
   "python.defaultInterpreterPath": "~/.pyenv/versions/anaconda3-2022.05/envs/fastapi_pytorch_postgresql_sandbox3/bin/python3",
   "output.smartScroll.enabled": true,
@@ -150,14 +161,15 @@
     }
   ],
   "python.linting.mypyEnabled": true,
+  // "python.linting.mypyCategorySeverity.note": "Information",
+  // "python.linting.mypyCategorySeverity.error": "Error",
   "python.linting.mypyArgs": [
-    "--follow-imports=silent",
-    "--ignore-missing-imports",
+    // "--follow-imports=silent",
+    // "--ignore-missing-imports",
     "--show-column-numbers",
     "--no-pretty",
-    "--exclude '(contrib|fastapi_pytorch_postgresql_sandbox*)/$'",
-    "--config-file ./lint-configs-python/python/mypy.ini"
+    // "--exclude '(contrib|fastapi_pytorch_postgresql_sandbox*)/$'",
+    "--config-file=${workspaceFolder}/lint-configs-python/python/mypy.ini"
   ],
-  "isort.check": true
-
+  "isort.check": true,
 }

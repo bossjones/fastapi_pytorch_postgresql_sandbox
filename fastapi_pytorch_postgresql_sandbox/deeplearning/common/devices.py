@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 # SOURCE: https://github.com/socialhourmobile/SD-hassan-ns/blob/3b6b266b17e0fd0a9b17374cd2afbf4c59b7c245/modules/devices.py
-import contextlib
 from typing import Optional, Union
 
 import torch
@@ -90,61 +89,61 @@ dtype = torch.float16
 dtype_vae = torch.float16
 
 
-def randn(seed: int, shape: int) -> torch.Tensor:
-    """_summary_
+# def randn(seed: int, shape: int) -> torch.Tensor:
+#     """_summary_
 
-    Args:
-        seed (int): _description_
-        shape (int): _description_
+#     Args:
+#         seed (int): _description_
+#         shape (int): _description_
 
-    Returns:
-        torch.Tensor: _description_
-    """
-    # Pytorch currently doesn't handle setting randomness correctly when the metal backend is used.
-    if device.type == "mps":
-        generator = torch.Generator(device=cpu)
-        generator.manual_seed(seed)
-        return torch.randn(shape, generator=generator, device=cpu).to(device)
-    torch.manual_seed(seed)
-    return torch.randn(shape, device=device)
+#     Returns:
+#         torch.Tensor: _description_
+#     """
+#     # Pytorch currently doesn't handle setting randomness correctly when the metal backend is used.
+#     if device.type == "mps":
+#         generator = torch.Generator(device=cpu)
+#         generator.manual_seed(seed)
+#         return torch.randn(shape, generator=generator, device=cpu).to(device)
+#     torch.manual_seed(seed)
+#     return torch.randn(shape, device=device)
+
+# # SOURCE: https://github.com/socialhourmobile/SD-hassan-ns/blob/3b6b266b17e0fd0a9b17374cd2afbf4c59b7c245/modules/processing.py
+# def randn_without_seed(shape: int) -> torch.Tensor:
+#     """_summary_
+
+#     Args:
+#         shape (int): _description_
+
+#     Returns:
+#         _type_: _description_
+#     """
+#     # Pytorch currently doesn't handle setting randomness correctly when the metal backend is used.
+#     if device.type == "mps":
+#         generator = torch.Generator(device=cpu)
+#         return torch.randn(shape, generator=generator, device=cpu).to(device)
+#     return torch.randn(shape, device=device)
 
 
-def randn_without_seed(shape: int) -> torch.Tensor:
-    """_summary_
+# # SOURCE: https://github.com/socialhourmobile/SD-hassan-ns/blob/3b6b266b17e0fd0a9b17374cd2afbf4c59b7c245/modules/shared.py#L42
+# def autocast(disable=False, precision: str = "autocast"):
+#     """_summary_
 
-    Args:
-        shape (int): _description_
+#     Args:
+#         precision (str): Options include ["full", "autocast"]
+#         disable (bool, optional): _description_. Defaults to False.
 
-    Returns:
-        _type_: _description_
-    """
-    # Pytorch currently doesn't handle setting randomness correctly when the metal backend is used.
-    if device.type == "mps":
-        generator = torch.Generator(device=cpu)
-        return torch.randn(shape, generator=generator, device=cpu).to(device)
-    return torch.randn(shape, device=device)
+#     Returns:
+#         _type_: _description_
+#     """
+#     # from modules import shared
 
+#     if disable:
+#         return contextlib.nullcontext()
 
-# SOURCE: https://github.com/socialhourmobile/SD-hassan-ns/blob/3b6b266b17e0fd0a9b17374cd2afbf4c59b7c245/modules/shared.py#L42
-def autocast(disable=False, precision: str = "autocast"):
-    """_summary_
+#     if dtype == torch.float32 or precision == "full":
+#         return contextlib.nullcontext()
 
-    Args:
-        precision (str): Options include ["full", "autocast"]
-        disable (bool, optional): _description_. Defaults to False.
-
-    Returns:
-        _type_: _description_
-    """
-    # from modules import shared
-
-    if disable:
-        return contextlib.nullcontext()
-
-    if dtype == torch.float32 or precision == "full":
-        return contextlib.nullcontext()
-
-    return torch.autocast("cuda")
+#     return torch.autocast("cuda")
 
 
 # MPS workaround for https://github.com/pytorch/pytorch/issues/79383
@@ -161,7 +160,7 @@ def mps_contiguous(input_tensor: torch.Tensor, device: torch.device) -> torch.Te
     return input_tensor.contiguous() if device.type == "mps" else input_tensor
 
 
-def mps_contiguous_to(input_tensor: torch.Tensor, device: torch.device):
+def mps_contiguous_to(input_tensor: torch.Tensor, device: torch.device) -> torch.Tensor:
     """_summary_
 
     Args:
@@ -216,6 +215,7 @@ def seed_everything(seed: int) -> None:
         seed (int): _description_
     """
     # Ref: https://gist.github.com/ihoromi4/b681a9088f348942b01711f251e5f964
+    # pylint: disable=import-outside-toplevel
     import os
     import random
 

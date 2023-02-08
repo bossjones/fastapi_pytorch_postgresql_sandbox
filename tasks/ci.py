@@ -3,6 +3,7 @@ ci tasks
 """
 import logging
 import sys
+from typing import Union
 
 import click
 from invoke import call, task
@@ -138,7 +139,7 @@ def mypy(ctx, loc="local", verbose=0):
 
 
 @task(incrementable=["verbose"])
-def sourcery(ctx, loc: str = "local", verbose: bool = 0):
+def sourcery(ctx, loc: str = "local", verbose: Union[bool, int] = 0):
     """
     sourcery pytorch_lab folder
     Usage: inv ci.sourcery
@@ -603,7 +604,7 @@ def autoflake(
     check=False,
     dry_run=False,
     in_place=False,
-    remove_all_unused_imports=False,
+    remove_all_unused_imports=True,
 ):
     """
     Use autoflake to remove unused imports, recursively, remove unused variables, and exclude __init__.py
@@ -625,7 +626,8 @@ def autoflake(
         ctx.config["run"]["env"][k] = v
 
     _cmd = (
-        "autoflake" + " --recursive --remove-unused-variables --remove-duplicate-keys"
+        "autoflake"
+        + " -v --recursive --remove-unused-variables --remove-duplicate-keys"
     )
     if remove_all_unused_imports:
         _cmd += " --remove-all-unused-imports "
@@ -638,7 +640,7 @@ def autoflake(
 
     _cmd += " --exclude=__init__.py"
     _cmd += " fastapi_pytorch_postgresql_sandbox"
-    _cmd += " fastapi_pytorch_postgresql_sandbox/tests"
+    # _cmd += " fastapi_pytorch_postgresql_sandbox/tests"
     _cmd += " tasks"
 
     if verbose >= 1:
@@ -708,7 +710,7 @@ def clean_pyi(ctx, loc="local", verbose=0, dry_run=False):
     ],
     incrementable=["verbose"],
 )
-def lint(ctx, loc="local", check=True, debug=False, verbose=0):
+def lint(ctx, loc="local", check=False, debug=False, verbose=0):
     """
     Run all static analysis[mypy,autoflake,black,isort,black,mypy,pytest]
     Usage: inv ci.lint
