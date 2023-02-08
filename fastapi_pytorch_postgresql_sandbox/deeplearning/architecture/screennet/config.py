@@ -5,29 +5,17 @@ import os
 import os.path
 import pathlib
 
-import better_exceptions
-import bpdb
-import pandas as pd
-
-# import devices  # pylint: disable=import-error
-import rich
-
 # ---------------------------------------------------------------------------
 import torch
 import torchvision
-from icecream import ic
-from rich import box, inspect, print
-from rich.console import Console
-from rich.table import Table
-from torchvision import datasets, transforms
-from tqdm.auto import tqdm
+
+# import devices  # pylint: disable=import-error
+
 
 # ---------------------------------------------------------------------------
 # Import rich and whatever else we need
 # %load_ext rich
 # %matplotlib inline
-
-
 
 
 # better_exceptions.hook()
@@ -45,14 +33,9 @@ assert (
 # ---------------------------------------------------------------------------
 
 # Continue with regular imports
-import matplotlib.pyplot as plt
 import mlxtend
 import torch
-import torchmetrics
 import torchvision
-from torch import nn
-from torchinfo import summary
-from torchvision import transforms
 
 # breakpoint()
 # from going_modular import data_setup, engine, utils  # pylint: disable=no-name-in-module
@@ -66,23 +49,10 @@ assert (
 ), "mlxtend verison should be 0.19.0 or higher"
 
 import os
-from itertools import product
 from pathlib import Path
-
-import fastai
-import matplotlib
-import numpy as np
-import numpy.typing as npt
-import PIL
-import requests
 
 # SOURCE: https://github.com/rasbt/deeplearning-models/blob/35aba5dc03c43bc29af5304ac248fc956e1361bf/pytorch_ipynb/helper_evaluate.py
 import torch
-import torch.backends.cudnn as cudnn
-import torch.distributed as dist
-import torch.multiprocessing as mp
-import torch.nn as nn
-import torch.nn.functional as F
 import torch.nn.parallel
 import torch.optim
 
@@ -94,18 +64,7 @@ import torch.optim
 import torch.profiler
 import torch.utils.data
 import torch.utils.data.distributed
-import torchvision.datasets as datasets
 import torchvision.models as models
-import torchvision.transforms as transforms
-import torchvision.transforms.functional as pytorch_transforms_functional
-from fastai.data.transforms import get_image_files
-from mlxtend.plotting import plot_confusion_matrix
-from PIL import Image
-from torch.optim.lr_scheduler import StepLR
-from torch.utils.data import Subset
-from torch.utils.tensorboard import SummaryWriter
-from torchmetrics import ConfusionMatrix
-from watermark import watermark
 
 model_names = sorted(
     name

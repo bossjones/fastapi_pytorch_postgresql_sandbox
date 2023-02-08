@@ -9,13 +9,7 @@ from invoke import call, task
 from tasks.utils import get_compose_env
 
 from .ml_logger import get_logger  # noqa: E402
-from .utils import (
-    COLOR_CAUTION,
-    COLOR_DANGER,
-    COLOR_STABLE,
-    COLOR_SUCCESS,
-    COLOR_WARNING,
-)
+from .utils import COLOR_CAUTION, COLOR_SUCCESS
 
 LOGGER = get_logger(__name__, provider="Invoke CI", level=logging.INFO)
 
@@ -102,19 +96,19 @@ def pylint(
 
     if tests:
         ctx.run(
-            "pylint --output-format=colorized --disable=all --enable=F,E --rcfile ./lint-configs-python/python/pylintrc tests",
+            "pylint --output-format=colorized --disable=all --enable=F,E --rcfile ./lint-configs-python/python/pylintrc fastapi_pytorch_postgresql_sandbox/tests",
         )
     elif everything:
         ctx.run(
-            "pylint --output-format=colorized --rcfile ./lint-configs-python/python/pylintrc tests fastapi_pytorch_postgresql_sandbox",
+            "pylint --output-format=colorized --rcfile ./lint-configs-python/python/pylintrc fastapi_pytorch_postgresql_sandbox/tests fastapi_pytorch_postgresql_sandbox",
         )
     elif specific:
         ctx.run(
-            f"pylint --output-format=colorized --disable=all --enable={specific} --rcfile ./lint-configs-python/python/pylintrc tests fastapi_pytorch_postgresql_sandbox",
+            f"pylint --output-format=colorized --disable=all --enable={specific} --rcfile ./lint-configs-python/python/pylintrc fastapi_pytorch_postgresql_sandbox/tests fastapi_pytorch_postgresql_sandbox",
         )
     elif error_only:
         ctx.run(
-            "pylint --output-format=colorized --disable=all --enable=F,E --rcfile ./lint-configs-python/python/pylintrc tests fastapi_pytorch_postgresql_sandbox",
+            "pylint --output-format=colorized --disable=all --enable=F,E --rcfile ./lint-configs-python/python/pylintrc fastapi_pytorch_postgresql_sandbox/tests fastapi_pytorch_postgresql_sandbox",
         )
     else:
         ctx.run(
@@ -139,7 +133,7 @@ def mypy(ctx, loc="local", verbose=0):
 
     # ctx.run("mypy --config-file ./lint-configs-python/python/mypy.ini pytorch_lab tests")
     ctx.run(
-        "mypy --config-file ./lint-configs-python/python/mypy.ini fastapi_pytorch_postgresql_sandbox tests",
+        "mypy --config-file ./lint-configs-python/python/mypy.ini fastapi_pytorch_postgresql_sandbox",
     )
 
 
@@ -190,7 +184,7 @@ def black(ctx, loc="local", check=False, debug=False, verbose=0, tests=False):
         _cmd += "--verbose "
 
     if tests:
-        _cmd += "tests tasks "
+        _cmd += "fastapi_pytorch_postgresql_sandbox/tests tasks "
 
     _cmd += "fastapi_pytorch_postgresql_sandbox"
 
@@ -263,7 +257,9 @@ def isort(ctx, loc="local", check=False, dry_run=False, verbose=0, diff=False):
     if verbose >= 2:
         _cmd += " --verbose"
 
-    _cmd += " fastapi_pytorch_postgresql_sandbox tests"
+    _cmd += (
+        " fastapi_pytorch_postgresql_sandbox fastapi_pytorch_postgresql_sandbox/tests"
+    )
 
     if verbose >= 1:
         msg = f"{_cmd}"
@@ -535,7 +531,7 @@ def monkeytype(
 
     if test:
         # NOTE: https://monkeytype.readthedocs.io/en/stable/faq.html#why-did-my-test-coverage-measurement-stop-working
-        _cmd = r"""monkeytype run "`command -v pytest`" --no-cov --verbose --mypy --showlocals --tb=short tests"""
+        _cmd = r"""monkeytype run "`command -v pytest`" --no-cov --verbose --mypy --showlocals --tb=short fastapi_pytorch_postgresql_sandbox/tests"""
 
         if verbose >= 1:
             msg = f"{_cmd}"
@@ -642,7 +638,7 @@ def autoflake(
 
     _cmd += " --exclude=__init__.py"
     _cmd += " fastapi_pytorch_postgresql_sandbox"
-    _cmd += " tests"
+    _cmd += " fastapi_pytorch_postgresql_sandbox/tests"
     _cmd += " tasks"
 
     if verbose >= 1:

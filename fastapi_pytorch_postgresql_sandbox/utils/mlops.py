@@ -1,27 +1,17 @@
 import os
 import os.path
 
-import better_exceptions
-import bpdb
-
 # Continue with regular imports
 import matplotlib.pyplot as plt
 import mlxtend
 import pandas as pd
-import rich
 
 # ---------------------------------------------------------------------------
 import torch
-import torchmetrics
-import torchvision
 from icecream import ic
-from rich import box, inspect, print
-from rich.console import Console
+from rich import box, print
 from rich.table import Table
-from torch import nn
-from torchinfo import summary
-from torchvision import datasets, transforms
-from tqdm.auto import tqdm
+from torchvision import transforms
 
 assert (
     int(mlxtend.__version__.split(".")[1]) >= 19
@@ -33,37 +23,22 @@ from itertools import product
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-import fastai
 import matplotlib
 import numpy as np
-import numpy.typing as npt
-import PIL
-import requests
 
 # SOURCE: https://github.com/rasbt/deeplearning-models/blob/35aba5dc03c43bc29af5304ac248fc956e1361bf/pytorch_ipynb/helper_evaluate.py
 import torch
-import torch.backends.cudnn as cudnn
-import torch.distributed as dist
-import torch.multiprocessing as mp
-import torch.nn as nn
 import torch.nn.functional as F
 import torch.nn.parallel
 import torch.optim
 import torch.profiler
 import torch.utils.data
 import torch.utils.data.distributed
-import torchvision.datasets as datasets
-import torchvision.models as models
 import torchvision.transforms as transforms
 import torchvision.transforms.functional as pytorch_transforms_functional
-from fastai.data.transforms import get_image_files
 from mlxtend.plotting import plot_confusion_matrix
 from PIL import Image
-from torch.optim.lr_scheduler import StepLR
-from torch.utils.data import Subset
 from torch.utils.tensorboard import SummaryWriter
-from torchmetrics import ConfusionMatrix
-from watermark import watermark
 
 
 # SOURCE: https://github.com/pytorch/vision/blob/main/references/classification/train.py
@@ -80,7 +55,12 @@ def _get_cache_path(filepath) -> str:
 
     file_path_hash = hashlib.sha1(filepath.encode()).hexdigest()
     cache_path = os.path.join(
-        "~", ".torch", "vision", "datasets", "imagefolder", file_path_hash[:10] + ".pt",
+        "~",
+        ".torch",
+        "vision",
+        "datasets",
+        "imagefolder",
+        file_path_hash[:10] + ".pt",
     )
     cache_path = os.path.expanduser(cache_path)
     return cache_path
@@ -187,7 +167,9 @@ def from_pil_image_to_plt_display(
 
 
 def create_writer(
-    experiment_name: str, model_name: str, extra: str = None,
+    experiment_name: str,
+    model_name: str,
+    extra: str = None,
 ) -> SummaryWriter:
     """Creates a torch.utils.tensorboard.writer.SummaryWriter() instance saving to a specific log_dir.
 
@@ -260,7 +242,9 @@ def show_confusion_matrix_helper(
 
 
 def compute_accuracy(
-    model: torch.nn.Module, data_loader: torch.utils.data.DataLoader, device: str,
+    model: torch.nn.Module,
+    data_loader: torch.utils.data.DataLoader,
+    device: str,
 ):
     """_summary_
 
@@ -289,7 +273,9 @@ def compute_accuracy(
 
 
 def compute_epoch_loss(
-    model: torch.nn.Module, data_loader: torch.utils.data.DataLoader, device: str,
+    model: torch.nn.Module,
+    data_loader: torch.utils.data.DataLoader,
+    device: str,
 ) -> Any | float | torch.Tensor:
     """_summary_
 
@@ -319,7 +305,9 @@ def compute_epoch_loss(
 
 
 def compute_confusion_matrix(
-    model: torch.nn.Module, data_loader: torch.utils.data.DataLoader, device,
+    model: torch.nn.Module,
+    data_loader: torch.utils.data.DataLoader,
+    device,
 ):
     """_summary_
 
@@ -334,7 +322,6 @@ def compute_confusion_matrix(
 
     all_targets, all_predictions = [], []
     with torch.no_grad():
-
         for features, targets in data_loader:
             features = features.to(device)
             targets = targets
@@ -443,7 +430,8 @@ def run_confusion_matrix(
 
 
 def write_predict_results_to_csv(
-    pred_dicts: List[Dict], args: argparse.Namespace,
+    pred_dicts: List[Dict],
+    args: argparse.Namespace,
 ) -> None:
     """_summary_
 

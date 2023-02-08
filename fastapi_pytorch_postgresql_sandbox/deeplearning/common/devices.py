@@ -9,7 +9,7 @@ import torch
 from icecream import ic
 
 from fastapi_pytorch_postgresql_sandbox.deeplearning.common import errors
-from fastapi_pytorch_postgresql_sandbox.settings import Settings, settings
+from fastapi_pytorch_postgresql_sandbox.settings import Settings
 
 
 # has_mps is only available in nightly pytorch (for now) and MasOS 12.3+.

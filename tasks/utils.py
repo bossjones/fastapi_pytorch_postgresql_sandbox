@@ -12,7 +12,6 @@ import copy
 import errno
 import logging
 import os
-import select
 import shutil
 from shutil import which
 import stat
@@ -153,6 +152,7 @@ def confirm():
 
 # SOURCE: https://github.com/bossjones/pocketsphinx-build/blob/master/pocketsphinx_build/build.py
 
+
 # SOURCE: https://github.com/ARMmbed/mbed-cli/blob/f168237fabd0e32edcb48e214fc6ce2250046ab3/test/util.py
 # Process execution
 class ProcessException(Exception):
@@ -160,7 +160,6 @@ class ProcessException(Exception):
 
 
 class Console:  # pylint: disable=too-few-public-methods
-
     quiet = False
 
     @classmethod
@@ -216,7 +215,9 @@ def scm(dir=None):
 
 def _popen(cmd_arg):
     with open("/dev/null") as devnull:
-        cmd = subprocess.Popen(cmd_arg, stdout=subprocess.PIPE, stderr=devnull, shell=True)
+        cmd = subprocess.Popen(
+            cmd_arg, stdout=subprocess.PIPE, stderr=devnull, shell=True,
+        )
         retval = cmd.stdout.read().strip()
         err = cmd.wait()
         cmd.stdout.close()

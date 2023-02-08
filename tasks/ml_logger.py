@@ -64,7 +64,10 @@ def format_record(record: Dict[str, Any]) -> str:
     format_string = LOGURU_FORMAT
     if record["extra"].get("payload") is not None:
         record["extra"]["payload"] = pformat(
-            record["extra"]["payload"], indent=4, compact=True, width=88,
+            record["extra"]["payload"],
+            indent=4,
+            compact=True,
+            width=88,
         )
         format_string += "\n<level>{extra[payload]}</level>"
 
@@ -73,8 +76,7 @@ def format_record(record: Dict[str, Any]) -> str:
 
 
 if TYPE_CHECKING:
-    from better_exceptions.log import BetExcLogger
-    from loguru._logger import Logger as _Logger
+    pass
 
 LOGLEVEL_MAPPING = {
     50: "CRITICAL",
@@ -125,7 +127,8 @@ class InterceptHandler(logging.Handler):
             depth += 1
 
         logger.opt(depth=depth, exception=record.exc_info).log(
-            level, record.getMessage(),
+            level,
+            record.getMessage(),
         )
 
 
@@ -184,7 +187,6 @@ def get_logger(
     level: int = logging.INFO,
     logger: logging.Logger = logger,
 ) -> logging.Logger:
-
     config = {
         "handlers": [
             {
@@ -337,7 +339,9 @@ def generate_tree() -> LoggerModel:
     # pylint: disable=no-member
     # adapted from logging_tree package https://github.com/brandon-rhodes/logging_tree
     rootm = LoggerModel(
-        name="root", level=logging.getLogger().getEffectiveLevel(), children=[],
+        name="root",
+        level=logging.getLogger().getEffectiveLevel(),
+        children=[],
     )
     nodesm = {}
     items = sorted(logging.root.manager.loggerDict.items())
@@ -346,7 +350,9 @@ def generate_tree() -> LoggerModel:
             nodesm[name] = nodem = LoggerModel(name=name, children=[])
         else:
             nodesm[name] = nodem = LoggerModel(
-                name=name, level=loggeritem.getEffectiveLevel(), children=[],
+                name=name,
+                level=loggeritem.getEffectiveLevel(),
+                children=[],
             )
         i = name.rfind(".", 0, len(name) - 1)  # same formula used in `logging`
         parentm = rootm if i == -1 else nodesm[name[:i]]

@@ -8,8 +8,6 @@ import shutil
 from pathlib import Path
 from typing import Any
 
-from fastai.data.transforms import get_image_files
-from icecream import ic
 from rich import print
 
 
