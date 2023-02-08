@@ -11,27 +11,19 @@ from pydantic import BaseModel
 import collections
 
 try:  # python 3
-    from collections import abc
+    pass
 except ImportError:  # python 2
-    import collections as abc
+    pass
 
-import concurrent.futures
-from datetime import datetime
-import functools
 import gc
 import inspect
 import logging
-from logging import Logger, LogRecord
-import os
-from pathlib import Path
 from pprint import pformat
 
 # import slack
 import sys
-from time import process_time
-from types import FrameType
 
-from typing import TYPE_CHECKING, Any, Deque, Dict, Optional, Union, cast
+from typing import Any, Deque, Dict, Optional, TYPE_CHECKING
 
 from loguru import logger
 from loguru._defaults import LOGURU_FORMAT

@@ -628,7 +628,9 @@ def autoflake(
     for k, v in env.items():
         ctx.config["run"]["env"][k] = v
 
-    _cmd = "autoflake" + " --recursive --remove-unused-variables"
+    _cmd = (
+        "autoflake" + " --recursive --remove-unused-variables --remove-duplicate-keys"
+    )
     if remove_all_unused_imports:
         _cmd += " --remove-all-unused-imports "
 
@@ -700,7 +702,7 @@ def clean_pyi(ctx, loc="local", verbose=0, dry_run=False):
         call(clean, loc="local"),
         call(verify_python_version, loc="local"),
         call(mypy, loc="local"),
-        call(autoflake, loc="local", in_place=True),
+        call(autoflake, loc="local", in_place=True, remove_all_unused_imports=True),
         call(black, loc="local", check=False, tests=True),
         call(isort, loc="local"),
         call(black, loc="local", check=False, tests=True),

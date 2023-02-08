@@ -1,10 +1,17 @@
+""" settings """
+from __future__ import annotations
+
 import enum
 from pathlib import Path
 from tempfile import gettempdir
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseSettings
 from yarl import URL
+
+from fastapi_pytorch_postgresql_sandbox.deeplearning.architecture.screennet.config import (
+    PATH_TO_BEST_MODEL,
+)
 
 TEMP_DIR = Path(gettempdir())
 
@@ -47,6 +54,13 @@ class Settings(BaseSettings):
     db_pass: str = "fastapi_pytorch_postgresql_sandbox"
     db_base: str = "fastapi_pytorch_postgresql_sandbox"
     db_echo: bool = False
+
+    pytorch_device: str = "mps"
+    arch: str = "efficientnet_b0"
+    model_weigths: str = "EfficientNet_B0_Weights"
+    class_names: List[str] = ["twitter", "facebook", "tiktok"]
+    gpu: bool = False
+    weights: str = PATH_TO_BEST_MODEL
 
     # Variables for Redis
     redis_host: str = "fastapi_pytorch_postgresql_sandbox-redis"

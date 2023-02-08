@@ -1,6 +1,51 @@
 # [tool.poetry]
 # name = "fastapi_pytorch_postgresql_sandbox"
 
+[tool.pyright]
+include = ["fastapi_pytorch_postgresql_sandbox"]
+exclude = ["**/node_modules",
+    "**/__pycache__",
+    "tasks",
+    "typings"
+]
+# ignore = ["src/oldstuff"]
+# defineConstant [map of constants to values (boolean or string), optional]: Set of identifiers that should be assumed to contain a constant value wherever used within this program. For example, { "DEBUG": true } indicates that pyright should assume that the identifier DEBUG will always be equal to True. If this identifier is used within a conditional expression (such as if not DEBUG:) pyright will use the indicated value to determine whether the guarded block is reachable or not. Member expressions that reference one of these constants (e.g. my_module.DEBUG) are also supported.
+# defineConstant = { DEBUG = true }
+# stubPath = "typings"
+# venv = "env367"
+
+# https://github.com/microsoft/pyright/blob/main/docs/configuration.md#reportUndefinedVariable
+reportMissingImports = true
+reportMissingTypeStubs = false
+reportUndefinedVariable = "error"
+reportInvalidTypeVarUse = "warning"
+
+# reportUninitializedInstanceVariable [boolean or string, optional]: Generate or suppress diagnostics for instance variables within a class that are not initialized or declared within the class body or the __init__ method. The default value for this setting is "none".
+
+# reportInvalidStringEscapeSequence [boolean or string, optional]: Generate or suppress diagnostics for invalid escape sequences used within string literals. The Python specification indicates that such sequences will generate a syntax error in future versions. The default value for this setting is "warning".
+
+# reportUnknownParameterType [boolean or string, optional]: Generate or suppress diagnostics for input or return parameters for functions or methods that have an unknown type. The default value for this setting is "none".
+
+# reportUnknownArgumentType [boolean or string, optional]: Generate or suppress diagnostics for call arguments for functions or methods that have an unknown type. The default value for this setting is "none".
+
+# reportUnknownLambdaType [boolean or string, optional]: Generate or suppress diagnostics for input or return parameters for lambdas that have an unknown type. The default value for this setting is "none".
+
+# reportUnknownVariableType [boolean or string, optional]: Generate or suppress diagnostics for variables that have an unknown type. The default value for this setting is "none".
+
+# reportUnknownMemberType [boolean or string, optional]: Generate or suppress diagnostics for class or instance variables that have an unknown type. The default value for this setting is "none".
+
+# reportMissingParameterType [boolean or string, optional]: Generate or suppress diagnostics for input parameters for functions or methods that are missing a type annotation. Th
+
+pythonVersion = "3.10"
+# pythonPlatform = "Linux"
+
+# executionEnvironments = [
+#   { root = "src/web", pythonVersion = "3.5", pythonPlatform = "Windows", extraPaths = [ "src/service_libs" ] },
+#   { root = "src/sdk", pythonVersion = "3.0", extraPaths = [ "src/backend" ] },
+#   { root = "src/tests", extraPaths = ["src/tests/e2e", "src/sdk" ]},
+#   { root = "src" }
+# ]
+
 [tool.isort]
 profile = "black"
 multi_line_output = 3

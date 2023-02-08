@@ -1,4 +1,6 @@
-import sys
+""" conftest """
+from __future__ import annotations
+
 import uuid
 from typing import Any, AsyncGenerator
 from unittest.mock import Mock
