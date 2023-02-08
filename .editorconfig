@@ -8,7 +8,7 @@ ij_visual_guides = 88
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-[*.{js,py,html}]
+[*.{js,html}]
 charset = utf-8
 
 [*.md]
@@ -26,9 +26,11 @@ indent_style = space
 indent_size = 2
 
 [*.py]
+charset = utf-8
 indent_style = space
 indent_size = 4
 ij_python_from_import_parentheses_force_if_multiline = true
+profile = black
 
 # JSON, YAML - [http://json.org/ | http://yaml.org/]
 [*.{json,yml,yaml}]

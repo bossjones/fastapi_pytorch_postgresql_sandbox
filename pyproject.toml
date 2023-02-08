@@ -50,6 +50,7 @@ pythonVersion = "3.10"
 profile = "black"
 multi_line_output = 3
 src_paths = ["fastapi_pytorch_postgresql_sandbox",]
+group_by_package=true
 
 [tool.mypy]
 strict = true

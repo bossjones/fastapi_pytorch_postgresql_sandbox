@@ -155,7 +155,9 @@
     "--ignore-missing-imports",
     "--show-column-numbers",
     "--no-pretty",
-    "--exclude '(contrib|fastapi_pytorch_postgresql_sandbox*)/$'"
-  ]
+    "--exclude '(contrib|fastapi_pytorch_postgresql_sandbox*)/$'",
+    "--config-file ./lint-configs-python/python/mypy.ini"
+  ],
+  "isort.check": true
 
 }
