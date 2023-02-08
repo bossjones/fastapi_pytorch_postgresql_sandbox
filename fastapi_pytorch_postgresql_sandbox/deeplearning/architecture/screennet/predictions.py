@@ -1,74 +1,27 @@
 """ predictions """
 from __future__ import annotations
 
-import pathlib
-
-import pandas as pd
-
-# ---------------------------------------------------------------------------
-import torch
-import torchvision
-from icecream import ic
-from rich import print
-from tqdm.auto import tqdm
-
-# from types import NoneType
-
-
-# import devices  # pylint: disable=import-error
-
-
-# ---------------------------------------------------------------------------
-# Import rich and whatever else we need
-# %load_ext rich
-# %matplotlib inline
-
-
-# better_exceptions.hook()
-
-# console: Console = Console()
-# ---------------------------------------------------------------------------
-
-
-assert int(torch.__version__.split(".")[1]) >= 12, "torch version should be 1.12+"
-assert (
-    int(torchvision.__version__.split(".")[1]) >= 13
-), "torchvision version should be 0.13+"
-# print(f"torch version: {torch.__version__}")
-# print(f"torchvision version: {torchvision.__version__}")
-# ---------------------------------------------------------------------------
-
-# Continue with regular imports
-import mlxtend
-import torch
-import torchvision
-
-assert (
-    int(mlxtend.__version__.split(".")[1]) >= 19
-), "mlxtend verison should be 0.19.0 or higher"
-
 import argparse
+
+# SOURCE: https://github.com/rasbt/deeplearning-models/blob/35aba5dc03c43bc29af5304ac248fc956e1361bf/pytorch_ipynb/helper_evaluate.py
+import pathlib
 from pathlib import Path
 from timeit import default_timer as timer
 from typing import Dict, List, Union
 from urllib.parse import urlparse
 
+import pandas as pd
 import requests
-
-# SOURCE: https://github.com/rasbt/deeplearning-models/blob/35aba5dc03c43bc29af5304ac248fc956e1361bf/pytorch_ipynb/helper_evaluate.py
 import torch
-import torch.nn.parallel
 import torch.optim
-
-# # Import accuracy metric
-# from helper_functions import (  # Note: could also use torchmetrics.Accuracy()
-#     accuracy_fn,
-#     plot_loss_curves,
-# )
 import torch.profiler
 import torch.utils.data
 import torch.utils.data.distributed
+import torchvision
 from fastai.data.transforms import get_image_files
+from icecream import ic
+from rich import print
+from tqdm.auto import tqdm
 
 from fastapi_pytorch_postgresql_sandbox.utils.mlops import (
     console_print_table,
