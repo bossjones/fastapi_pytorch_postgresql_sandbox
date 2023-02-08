@@ -63,6 +63,9 @@ allow_untyped_decorators = true
 warn_unused_ignores = false
 warn_return_any = false
 namespace_packages = true
+exclude = [
+    "./contrib/"
+]
 
 # Remove this and add `types-redis`
 # when the issue https://github.com/python/typeshed/issues/8242 is resolved.

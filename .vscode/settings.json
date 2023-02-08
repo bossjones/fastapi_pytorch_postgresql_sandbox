@@ -148,6 +148,14 @@
         ],
         "url": "https://raw.githubusercontent.com/microsoft/vscode-python/main/schemas/conda-meta.json"
     }
+  ],
+  "python.linting.mypyEnabled": true,
+  "python.linting.mypyArgs": [
+    "--follow-imports=silent",
+    "--ignore-missing-imports",
+    "--show-column-numbers",
+    "--no-pretty",
+    "--exclude '(contrib|fastapi_pytorch_postgresql_sandbox*)/$'"
   ]
 
 }

@@ -12,25 +12,10 @@ from rich import print
 from fastapi_pytorch_postgresql_sandbox.deeplearning.common import devices
 from fastapi_pytorch_postgresql_sandbox.settings import Settings, settings
 
-# ---------------------------------------------------------------------------
-# Import rich and whatever else we need
-# %load_ext rich
-# %matplotlib inline
-
-
-# better_exceptions.hook()
-
-# console: Console = Console()
-# ---------------------------------------------------------------------------
-
-
 assert int(torch.__version__.split(".")[1]) >= 12, "torch version should be 1.12+"
 assert (
     int(torchvision.__version__.split(".")[1]) >= 13
 ), "torchvision version should be 0.13+"
-# print(f"torch version: {torch.__version__}")
-# print(f"torchvision version: {torchvision.__version__}")
-# ---------------------------------------------------------------------------
 
 # Continue with regular imports
 import mlxtend
@@ -42,13 +27,6 @@ from fastapi_pytorch_postgresql_sandbox.deeplearning.architecture.screennet.conf
     PATH_TO_BEST_MODEL,
 )
 
-# breakpoint()
-# from going_modular import data_setup, engine, utils  # pylint: disable=no-name-in-module
-
-# Try to get torchinfo, install it if it doesn't work
-
-
-# print(f"mlxtend version: {mlxtend.__version__}")
 assert (
     int(mlxtend.__version__.split(".")[1]) >= 19
 ), "mlxtend verison should be 0.19.0 or higher"
@@ -63,12 +41,6 @@ import torch
 import torch.nn as nn
 import torch.nn.parallel
 import torch.optim
-
-# # Import accuracy metric
-# from helper_functions import (  # Note: could also use torchmetrics.Accuracy()
-#     accuracy_fn,
-#     plot_loss_curves,
-# )
 import torch.profiler
 import torch.utils.data
 import torch.utils.data.distributed
@@ -343,7 +315,7 @@ class ImageClassifier:
     #         model, device, self.class_names, path_to_model, settings
     #     )
 
-    def load_model(self, pretrained=True) -> None:
+    def load_model(self, pretrained: bool = True) -> None:
         """_summary_
 
         Args:

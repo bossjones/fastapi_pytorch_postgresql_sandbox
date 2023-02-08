@@ -138,7 +138,7 @@ def mypy(ctx, loc="local", verbose=0):
 
 
 @task(incrementable=["verbose"])
-def sourcery(ctx, loc="local", verbose=0):
+def sourcery(ctx, loc: str = "local", verbose: bool = 0):
     """
     sourcery pytorch_lab folder
     Usage: inv ci.sourcery

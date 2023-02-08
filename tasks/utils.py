@@ -216,7 +216,10 @@ def scm(dir=None):
 def _popen(cmd_arg):
     with open("/dev/null") as devnull:
         cmd = subprocess.Popen(
-            cmd_arg, stdout=subprocess.PIPE, stderr=devnull, shell=True,
+            cmd_arg,
+            stdout=subprocess.PIPE,
+            stderr=devnull,
+            shell=True,
         )
         retval = cmd.stdout.read().strip()
         err = cmd.wait()
