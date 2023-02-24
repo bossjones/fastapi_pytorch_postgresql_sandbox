@@ -62,6 +62,7 @@ jobs:
       env:
         LANG: en_US.UTF-8
         LC_CTYPE: en_US.UTF-8
+        HOMEBREW_NO_INSTALL_CLEANUP: 1
       run: |
         brew update
         brew install icu4c || true
@@ -78,22 +79,14 @@ jobs:
         brew install jq || true
         brew install curl || true
 
-    - name: Cache ~/Library/Caches/lima/download for ${{ matrix.os }} on ${{ matrix.arch }}
+    - name: Cache ~/Library/Caches/colima for ${{ matrix.os }} on ${{ matrix.arch }}
       uses: actions/cache@v3
+      env:
+        # Increase this value to reset cache if etc/example-environment.yml has not changed
+        CACHE_NUMBER: 0
       with:
-        path: ~/Library/Caches/lima/download
-        key: ${{ runner.os }}-archlinux
-
-    # - name: Start lima for ${{ matrix.os }} on ${{ matrix.arch }}
-    #   env:
-    #     LANG: en_US.UTF-8
-    #     LC_CTYPE: en_US.UTF-8
-    #     # LIMA_INSTANCE: "test-upgrade"
-    #   working-directory: ./.ci/lima
-    #   run: |
-    #     time limactl start --name=default --tty=false ./github-ci.yaml
-    #     lima nerdctl info
-    #     make start-docker-ci-d
+        path: ~/Library/Caches/colima
+        key: ${{ runner.os }}-colima-${{ env.CACHE_NUMBER }}-
 
     - name: Start colima for ${{ matrix.os }} on ${{ matrix.arch }}
       env:
@@ -122,20 +115,6 @@ jobs:
         ln -sfn $(brew --prefix)/opt/docker-compose/bin/docker-compose ~/.docker/cli-plugins/docker-compose
 
         colima list
-
-
-        # docker-compose -f deploy/docker-compose.yml -f deploy/docker-compose.otlp.yml --project-directory . up -d
-
-    # - name: start lima for ${{ matrix.os }} on ${{ matrix.arch }}
-    #   env:
-    #     LANG: en_US.UTF-8
-    #     LC_CTYPE: en_US.UTF-8
-    #     LIMA_INSTANCE: "test-upgrade"
-    #   run: |
-    #     alias docker="lima nerdctl"
-    #     limactl start --set='.cpus = 2 | .memory = "8GiB"' --tty=false "${LIMA_INSTANCE}"
-    #     lima nerdctl info
-    #     make start-docker-ci-d
 
     - name: Brew deps for ${{ matrix.os }} on ${{ matrix.arch }}
       env:
@@ -230,7 +209,7 @@ jobs:
         # auto-update-conda: true
         # channel-priority: strict
         activate-environment: fastapi_pytorch_postgresql_sandbox3
-        environment-file: environment.yml.lock
+        environment-file: condalock.yaml
         use-only-tar-bz2: true # IMPORTANT: This needs to be set for caching to work properly!
         # NOTE: 'Set this option to "false" to disable running the post cleanup step of the action. Default is "true"'
         # SOURCE: https://github.com/conda-incubator/setup-miniconda/blob/7e642bb2e4ca56ff706818a0febf72bb226d348d/action.yml
