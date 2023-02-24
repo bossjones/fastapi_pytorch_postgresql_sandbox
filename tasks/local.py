@@ -7,14 +7,12 @@ from invoke.exceptions import Exit
 
 # from sqlalchemy.engine.url import make_url
 import click
-from tasks.utils import get_compose_env, is_venv
+from tasks.utils import get_compose_env
 
 from .utils import (
     COLOR_WARNING,
-    COLOR_DANGER,
     COLOR_SUCCESS,
     COLOR_CAUTION,
-    COLOR_STABLE,
 )
 
 
@@ -175,7 +173,8 @@ def web(ctx, loc="local", verbose=0, cleanup=False, app_only=False):
 
     if verbose >= 3:
         click.secho(
-            "Detected 4 or more verbose flags, enabling TRACE mode", fg=COLOR_WARNING,
+            "Detected 4 or more verbose flags, enabling TRACE mode",
+            fg=COLOR_WARNING,
         )
         ctx.config["run"]["env"]["ULTRON_ENVIRONMENT"] = "development"
 
@@ -207,7 +206,9 @@ pgrep -f "pytorch_lab/web.py" || true
 
 
 @task(
-    pre=[call(detect_os, loc="local")], incrementable=["verbose"], aliases=["install"],
+    pre=[call(detect_os, loc="local")],
+    incrementable=["verbose"],
+    aliases=["install"],
 )
 def bootstrap(ctx, loc="local", verbose=0, cleanup=False, upgrade=False):
     """
@@ -341,7 +342,8 @@ pip-compile --output-file requirements-test.txt requirements-test.in
 
 
 @task(
-    pre=[call(detect_os, loc="local")], incrementable=["verbose"],
+    pre=[call(detect_os, loc="local")],
+    incrementable=["verbose"],
 )
 def pip_tools(
     ctx,
@@ -429,7 +431,9 @@ def pip_tools(
 
 
 @task(
-    pre=[call(detect_os, loc="local")], incrementable=["verbose"], aliases=["hacking"],
+    pre=[call(detect_os, loc="local")],
+    incrementable=["verbose"],
+    aliases=["hacking"],
 )
 def contrib(ctx, loc="local", verbose=0, cleanup=False):
     """

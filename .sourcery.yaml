@@ -22,10 +22,12 @@ ignore: # A list of paths or files which Sourcery will ignore.
 - contrib
 - setup.py
 - tasks/*
+- fastapi_pytorch_postgresql_sandbox/db/migrations/*
 
 rule_settings:
   enable:
   - default
+  - google-python-style-guide
   disable: []  # A list of rule IDs Sourcery will never suggest.
   rule_types:
   - refactoring
@@ -479,6 +481,7 @@ rules:
   - no-match: |
       def f(cls, a: int, b: str):
           pass
+
 - id: require-return-annotation
   pattern: |
     def ${name}(...) -> !!!:
@@ -491,11 +494,16 @@ rules:
   description: Annotate public function/method `${name}` with a return type annotation
   explanation: |
     Adding type annotations has several benefits:
+
     1. It improves the documentation of the function
+
     2. It allows the function to be checked for correctness
+
     3. It allows checking that the function callers are passing the correct params
+
     These [mypy docs](https://mypy.readthedocs.io/en/stable/cheat_sheet_py3.html#functions) describe how to
     annotate function arguments and return types.
+
     From Google Style Guide [2.21](https://google.github.io/styleguide/pyguide#221-type-annotated-code)
   tests:
   - match: |

@@ -7,12 +7,11 @@ from __future__ import print_function
 # Run it with `python collect_env.py`.
 import datetime
 import locale
+import os
 import re
 import subprocess
 import sys
-import os
 from collections import namedtuple
-
 
 try:
     import torch
@@ -56,7 +55,10 @@ SystemEnv = namedtuple(
 def run(command):
     """Returns (return-code, stdout, stderr)"""
     p = subprocess.Popen(
-        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True,
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=True,
     )
     raw_output, raw_err = p.communicate()
     rc = p.returncode
@@ -97,6 +99,14 @@ def run_and_return_first_line(run_lambda, command):
 
 
 def get_conda_packages(run_lambda):
+    """_summary_
+
+    Args:
+        run_lambda (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     conda = os.environ.get("CONDA_EXE", "conda")
     out = run_and_read_all(run_lambda, "{} list".format(conda))
     if out is None:
@@ -115,37 +125,80 @@ def get_conda_packages(run_lambda):
                 "soumith",
                 "mkl",
                 "magma",
-                "mkl",
             }
         )
     )
 
 
 def get_gcc_version(run_lambda):
+    """_summary_
+
+    Args:
+        run_lambda (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     return run_and_parse_first_match(run_lambda, "gcc --version", r"gcc (.*)")
 
 
 def get_clang_version(run_lambda):
+    """_summary_
+
+    Args:
+        run_lambda (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     return run_and_parse_first_match(
-        run_lambda, "clang --version", r"clang version (.*)",
+        run_lambda,
+        "clang --version",
+        r"clang version (.*)",
     )
 
 
 def get_cmake_version(run_lambda):
+    """_summary_
+
+    Args:
+        run_lambda (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     return run_and_parse_first_match(run_lambda, "cmake --version", r"cmake (.*)")
 
 
 def get_nvidia_driver_version(run_lambda):
+    """_summary_
+
+    Args:
+        run_lambda (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     if get_platform() == "darwin":
         cmd = "kextstat | grep -i cuda"
         return run_and_parse_first_match(
-            run_lambda, cmd, r"com[.]nvidia[.]CUDA [(](.*?)[)]",
+            run_lambda,
+            cmd,
+            r"com[.]nvidia[.]CUDA [(](.*?)[)]",
         )
     smi = get_nvidia_smi()
     return run_and_parse_first_match(run_lambda, smi, r"Driver Version: (.*?) ")
 
 
 def get_gpu_info(run_lambda):
+    """_summary_
+
+    Args:
+        run_lambda (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     if get_platform() == "darwin" or (
         TORCH_AVAILABLE
         and hasattr(torch.version, "hip")
@@ -164,6 +217,14 @@ def get_gpu_info(run_lambda):
 
 
 def get_running_cuda_version(run_lambda):
+    """_summary_
+
+    Args:
+        run_lambda (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     return run_and_parse_first_match(run_lambda, "nvcc --version", r"release .+ V(.*)")
 
 
@@ -205,13 +266,21 @@ def get_cudnn_version(run_lambda):
 
 
 def get_nvidia_smi():
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """
     # Note: nvidia-smi is currently available only on Windows and Linux
     smi = "nvidia-smi"
     if get_platform() == "win32":
         system_root = os.environ.get("SYSTEMROOT", "C:\\Windows")
         program_files_root = os.environ.get("PROGRAMFILES", "C:\\Program Files")
         legacy_path = os.path.join(
-            program_files_root, "NVIDIA Corporation", "NVSMI", smi,
+            program_files_root,
+            "NVIDIA Corporation",
+            "NVSMI",
+            smi,
         )
         new_path = os.path.join(system_root, "System32", smi)
         smis = [new_path, legacy_path]
@@ -223,6 +292,11 @@ def get_nvidia_smi():
 
 
 def get_platform():
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """
     if sys.platform.startswith("linux"):
         return "linux"
     elif sys.platform.startswith("win32"):
@@ -236,31 +310,76 @@ def get_platform():
 
 
 def get_mac_version(run_lambda):
+    """_summary_
+
+    Args:
+        run_lambda (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     return run_and_parse_first_match(run_lambda, "sw_vers -productVersion", r"(.*)")
 
 
 def get_windows_version(run_lambda):
+    """_summary_
+
+    Args:
+        run_lambda (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     system_root = os.environ.get("SYSTEMROOT", "C:\\Windows")
     wmic_cmd = os.path.join(system_root, "System32", "Wbem", "wmic")
     findstr_cmd = os.path.join(system_root, "System32", "findstr")
     return run_and_read_all(
-        run_lambda, "{} os get Caption | {} /v Caption".format(wmic_cmd, findstr_cmd),
+        run_lambda,
+        "{} os get Caption | {} /v Caption".format(wmic_cmd, findstr_cmd),
     )
 
 
 def get_lsb_version(run_lambda):
+    """_summary_
+
+    Args:
+        run_lambda (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     return run_and_parse_first_match(
-        run_lambda, "lsb_release -a", r"Description:\t(.*)",
+        run_lambda,
+        "lsb_release -a",
+        r"Description:\t(.*)",
     )
 
 
 def check_release_file(run_lambda):
+    """_summary_
+
+    Args:
+        run_lambda (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     return run_and_parse_first_match(
-        run_lambda, "cat /etc/*-release", r'PRETTY_NAME="(.*)"',
+        run_lambda,
+        "cat /etc/*-release",
+        r'PRETTY_NAME="(.*)"',
     )
 
 
 def get_os(run_lambda):
+    """_summary_
+
+    Args:
+        run_lambda (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     from platform import machine
 
     platform = get_platform()
@@ -292,12 +411,22 @@ def get_os(run_lambda):
 
 
 def get_python_platform():
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """
     import platform
 
     return platform.platform()
 
 
 def get_libc_version():
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """
     import platform
 
     if get_platform() != "linux":
@@ -311,6 +440,14 @@ def get_pip_packages(run_lambda):
     # People generally have `pip` as `pip` or `pip3`
     # But here it is incoved as `python -mpip`
     def run_with_pip(pip):
+        """_summary_
+
+        Args:
+            pip (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         out = run_and_read_all(run_lambda, "{} list --format=freeze".format(pip))
         return "\n".join(
             line
@@ -325,11 +462,21 @@ def get_pip_packages(run_lambda):
 
 
 def get_cachingallocator_config():
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """
     ca_config = os.environ.get("PYTORCH_CUDA_ALLOC_CONF", "")
     return ca_config
 
 
 def get_cuda_module_loading_config():
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """
     if TORCH_AVAILABLE and torch.cuda.is_available():
         torch.cuda.init()
         config = os.environ.get("CUDA_MODULE_LOADING", "")
@@ -339,6 +486,11 @@ def get_cuda_module_loading_config():
 
 
 def is_xnnpack_available():
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """
     if TORCH_AVAILABLE:
         import torch.backends.xnnpack
 
@@ -380,7 +532,8 @@ def get_env_info():
         torch_version=version_str,
         is_debug_build=debug_mode_str,
         python_version="{} ({}-bit runtime)".format(
-            sys_version, sys.maxsize.bit_length() + 1,
+            sys_version,
+            sys.maxsize.bit_length() + 1,
         ),
         python_platform=get_python_platform(),
         is_cuda_available=cuda_available_str,
@@ -438,6 +591,15 @@ Versions of relevant libraries:
 
 def pretty_str(envinfo):
     def replace_nones(dct, replacement="Could not collect"):
+        """_summary_
+
+        Args:
+            dct (_type_): _description_
+            replacement (str, optional): _description_. Defaults to "Could not collect".
+
+        Returns:
+            _type_: _description_
+        """
         for key in dct.keys():
             if dct[key] is not None:
                 continue
@@ -445,6 +607,16 @@ def pretty_str(envinfo):
         return dct
 
     def replace_bools(dct, true="Yes", false="No"):
+        """_summary_
+
+        Args:
+            dct (_type_): _description_
+            true (str, optional): _description_. Defaults to "Yes".
+            false (str, optional): _description_. Defaults to "No".
+
+        Returns:
+            _type_: _description_
+        """
         for key in dct.keys():
             if dct[key] is True:
                 dct[key] = true
@@ -453,16 +625,42 @@ def pretty_str(envinfo):
         return dct
 
     def prepend(text, tag="[prepend]"):
+        """_summary_
+
+        Args:
+            text (_type_): _description_
+            tag (str, optional): _description_. Defaults to "[prepend]".
+
+        Returns:
+            _type_: _description_
+        """
         lines = text.split("\n")
         updated_lines = [tag + line for line in lines]
         return "\n".join(updated_lines)
 
     def replace_if_empty(text, replacement="No relevant packages"):
+        """_summary_
+
+        Args:
+            text (_type_): _description_
+            replacement (str, optional): _description_. Defaults to "No relevant packages".
+
+        Returns:
+            _type_: _description_
+        """
         if text is not None and len(text) == 0:
             return replacement
         return text
 
     def maybe_start_on_next_line(string):
+        """_summary_
+
+        Args:
+            string (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
         # If `string` is multiline, prepend a \n to it.
         if string is not None and len(string.split("\n")) > 1:
             return "\n{}\n".format(string)
@@ -509,20 +707,28 @@ def pretty_str(envinfo):
     # If they were previously None, they'll show up as ie '[conda] Could not collect'
     if mutable_dict["pip_packages"]:
         mutable_dict["pip_packages"] = prepend(
-            mutable_dict["pip_packages"], "[{}] ".format(envinfo.pip_version),
+            mutable_dict["pip_packages"],
+            "[{}] ".format(envinfo.pip_version),
         )
     if mutable_dict["conda_packages"]:
         mutable_dict["conda_packages"] = prepend(
-            mutable_dict["conda_packages"], "[conda] ",
+            mutable_dict["conda_packages"],
+            "[conda] ",
         )
     return env_info_fmt.format(**mutable_dict)
 
 
-def get_pretty_env_info():
+def get_pretty_env_info() -> str:
+    """_summary_
+
+    Returns:
+        str: _description_
+    """
     return pretty_str(get_env_info())
 
 
-def main():
+def main() -> None:
+    """_summary_"""
     print("Collecting environment information...")
     output = get_pretty_env_info()
     print(output)
@@ -544,7 +750,8 @@ def main():
             )
             msg = (
                 "\n*** Detected a minidump at {} created on {}, ".format(
-                    latest, creation_time,
+                    latest,
+                    creation_time,
                 )
                 + "if this is related to your bug please include it when you file a report ***"
             )

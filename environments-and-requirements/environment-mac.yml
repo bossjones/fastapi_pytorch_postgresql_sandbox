@@ -72,11 +72,11 @@ dependencies:
   - pyfiglet
   - pynguin
   - torch-tb-profiler
-  - fastapi
+  - fastapi==0.90.0
   - uvicorn
   - yarl
   - ujson
-  - ormar
+  - ormar==0.12.1
   - alembic
   - asyncpg
   - psycopg2-binary
@@ -112,6 +112,7 @@ dependencies:
   - sourcery
   - types-mock
   - pytest-timeout
+  - types-requests
   - -e .
 variables:
   PYTORCH_ENABLE_MPS_FALLBACK: 1

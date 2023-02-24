@@ -1,6 +1,6 @@
 # https://github.com/imbrra/logowanie/blob/38a1a38ea9f5b2494e5bc986df651ff9d713fda5/tasks/clean.py
 
-name: pytorch_lab
+name: fastapi_pytorch_postgresql_sandbox
 debug: true
 run:
   echo: true

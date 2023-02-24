@@ -129,8 +129,8 @@ min-public-methods=0
 # Maximum number of arguments for function / method
 max-args=12
 
-[EXCEPTIONS]
-overgeneral-exceptions=Exception,MoonbeamError
+# [EXCEPTIONS]
+# overgeneral-exceptions=Exception,MoonbeamError
 
 [FORMAT]
 

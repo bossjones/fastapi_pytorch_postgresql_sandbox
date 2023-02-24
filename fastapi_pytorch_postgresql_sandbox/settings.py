@@ -1,10 +1,17 @@
+""" settings """
+from __future__ import annotations
+
 import enum
 from pathlib import Path
 from tempfile import gettempdir
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseSettings
 from yarl import URL
+
+from fastapi_pytorch_postgresql_sandbox.deeplearning.architecture.screennet.config import (
+    PATH_TO_BEST_MODEL,
+)
 
 TEMP_DIR = Path(gettempdir())
 
@@ -47,6 +54,16 @@ class Settings(BaseSettings):
     db_pass: str = "fastapi_pytorch_postgresql_sandbox"
     db_base: str = "fastapi_pytorch_postgresql_sandbox"
     db_echo: bool = False
+
+    # ml params
+    pytorch_device: str = "mps"
+    arch: str = "efficientnet_b0"
+    model_weights: str = "EfficientNet_B0_Weights"
+    class_names: List[str] = ["twitter", "facebook", "tiktok"]
+    gpu: bool = False
+    weights: str = PATH_TO_BEST_MODEL
+    lr: float = 0.001
+    seed: int = 42
 
     # Variables for Redis
     redis_host: str = "fastapi_pytorch_postgresql_sandbox-redis"
@@ -126,10 +143,10 @@ class Settings(BaseSettings):
             path=self.rabbit_vhost,
         )
 
-    class Config:
+    class Config:  # sourcery skip: docstrings-for-classes
         env_file = ".env"
         env_prefix = "FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_"
         env_file_encoding = "utf-8"
 
 
-settings = Settings()
+settings = Settings()  # sourcery skip: docstrings-for-classes, avoid-global-variables
