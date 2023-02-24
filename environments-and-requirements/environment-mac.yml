@@ -113,6 +113,8 @@ dependencies:
   - types-mock
   - pytest-timeout
   - types-requests
+  # - commitizen
+  - ruff
   - -e .
 variables:
   PYTORCH_ENABLE_MPS_FALLBACK: 1

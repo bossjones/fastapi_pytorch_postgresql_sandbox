@@ -1,3 +1,4 @@
+"""lifetime"""
 import aio_pika
 from aio_pika.abc import AbstractChannel, AbstractRobustConnection
 from aio_pika.pool import Pool
