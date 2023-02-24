@@ -84,9 +84,71 @@ jobs:
       #   if: needs.detect-ci-trigger.outputs.triggered == 'true'
       #   run: |
       #     mamba install --no-channel-priority dask/label/dev::dask
-    - name: Brew deps for ${{ matrix.os }} on ${{ matrix.arch }}
+
+    - name: SetLocale for ${{ matrix.os }} on ${{ matrix.arch }}
+      env:
+        LANG: en_US.UTF-8
+        LC_CTYPE: en_US.UTF-8
       run: |
-        brew install docker colima
+        brew update
+        brew install icu4c || true
+        brew install readline || true
+        brew install libxslt || true
+        brew install perl || true
+
+    - name: Brew deps for ${{ matrix.os }} on ${{ matrix.arch }}
+      env:
+        LANG: en_US.UTF-8
+        LC_CTYPE: en_US.UTF-8
+      run: |
+        brew install docker colima docker-compose
+
+
+        brew install cmake || true  # macos image has cmake installed, but a new version may exist; ignore it if so
+        brew install doxygen || true
+        brew install hdf5 || true
+        brew install pkg-config || true
+        brew install wget || true
+        brew install jpeg || true
+        brew install libpng || true
+        brew install libtiff || true
+        brew install openexr || true
+        brew install eigen || true
+        brew install tbb || true
+        brew install hdf5 || true
+        # pytorch
+        brew install openblas || true
+        brew install libomp || true
+        brew install openmpi || true
+        brew install tcl-tk || true
+        brew install openssl || true
+        brew install readline || true
+        brew install sqlite3 || true
+        brew install xz || true
+        brew install zlib || true
+        # https://techblog.willshouse.com/2013/05/20/brew-install-gnu-stat/
+        brew install coreutils || true
+        brew install findutils || true
+        brew install gnu-tar || true
+        brew install gnu-sed || true
+        brew install gawk || true
+        brew install gnutls || true
+        brew install gnu-getopt || true
+        brew install libmagic || true
+        brew install libffi || true
+        brew install atomicparsley || true
+        brew install tree || true
+        brew install tesseract || true
+
+        # https://github.com/jiaaro/pydub#installation
+        # libav
+        brew install libav || true
+        ####    OR    #####
+        # SOURCE: https://matham.github.io/ffpyplayer/installation.html#using-binary-wheels
+        # ffmpeg
+        brew install ffmpeg || true
+        brew install sdl2 || true
+        brew install sdl2_mixer || true
 
         make start-docker-services-d
 
