@@ -5,6 +5,55 @@
     "--rcfile",
     "${workspaceFolder}/lint-configs-python/python/pylintrc"
   ],
+  "todohighlight.keywords": [
+    {
+      "text": "TODO:",
+      "color": "#fff",
+      "backgroundColor": "#ffbd2a",
+      "overviewRulerColor": "rgba(255,189,42,0.8)"
+    },
+    {
+      "text": "FIXME:",
+      "color": "#fff",
+      "backgroundColor": "#f06292",
+      "overviewRulerColor": "rgba(240,98,146,0.8)"
+    },
+    {
+      "text": "BOSSJONES:",
+      "color": "#fff",
+      "backgroundColor": "green"
+    },
+    {
+      "text": "DEBUG:",
+      "color": "#fff",
+      "backgroundColor": "blue"
+    },
+    {
+      "text": "REVIEW:",
+      "color": "#fff",
+      "backgroundColor": "yellow"
+    },
+    {
+      "text": "INFO:",
+      "color": "#fff",
+      "backgroundColor": "violet"
+    },
+    {
+      "text": "NOTE:",
+      "color": "#fff",
+      "backgroundColor": "grey"
+    },
+    {
+      "text": "EXAMPLE:",
+      "color": "#fff",
+      "backgroundColor": "teal"
+    },
+    {
+      "text": "SOURCE:",
+      "color": "#fff",
+      "backgroundColor": "maroon"
+    }
+  ],
   "python.linting.mypyCategorySeverity.error": "Error",
   "python.linting.mypyCategorySeverity.note": "Warning",
   "python.linting.pylintCategorySeverity.warning": "Warning",
@@ -173,6 +222,9 @@
   ],
   "isort.check": true,
   "yaml.schemas": {
-    "https://docs.sourcery.ai/resources/sourcery_yaml_schema.json": ".sourcery.yaml"
+    "https://docs.sourcery.ai/resources/sourcery_yaml_schema.json": ".sourcery.yaml",
+    "https://json.schemastore.org/pre-commit-config.json": ".pre-commit-config.yaml",
+    // "https://json.schemastore.org/commitlintrc.json": "",
+    // "https://json.schemastore.org/pre-commit-hooks.json": ".pre-commit-config.yaml"
   }
 }

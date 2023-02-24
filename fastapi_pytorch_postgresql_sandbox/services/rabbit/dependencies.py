@@ -1,3 +1,4 @@
+"""rabbit"""
 from aio_pika import Channel
 from aio_pika.pool import Pool
 from fastapi import Request
