@@ -4,8 +4,8 @@ from __future__ import annotations
 # SOURCE: https://github.com/socialhourmobile/SD-hassan-ns/blob/3b6b266b17e0fd0a9b17374cd2afbf4c59b7c245/modules/devices.py
 from typing import Optional, Union
 
-import torch
 from icecream import ic
+import torch
 
 from fastapi_pytorch_postgresql_sandbox.deeplearning.common import errors
 from fastapi_pytorch_postgresql_sandbox.settings import Settings

@@ -1,8 +1,8 @@
 import uuid
 
-import pytest
 from fastapi import FastAPI
 from httpx import AsyncClient
+import pytest
 from redis.asyncio import ConnectionPool, Redis
 from starlette import status
 

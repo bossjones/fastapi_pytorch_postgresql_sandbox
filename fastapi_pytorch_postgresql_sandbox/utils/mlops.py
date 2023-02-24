@@ -4,16 +4,17 @@ from __future__ import annotations
 import os
 import os.path
 
+from icecream import ic
+
 # Continue with regular imports
 import matplotlib.pyplot as plt
 import mlxtend
 import pandas as pd
+from rich import box, print
+from rich.table import Table
 
 # ---------------------------------------------------------------------------
 import torch
-from icecream import ic
-from rich import box, print
-from rich.table import Table
 from torchvision import transforms
 
 assert (
@@ -24,7 +25,9 @@ import argparse
 from pathlib import Path
 from typing import Dict, List, Optional
 
+from PIL import Image
 import matplotlib
+from mlxtend.plotting import plot_confusion_matrix
 import numpy as np
 
 # SOURCE: https://github.com/rasbt/deeplearning-models/blob/35aba5dc03c43bc29af5304ac248fc956e1361bf/pytorch_ipynb/helper_evaluate.py
@@ -34,11 +37,9 @@ import torch.optim
 import torch.profiler
 import torch.utils.data
 import torch.utils.data.distributed
+from torch.utils.tensorboard import SummaryWriter
 import torchvision.transforms as transforms
 import torchvision.transforms.functional as pytorch_transforms_functional
-from mlxtend.plotting import plot_confusion_matrix
-from PIL import Image
-from torch.utils.tensorboard import SummaryWriter
 
 # # SOURCE: https://github.com/pytorch/vision/blob/main/references/classification/train.py
 # def _get_cache_path(filepath) -> str:
@@ -192,8 +193,8 @@ def create_writer(
         # The above is the same as:
         writer = SummaryWriter(log_dir="runs/2022-06-04/data_10_percent/effnetb2/5_epochs/")
     """
-    import os  # pylint: disable=import-outside-toplevel
     from datetime import datetime  # pylint: disable=import-outside-toplevel
+    import os  # pylint: disable=import-outside-toplevel
 
     # Get timestamp of current date (all experiments on certain day live in same folder)
     timestamp = datetime.now().strftime(

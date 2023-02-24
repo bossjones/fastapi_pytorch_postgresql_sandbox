@@ -179,6 +179,26 @@ def flake8(ctx, loc: str = "local", verbose: Union[bool, int] = 0):
 
 
 @task(incrementable=["verbose"])
+def ruff(ctx, loc: str = "local", verbose: Union[bool, int] = 0):
+    """
+    ruff pytorch_lab folder
+    Usage: inv ci.ruff
+    """
+    env = get_compose_env(ctx, loc=loc)
+
+    # Only display result
+    ctx.config["run"]["echo"] = True
+
+    # Override run commands env variables one key at a time
+    for k, v in env.items():
+        ctx.config["run"]["env"][k] = v
+
+    ctx.run(
+        "ruff --show-source --show-fixes --diff --config pyproject.toml --statistics --show-files --show-settings .",
+    )
+
+
+@task(incrementable=["verbose"])
 def automate_docblocks(ctx, loc: str = "local", verbose: Union[bool, int] = 0):
     """
     automate_docblocks pytorch_lab folder

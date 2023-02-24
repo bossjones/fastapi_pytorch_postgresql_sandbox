@@ -1,12 +1,12 @@
 import uuid
 
-import pytest
 from aio_pika import Channel
 from aio_pika.abc import AbstractQueue
 from aio_pika.exceptions import QueueEmpty
 from aio_pika.pool import Pool
 from fastapi import FastAPI
 from httpx import AsyncClient
+import pytest
 
 
 @pytest.mark.anyio

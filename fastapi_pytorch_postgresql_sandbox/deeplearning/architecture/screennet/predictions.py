@@ -10,17 +10,17 @@ from timeit import default_timer as timer
 from typing import Dict, List, Union
 from urllib.parse import urlparse
 
+from fastai.data.transforms import get_image_files
+from icecream import ic
 import pandas as pd
 import requests
+from rich import print
 import torch
 import torch.optim
 import torch.profiler
 import torch.utils.data
 import torch.utils.data.distributed
 import torchvision
-from fastai.data.transforms import get_image_files
-from icecream import ic
-from rich import print
 from tqdm.auto import tqdm
 
 from fastapi_pytorch_postgresql_sandbox.utils.mlops import (

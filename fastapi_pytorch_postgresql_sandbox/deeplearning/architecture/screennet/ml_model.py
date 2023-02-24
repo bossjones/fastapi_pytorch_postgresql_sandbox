@@ -3,11 +3,12 @@ from __future__ import annotations
 
 import pathlib
 
+from icecream import ic
+from rich import print
+
 # ---------------------------------------------------------------------------
 import torch
 import torchvision
-from icecream import ic
-from rich import print
 
 from fastapi_pytorch_postgresql_sandbox.deeplearning.common import devices
 from fastapi_pytorch_postgresql_sandbox.settings import Settings, settings
@@ -36,15 +37,15 @@ import numpy as np
 
 # SOURCE: https://github.com/rasbt/deeplearning-models/blob/35aba5dc03c43bc29af5304ac248fc956e1361bf/pytorch_ipynb/helper_evaluate.py
 import torch
+from torch.nn import CrossEntropyLoss
 import torch.nn as nn
 import torch.nn.parallel
 import torch.optim
+from torch.optim import Adam
 import torch.profiler
 import torch.utils.data
 import torch.utils.data.distributed
 import torchvision.models as models
-from torch.nn import CrossEntropyLoss
-from torch.optim import Adam
 
 # SOURCE: https://github.com/pytorch/pytorch/issues/78924
 torch.set_num_threads(1)

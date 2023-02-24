@@ -4,8 +4,8 @@ from __future__ import annotations
 import os
 import os.path
 import pathlib
-import shutil
 from pathlib import Path
+import shutil
 from typing import Any
 
 from rich import print

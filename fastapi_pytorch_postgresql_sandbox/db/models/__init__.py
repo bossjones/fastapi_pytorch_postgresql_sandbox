@@ -1,6 +1,6 @@
 """fastapi_pytorch_postgresql_sandbox models."""
-import pkgutil
 from pathlib import Path
+import pkgutil
 
 
 def load_all_models() -> None:

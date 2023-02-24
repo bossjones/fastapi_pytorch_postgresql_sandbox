@@ -60,12 +60,15 @@ known_first_party = [
     "fastapi_pytorch_postgresql_sandbox",
     # "tests",
 ]
+known_third_party = [
+    "fastapi", "pydantic", "starlette", "torch", "torchvision"
+]
 forced_separate = [
     "tests",
 ]
 combine_as_imports = true
 # SOURCE: https://github.com/home-assistant/core/blob/dev/pyproject.toml - end
-extend_skip_glob = ["*/site-packages/*"]
+extend_skip_glob = ["*/site-packages/*", "*/db/migration/*"]
 
 
 [tool.mypy]
@@ -209,5 +212,5 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 "__init__.py" = ["F401"]
 
 [tool.ruff.isort]
-known-third-party = ["fastapi", "pydantic", "starlette"]
+known-third-party = ["fastapi", "pydantic", "starlette", "torch", "torchvision"]
 known-first-party = ["fastapi_pytorch_postgresql_sandbox"]
