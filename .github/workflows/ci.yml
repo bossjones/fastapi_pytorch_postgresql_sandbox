@@ -115,17 +115,17 @@ jobs:
         LC_CTYPE: en_US.UTF-8
       run: |
         brew install cmake || true  # macos image has cmake installed, but a new version may exist; ignore it if so
-        brew install doxygen || true
-        brew install hdf5 || true
+        # brew install doxygen || true
+        # brew install hdf5 || true
         brew install pkg-config || true
         brew install wget || true
-        brew install jpeg || true
-        brew install libpng || true
-        brew install libtiff || true
-        brew install openexr || true
-        brew install eigen || true
-        brew install tbb || true
-        brew install hdf5 || true
+        # brew install jpeg || true
+        # brew install libpng || true
+        # brew install libtiff || true
+        # brew install openexr || true
+        # brew install eigen || true
+        # brew install tbb || true
+        # brew install hdf5 || true
         # pytorch
         brew install openblas || true
         brew install libomp || true
@@ -146,7 +146,7 @@ jobs:
         brew install gnu-getopt || true
         brew install libmagic || true
         brew install libffi || true
-        brew install atomicparsley || true
+        # brew install atomicparsley || true
         # brew install tree || true
         # brew install tesseract || true
 
@@ -156,9 +156,9 @@ jobs:
         ####    OR    #####
         # SOURCE: https://matham.github.io/ffpyplayer/installation.html#using-binary-wheels
         # ffmpeg
-        brew install ffmpeg || true
-        brew install sdl2 || true
-        brew install sdl2_mixer || true
+        # brew install ffmpeg || true
+        # brew install sdl2 || true
+        # brew install sdl2_mixer || true
 
         make start-docker-services-d
 
@@ -166,9 +166,20 @@ jobs:
 
         # pg_isready -p 5432
 
+    # TODO: enable this
+    - name: Cache model for ${{ matrix.os }} on ${{ matrix.arch }}
+      uses: actions/cache@v3
+      env:
+        # Increase this value to reset cache if etc/example-environment.yml has not changed
+        CACHE_NUMBER: 0
+      with:
+        path: ~/Documents/my_models/ScreenCropNetV1_378_epochs.pth
+        key: ${{ runner.os }}-torch-model-${{ env.CACHE_NUMBER }}-
+
     - name: link environment yaml for ${{ matrix.os }} on ${{ matrix.arch }}
       run: |
         make link-conda-ci
+        make download-model
 
     # TODO: enable this
     - name: Cache conda for ${{ matrix.os }} on ${{ matrix.arch }}

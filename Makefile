@@ -74,3 +74,6 @@ start-docker-ci-d:
 
 rm-docker-services:
 	docker-compose -f deploy/docker-compose.yml -f deploy/docker-compose.otlp.yml --project-directory . rm -v
+
+download-model:
+	bash contrib/download-model.sh
