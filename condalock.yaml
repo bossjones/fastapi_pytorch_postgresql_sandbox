@@ -495,4 +495,4 @@ dependencies:
   - wrapt==1.14.1
 variables:
   PYTORCH_ENABLE_MPS_FALLBACK: 1
-prefix: /Users/malcolm/.pyenv/versions/anaconda3-2022.05/envs/fastapi_pytorch_postgresql_sandbox3
+# prefix: /Users/malcolm/.pyenv/versions/anaconda3-2022.05/envs/fastapi_pytorch_postgresql_sandbox3
