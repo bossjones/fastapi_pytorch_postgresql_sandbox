@@ -68,16 +68,33 @@ jobs:
         brew install jq || true
         brew install curl || true
 
-    - name: start lima for ${{ matrix.os }} on ${{ matrix.arch }}
+    - name: Cache ~/Library/Caches/lima/download for ${{ matrix.os }} on ${{ matrix.arch }}
+      uses: actions/cache@v3
+      with:
+        path: ~/Library/Caches/lima/download
+        key: ${{ runner.os }}-archlinux
+
+    - name: Start lima for ${{ matrix.os }} on ${{ matrix.arch }}
       env:
         LANG: en_US.UTF-8
         LC_CTYPE: en_US.UTF-8
-        LIMA_INSTANCE: "test-upgrade"
+        # LIMA_INSTANCE: "test-upgrade"
+      working-directory: ./.ci/lima
       run: |
-        alias docker="lima nerdctl"
-        limactl start --set='.cpus = 2 | .memory = "8GiB"' --tty=false "${LIMA_INSTANCE}"
+        time limactl start --name=default --tty=false ./github-ci.yaml
         lima nerdctl info
         make start-docker-ci-d
+
+    # - name: start lima for ${{ matrix.os }} on ${{ matrix.arch }}
+    #   env:
+    #     LANG: en_US.UTF-8
+    #     LC_CTYPE: en_US.UTF-8
+    #     LIMA_INSTANCE: "test-upgrade"
+    #   run: |
+    #     alias docker="lima nerdctl"
+    #     limactl start --set='.cpus = 2 | .memory = "8GiB"' --tty=false "${LIMA_INSTANCE}"
+    #     lima nerdctl info
+    #     make start-docker-ci-d
 
     # - name: Brew deps for ${{ matrix.os }} on ${{ matrix.arch }}
     #   env:
