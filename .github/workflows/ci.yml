@@ -48,6 +48,13 @@ jobs:
         python: ["3.10"]
         # arch: [ amd64, arm64 ]
         arch: [arm64]
+        include:
+        # - os: ubuntu-latest
+        #   path: ~/.cache/pip
+        - os: macos-latest
+          path: ~/Library/Caches/pip
+        # - os: windows-latest
+        #   path: ~\AppData\Local\pip\Cache
     steps:
     - uses: actions/checkout@v3
 
@@ -191,22 +198,51 @@ jobs:
       run: |
         make link-conda-ci
 
+    # # TODO: enable this
+    # - name: Cache conda for ${{ matrix.os }} on ${{ matrix.arch }}
+    #   uses: actions/cache@v3
+    #   env:
+    #     # Increase this value to reset cache if etc/example-environment.yml has not changed
+    #     CACHE_NUMBER: 0
+    #   with:
+    #     path: ~/conda_pkgs_dir
+    #     key:
+    #       ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{
+    #       hashFiles('environment.yml') }}
+
+    - name: Cache pip conda for ${{ matrix.os }} on ${{ matrix.arch }}
+      uses: actions/cache@v3
+      env:
+        # Increase this value to reset cache if etc/example-environment.yml has not changed
+        CACHE_NUMBER: 0
+      with:
+        path: ${{ matrix.path }}
+        key: ${{ runner.os }}-pip-${{ env.CACHE_NUMBER }}-${{ hashFiles('environment.yml') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
     - name: Set up Python for ${{ matrix.os }} on ${{ matrix.arch }}
       uses: conda-incubator/setup-miniconda@v2.2.0
       with:
-          # miniforge-variant: Mambaforge
-          # use-mamba: true
+        # miniforge-variant: Mambaforge
+        # use-mamba: true
+        architecture: ${{ matrix.architecture }}
         miniconda-version: "latest"
         python-version: ${{ matrix.python }}
-          # channel-priority: strict
+        auto-update-conda: true
+        # channel-priority: strict
         activate-environment: fastapi_pytorch_postgresql_sandbox3
-          # environment-file: ${{ env.CONDA_FILE }}
-          # NOTE: 'Set this option to "false" to disable running the post cleanup step of the action. Default is "true"'
-          # SOURCE: https://github.com/conda-incubator/setup-miniconda/blob/7e642bb2e4ca56ff706818a0febf72bb226d348d/action.yml
-        run-post: ${{ matrix.os != 'windows-latest' && 'true' || 'false' }}
+        environment-file: environment.yml
+        # use-only-tar-bz2: true # IMPORTANT: This needs to be set for caching to work properly!
+        # NOTE: 'Set this option to "false" to disable running the post cleanup step of the action. Default is "true"'
+        # SOURCE: https://github.com/conda-incubator/setup-miniconda/blob/7e642bb2e4ca56ff706818a0febf72bb226d348d/action.yml
+        # run-post: ${{ matrix.os != 'windows-latest' && 'true' || 'false' }}
 
     - name: Test with pytest for ${{ matrix.os }} on ${{ matrix.arch }}
       run: |
+        conda activate fastapi_pytorch_postgresql_sandbox3
+        conda info
+        conda list
         inv ci.pytest -vvvvv
 
     - name: Upload pytest test results
