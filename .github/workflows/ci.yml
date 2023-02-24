@@ -97,13 +97,14 @@ jobs:
       run: |
         set +x
         # change to 'arm64' for m1
-        ARCH=arm64
-        VERSION=v0.8.2
-        curl -LO https://github.com/docker/buildx/releases/download/${VERSION}/buildx-${VERSION}.darwin-${ARCH}
-        mkdir -p ~/.docker/cli-plugins
-        mv buildx-${VERSION}.darwin-${ARCH} ~/.docker/cli-plugins/docker-buildx || true
-        chmod +x ~/.docker/cli-plugins/docker-buildx
-        # verify installation
+        # ARCH=arm64
+        # VERSION=v0.8.2
+        # curl -LO https://github.com/docker/buildx/releases/download/${VERSION}/buildx-${VERSION}.darwin-${ARCH}
+        # mkdir -p ~/.docker/cli-plugins
+        # mv buildx-${VERSION}.darwin-${ARCH} ~/.docker/cli-plugins/docker-buildx || true
+        # chmod +x ~/.docker/cli-plugins/docker-buildx
+        # # verify installation
+        brew install docker-buildx || true
         docker buildx version
 
         colima start --help
@@ -209,7 +210,7 @@ jobs:
         # auto-update-conda: true
         # channel-priority: strict
         activate-environment: fastapi_pytorch_postgresql_sandbox3
-        environment-file: condalock.yaml
+        environment-file: environment.yml
         use-only-tar-bz2: true # IMPORTANT: This needs to be set for caching to work properly!
         # NOTE: 'Set this option to "false" to disable running the post cleanup step of the action. Default is "true"'
         # SOURCE: https://github.com/conda-incubator/setup-miniconda/blob/7e642bb2e4ca56ff706818a0febf72bb226d348d/action.yml
