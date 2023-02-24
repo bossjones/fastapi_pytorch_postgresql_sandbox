@@ -28,17 +28,17 @@ def has_mps() -> bool:
         return False
 
 
-def extract_device_id(args, name):
-    """_summary_
+# def extract_device_id(args, name):
+#     """_summary_
 
-    Args:
-        args (_type_): _description_
-        name (_type_): _description_
+#     Args:
+#         args (_type_): _description_
+#         name (_type_): _description_
 
-    Returns:
-        _type_: _description_
-    """
-    return next((args[x + 1] for x in range(len(args)) if name in args[x]), None)
+#     Returns:
+#         _type_: _description_
+#     """
+#     return next((args[x + 1] for x in range(len(args)) if name in args[x]), None)
 
 
 def get_optimal_device(settings: Settings) -> torch.device:
@@ -79,6 +79,7 @@ def enable_tf32() -> None:
 
 errors.run(enable_tf32, "Enabling TF32")
 
+# sourcery skip: avoid-global-varibles
 cpu = torch.device("cpu")
 device = (
     device_interrogate
@@ -193,7 +194,7 @@ def mps_check() -> None:
         x_ones = torch.ones(5, device="mps")
 
         # Any operation happens on the GPU
-        x_ones * 2
+        x_ones * 2  # pylint: disable=pointless-statement
 
     elif not torch.backends.mps.is_built():
         print(
@@ -220,7 +221,7 @@ def seed_everything(seed: int) -> None:
     import random
 
     import numpy as np
-    import torch
+    import torch  # pylint: disable=reimported
 
     random.seed(seed)
     os.environ["PYTHONHASHSEED"] = str(seed)
