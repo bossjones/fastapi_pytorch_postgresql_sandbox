@@ -1,12 +1,16 @@
+# pylint: disable=too-many-arguments,too-many-locals
+
 """
 ci tasks
 """
+
 import logging
 import sys
 from typing import Union
 
 import click
 from invoke import call, task
+
 from tasks.utils import get_compose_env
 
 from .ml_logger import get_logger  # noqa: E402
@@ -194,7 +198,7 @@ def ruff(ctx, loc: str = "local", verbose: Union[bool, int] = 0):
         ctx.config["run"]["env"][k] = v
 
     ctx.run(
-        "ruff --show-source --show-fixes --diff --config pyproject.toml --statistics --show-files --show-settings .",
+        "ruff --show-source --diff --config pyproject.toml --format text -v --exclude setup.py .",
     )
 
 
