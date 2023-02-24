@@ -1,6 +1,7 @@
 """Automates Python scripts formatting, linting and Mkdocs documentation."""
 
-# pylint: disable=too-many-locals
+# pylint: disable=too-many-locals,too-many-nested-blocks,unspecified-encoding,too-many-branches,too-many-statements,simplifiable-condition
+# type: ignore
 
 # SOURCE: https://github.com/LouisdeBruijn/Medium/blob/master/python_tips/automate.py
 # SOURCE: https://towardsdatascience.com/python-type-hints-docstrings-7ec7f6d3416b
@@ -8,13 +9,17 @@
 import ast
 import importlib
 import re
+import sys
 from collections import defaultdict
 from pathlib import Path
 from typing import Union, get_type_hints
 
 
 def automate_mkdocs_from_docstring(
-    mkdocs_dir: Union[str, Path], mkgendocs_f: str, repo_dir: Path, match_string: str,
+    mkdocs_dir: Union[str, Path],
+    mkgendocs_f: str,
+    repo_dir: Path,
+    match_string: str,
 ) -> str:
     """Automates the -pages for mkgendocs package by adding all Python functions in a directory to the mkgendocs config.
 
@@ -43,7 +48,7 @@ def automate_mkdocs_from_docstring(
     functions = defaultdict(list)
     for script in scripts:
 
-        with open(script, "r") as source:
+        with open(script, "r") as source:  # type: ignore
             tree = ast.parse(source.read())
 
         for child in ast.iter_child_nodes(tree):
@@ -54,7 +59,7 @@ def automate_mkdocs_from_docstring(
                     function = f_.__name__
                     functions[script].append(function)
 
-    with open(f"{repo_dir}/{mkgendocs_f}", "r+") as mkgen_config:
+    with open(f"{repo_dir}/{mkgendocs_f}", "r+") as mkgen_config:  # type: ignore
         insert_string = ""
         for path, function_names in functions.items():
             insert_string += (
@@ -100,7 +105,9 @@ def indent(string: str) -> int:
 
 
 def docstring_from_type_hints(
-    repo_dir: Path, overwrite_script: bool = False, test: bool = True,
+    repo_dir: Path,
+    overwrite_script: bool = False,
+    test: bool = True,
 ) -> str:
     """Automate docstring argument variable-type from type-hints.
 
@@ -184,7 +191,8 @@ def docstring_from_type_hints(
                                                     type_hints[arg_name],
                                                 )
                                                 class_type = re.search(
-                                                    r"(<class ')(.*)('>)", variable_type,
+                                                    r"(<class ')(.*)('>)",
+                                                    variable_type,
                                                 )
                                                 if class_type:
                                                     variable_type = class_type.group(2)
@@ -253,7 +261,8 @@ def docstring_from_type_hints(
 
                                             variable_type = str(return_hint)
                                             class_type = re.search(
-                                                r"(<class ')(.*)('>)", variable_type,
+                                                r"(<class ')(.*)('>)",
+                                                variable_type,
                                             )
                                             if class_type:
                                                 variable_type = class_type.group(2)
@@ -285,7 +294,8 @@ def docstring_from_type_hints(
                                 print(f"no return type-hint for function: {function}")
 
                             sorted_arguments = sorted(
-                                new_arguments.items(), reverse=True,
+                                new_arguments.items(),
+                                reverse=True,
                             )
                             for (idx, new_arg) in sorted_arguments:
                                 docstring_lines[idx] = new_arg
@@ -331,7 +341,7 @@ def docstring_from_type_hints(
 
         if overwrite_script:
             if test:
-                script = f"{repo_dir}/test_it.py"
+                script = f"{repo_dir}/test_it.py"  # type: ignore
             with open(script, "w") as script_file:
                 script_file.writelines(script_lines)
 
@@ -342,17 +352,25 @@ def docstring_from_type_hints(
 
 def main():
     """Execute when running this script."""
-    python_tips_dir = Path.cwd().joinpath("Medium/Python_tips")
-    # python_tips_dir = Path.cwd().joinpath("Python_tips")
 
-    docstring_from_type_hints(python_tips_dir, overwrite_script=True, test=False)
+    folder_path = sys.argv[1]
+    folder_path_api = Path(folder_path).absolute()
+    print(folder_path_api)
 
-    automate_mkdocs_from_docstring(
-        mkdocs_dir="scripts",
-        mkgendocs_f="mkgendocs.yml",
-        repo_dir=python_tips_dir,
-        match_string="pages:\n",
-    )
+    assert folder_path_api.exists()
+
+    python_tips_dir = f"{folder_path_api}"
+    # python_tips_dir = Path.cwd().joinpath("Medium/Python_tips")
+    # # python_tips_dir = Path.cwd().joinpath("Python_tips")
+
+    # docstring_from_type_hints(python_tips_dir, overwrite_script=True, test=False)
+
+    # automate_mkdocs_from_docstring(
+    #     mkdocs_dir="scripts",
+    #     mkgendocs_f="mkgendocs.yml",
+    #     repo_dir=python_tips_dir,
+    #     match_string="pages:\n",
+    # )
 
 
 if __name__ == "__main__":
