@@ -22,6 +22,7 @@ ignore: # A list of paths or files which Sourcery will ignore.
 - contrib
 - setup.py
 - tasks/*
+- fastapi_pytorch_postgresql_sandbox/db/migrations/*
 
 rule_settings:
   enable:
