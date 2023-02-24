@@ -1,3 +1,5 @@
+"""db.base"""
+
 from ormar import ModelMeta
 
 from fastapi_pytorch_postgresql_sandbox.db.config import database

@@ -1,14 +1,11 @@
-#!/usr/bin/env python3
-
 # SOURCE: https://blog.bartab.fr/fastapi-logging-on-the-fly/
 from __future__ import annotations
 
+import collections
 from typing import Any, List, Optional
 
 # pylint: disable=no-name-in-module
 from pydantic import BaseModel
-
-import collections
 
 try:  # python 3
     pass
@@ -18,12 +15,11 @@ except ImportError:  # python 2
 import gc
 import inspect
 import logging
-from pprint import pformat
 
 # import slack
 import sys
-
-from typing import Any, Deque, Dict, Optional, TYPE_CHECKING
+from pprint import pformat
+from typing import TYPE_CHECKING, Any, Deque, Dict, Optional
 
 from loguru import logger
 from loguru._defaults import LOGURU_FORMAT

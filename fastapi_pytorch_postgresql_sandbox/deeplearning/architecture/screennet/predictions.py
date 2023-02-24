@@ -64,7 +64,7 @@ def pred_and_store(
     # 3. Loop through target paths
     for path in tqdm(paths):
         class_name = path.parent.stem
-        pred_dict = {"image_path": path, "class_name": class_name}
+        pred_d = {"image_path": path, "class_name": class_name}
         # 6. Start the prediction timer
         start_time = timer()
 
@@ -98,18 +98,18 @@ def pred_and_store(
             ]  # hardcode prediction class to be on CPU
 
             # 11. Make sure things in the dictionary are on CPU (required for inspecting predictions later on)
-            pred_dict["pred_prob"] = round(pred_prob.unsqueeze(0).max().cpu().item(), 4)
-            pred_dict["pred_class"] = pred_class
+            pred_d["pred_prob"] = round(pred_prob.unsqueeze(0).max().cpu().item(), 4)
+            pred_d["pred_class"] = pred_class
 
             # 12. End the timer and calculate time per pred
             end_time = timer()
-            pred_dict["time_for_pred"] = round(end_time - start_time, 4)
+            pred_d["time_for_pred"] = round(end_time - start_time, 4)
 
         # 13. Does the pred match the true label?
-        pred_dict["correct"] = class_name == pred_class
+        pred_d["correct"] = class_name == pred_class
 
         # 14. Add the dictionary to the list of preds
-        pred_list.append(pred_dict)
+        pred_list.append(pred_d)
 
     # 15. Return list of prediction dictionaries
     return pred_list
@@ -175,14 +175,14 @@ def predict_from_file(
     paths = [image_path_api]
     img = convert_pil_image_to_rgb_channels(f"{paths[0]}")
 
-    pred_dicts = pred_and_store(paths, model, transforms, class_names, device)
+    pred_ds = pred_and_store(paths, model, transforms, class_names, device)
 
     if args.to_disk and args.results != "":
-        write_predict_results_to_csv(pred_dicts, args)
+        write_predict_results_to_csv(pred_ds, args)
 
-    image_class = pred_dicts[0]["pred_class"]
-    image_pred_prob = pred_dicts[0]["pred_prob"]
-    image_time_for_pred = pred_dicts[0]["time_for_pred"]
+    image_class = pred_ds[0]["pred_class"]
+    image_pred_prob = pred_ds[0]["pred_prob"]
+    image_time_for_pred = pred_ds[0]["time_for_pred"]
 
     # 5. Print metadata
     print(f"Random image path: {paths[0]}")
@@ -193,7 +193,7 @@ def predict_from_file(
     print(f"Image width: {img.width}")
 
     # print prediction info to rich table
-    pred_df = pd.DataFrame(pred_dicts)
+    pred_df = pd.DataFrame(pred_ds)
     console_print_table(pred_df)
 
     plot_fname = (
@@ -202,7 +202,7 @@ def predict_from_file(
 
     from_pil_image_to_plt_display(
         img,
-        pred_dicts,
+        pred_ds,
         to_disk=args.to_disk,
         interactive=args.interactive,
         fname=plot_fname,

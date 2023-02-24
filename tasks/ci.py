@@ -154,7 +154,7 @@ def sourcery(ctx, loc: str = "local", verbose: Union[bool, int] = 0):
         ctx.config["run"]["env"][k] = v
 
     ctx.run(
-        "sourcery review --in-place --enable default --enable google-python-style-guide .",
+        "sourcery review --fix --config .sourcery.yaml --enable default --enable google-python-style-guide --verbose .",
     )
 
 
@@ -701,6 +701,7 @@ def clean_pyi(ctx, loc="local", verbose=0, dry_run=False):
         call(verify_python_version, loc="local"),
         call(mypy, loc="local"),
         call(autoflake, loc="local", in_place=True, remove_all_unused_imports=True),
+        call(sourcery, loc="local"),
         call(black, loc="local", check=False, tests=True),
         call(isort, loc="local"),
         call(black, loc="local", check=False, tests=True),

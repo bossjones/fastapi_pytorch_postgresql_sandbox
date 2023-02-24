@@ -1,19 +1,19 @@
 absl-py @ file:///home/conda/feedstock_root/build_artifacts/absl-py_1673535674859/work
 accelerate==0.16.0
-aio-pika==8.3.0
-aiofiles==22.1.0
+aio-pika==9.0.4
+aiofiles==23.1.0
 aiohttp @ file:///Users/runner/miniforge3/conda-bld/aiohttp_1666878637568/work
 aiokafka==0.8.0
-aiormq==6.6.4
+aiormq==6.7.2
 aiosignal @ file:///home/conda/feedstock_root/build_artifacts/aiosignal_1667935791922/work
 albumentations @ file:///home/conda/feedstock_root/build_artifacts/albumentations_1663682729628/work
-alembic==1.9.3
+alembic==1.9.4
 anyio==3.6.2
 appdirs==1.4.4
 appnope==0.1.3
 asgiref==3.6.0
 astor==0.8.1
-astroid==2.14.1
+astroid==2.14.2
 asttokens==2.2.1
 astunparse==1.6.3
 async-timeout @ file:///home/conda/feedstock_root/build_artifacts/async-timeout_1640026696943/work
@@ -72,11 +72,11 @@ email-validator==1.3.1
 eventlet @ file:///home/conda/feedstock_root/build_artifacts/eventlet_1674009261816/work
 exceptiongroup==1.1.0
 executing==1.2.0
-fakeredis==2.7.1
+fakeredis==2.9.2
 fancycompleter==0.9.1
 fastai @ file:///home/conda/feedstock_root/build_artifacts/fastai_1675786314653/work
-fastapi==0.90.0
--e git+ssh://git@github.com/bossjones/fastapi_pytorch_postgresql_sandbox.git@a39e0d84d9a77dfd4f0765f7dbd65d3e2757d9cb#egg=fastapi_pytorch_postgresql_sandbox
+fastapi==0.92.0
+-e git+ssh://git@github.com/bossjones/fastapi_pytorch_postgresql_sandbox.git@ffe055edfb522b4425662c16015ba0da24073e79#egg=fastapi_pytorch_postgresql_sandbox
 fastcore @ file:///home/conda/feedstock_root/build_artifacts/fastcore_1663188308722/work
 fastdownload @ file:///home/jhoward/mambaforge/conda-bld/fastdownload_1657219113869/work
 fastprogress @ file:///home/conda/feedstock_root/build_artifacts/fastprogress_1658690818839/work
@@ -154,7 +154,7 @@ multidict @ file:///Users/runner/miniforge3/conda-bld/multidict_1672339514000/wo
 multiprocess @ file:///Users/runner/miniforge3/conda-bld/multiprocess_1666932956924/work
 munkres==1.1.4
 murmurhash @ file:///Users/runner/miniforge3/conda-bld/murmurhash_1666946310173/work
-mypy==1.0.0
+mypy==1.0.1
 mypy-extensions==1.0.0
 nest-asyncio==1.5.6
 networkx==2.8.3
@@ -163,22 +163,22 @@ nodeenv==1.7.0
 numpy @ file:///Users/runner/miniforge3/conda-bld/numpy_1660673193545/work
 oauthlib @ file:///home/conda/feedstock_root/build_artifacts/oauthlib_1666056362788/work
 objprint==0.2.2
-opentelemetry-api==1.15.0
-opentelemetry-exporter-otlp==1.15.0
-opentelemetry-exporter-otlp-proto-grpc==1.15.0
-opentelemetry-exporter-otlp-proto-http==1.15.0
-opentelemetry-instrumentation==0.36b0
-opentelemetry-instrumentation-aio-pika==0.36b0
-opentelemetry-instrumentation-asgi==0.36b0
-opentelemetry-instrumentation-asyncpg==0.36b0
-opentelemetry-instrumentation-fastapi==0.36b0
-opentelemetry-instrumentation-redis==0.36b0
-opentelemetry-proto==1.15.0
-opentelemetry-sdk==1.15.0
-opentelemetry-semantic-conventions==0.36b0
-opentelemetry-util-http==0.36b0
+opentelemetry-api==1.16.0
+opentelemetry-exporter-otlp==1.16.0
+opentelemetry-exporter-otlp-proto-grpc==1.16.0
+opentelemetry-exporter-otlp-proto-http==1.16.0
+opentelemetry-instrumentation==0.37b0
+opentelemetry-instrumentation-aio-pika==0.37b0
+opentelemetry-instrumentation-asgi==0.37b0
+opentelemetry-instrumentation-asyncpg==0.37b0
+opentelemetry-instrumentation-fastapi==0.37b0
+opentelemetry-instrumentation-redis==0.37b0
+opentelemetry-proto==1.16.0
+opentelemetry-sdk==1.16.0
+opentelemetry-semantic-conventions==0.37b0
+opentelemetry-util-http==0.37b0
 opt-einsum==3.3.0
-ormar==0.12.1
+ormar==0.9.4
 packaging @ file:///home/conda/feedstock_root/build_artifacts/packaging_1673482170163/work
 pamqp==3.2.1
 pandas==1.5.3
@@ -195,7 +195,7 @@ Pillow @ file:///Users/runner/miniforge3/conda-bld/pillow_1675487373585/work
 platformdirs==2.6.2
 pluggy==1.0.0
 pprintpp==0.4.0
-pre-commit==3.0.4
+pre-commit==3.1.0
 preshed @ file:///Users/runner/miniforge3/conda-bld/preshed_1666991318984/work
 prometheus-client==0.16.0
 prometheus-fastapi-instrumentator==5.9.1
@@ -212,13 +212,13 @@ pyasn1==0.4.8
 pyasn1-modules==0.2.7
 pycodestyle==2.10.0
 pycparser @ file:///home/conda/feedstock_root/build_artifacts/pycparser_1636257122734/work
-pydantic @ file:///Users/runner/miniforge3/conda-bld/pydantic_1673305678482/work
+pydantic==1.10.5
 pydot==1.4.2
 pyfiglet==0.8.post1
 pyflakes==3.0.1
 Pygments @ file:///home/conda/feedstock_root/build_artifacts/pygments_1672682006896/work
 PyJWT @ file:///home/conda/feedstock_root/build_artifacts/pyjwt_1666240235902/work
-pylint==2.16.1
+pylint==2.16.2
 pynguin==0.6.3
 pyOpenSSL @ file:///home/conda/feedstock_root/build_artifacts/pyopenssl_1672659226110/work
 pyparsing @ file:///home/conda/feedstock_root/build_artifacts/pyparsing_1652235407899/work
@@ -234,7 +234,7 @@ pytest-sugar==0.9.6
 pytest-timeout==2.1.0
 python-dateutil @ file:///home/conda/feedstock_root/build_artifacts/python-dateutil_1626286286081/work
 python-dotenv==0.21.1
-pytype==2023.1.31
+pytype==2023.2.17
 pytz @ file:///home/conda/feedstock_root/build_artifacts/pytz_1673864280276/work
 pyu2f @ file:///home/conda/feedstock_root/build_artifacts/pyu2f_1604248910016/work
 PyWavelets @ file:///Users/runner/miniforge3/conda-bld/pywavelets_1673082414013/work
@@ -242,7 +242,7 @@ pyxdg==0.28
 PyYAML @ file:///Users/runner/miniforge3/conda-bld/pyyaml_1666772543719/work
 pyzmq==25.0.0
 qudida @ file:///home/conda/feedstock_root/build_artifacts/qudida_1651101164121/work
-redis==4.4.2
+redis==4.5.1
 regex @ file:///Users/runner/miniforge3/conda-bld/regex_1667265315676/work
 requests @ file:///home/conda/feedstock_root/build_artifacts/requests_1673863902341/work
 requests-oauthlib @ file:///home/conda/feedstock_root/build_artifacts/requests-oauthlib_1643557462909/work
@@ -265,14 +265,14 @@ smart-open @ file:///home/conda/feedstock_root/build_artifacts/smart_open_163023
 smmap==5.0.0
 sniffio==1.3.0
 sortedcontainers==2.4.0
-sourcery==1.0.4
+sourcery==1.0.5
 spacy @ file:///Users/runner/miniforge3/conda-bld/spacy_1674544556152/work
 spacy-legacy @ file:///home/conda/feedstock_root/build_artifacts/spacy-legacy_1674550301837/work
 spacy-loggers @ file:///home/conda/feedstock_root/build_artifacts/spacy-loggers_1672303484730/work
 SQLAlchemy==1.4.41
 srsly @ file:///Users/runner/miniforge3/conda-bld/srsly_1666955508343/work
 stack-data==0.6.2
-starlette==0.22.0
+starlette==0.25.0
 tabulate==0.9.0
 tensorboard @ file:///home/conda/feedstock_root/build_artifacts/tensorboard_1667970813026/work/tensorboard-2.11.0-py3-none-any.whl
 tensorboard-data-server @ file:///Users/runner/miniforge3/conda-bld/tensorboard-data-server_1670043875829/work/tensorboard_data_server-0.6.1-py3-none-macosx_11_0_arm64.whl
@@ -307,8 +307,8 @@ traitlets==5.9.0
 trampoline==0.1.2
 transformers @ file:///home/conda/feedstock_root/build_artifacts/transformers_1665546244975/work
 typer @ file:///home/conda/feedstock_root/build_artifacts/typer_1667832226065/work
-types-mock==5.0.0.2
-types-requests==2.28.11.12
+types-mock==5.0.0.5
+types-requests==2.28.11.14
 types-urllib3==1.26.25.5
 typing-inspect==0.8.0
 typing_extensions @ file:///home/conda/feedstock_root/build_artifacts/typing_extensions_1665144421445/work

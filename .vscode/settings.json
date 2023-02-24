@@ -172,4 +172,7 @@
     "--config-file=${workspaceFolder}/lint-configs-python/python/mypy.ini"
   ],
   "isort.check": true,
+  "yaml.schemas": {
+    "https://docs.sourcery.ai/resources/sourcery_yaml_schema.json": ".sourcery.yaml"
+  }
 }
