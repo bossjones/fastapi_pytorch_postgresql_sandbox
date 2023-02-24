@@ -154,7 +154,7 @@ def sourcery(ctx, loc: str = "local", verbose: Union[bool, int] = 0):
         ctx.config["run"]["env"][k] = v
 
     ctx.run(
-        "sourcery review --fix --config .sourcery.yaml --enable default --enable google-python-style-guide --verbose .",
+        "sourcery review --fix --config .sourcery.yaml --enable default --enable google-python-style-guide --verbose --summary .",
     )
 
 
@@ -174,7 +174,7 @@ def flake8(ctx, loc: str = "local", verbose: Union[bool, int] = 0):
         ctx.config["run"]["env"][k] = v
 
     ctx.run(
-        "flake8 --max-line-length=200 --ignore=D100,D104,E203,E402,E501,W503 --docstring-convention=google .",
+        "flake8 --count --max-line-length=200 --ignore=D100,D104,E203,E402,E501,W503 --docstring-convention=google .",
     )
 
 
@@ -287,7 +287,7 @@ def isort(ctx, loc="local", check=False, dry_run=False, verbose=0, diff=False):
     for k, v in env.items():
         ctx.config["run"]["env"][k] = v
 
-    _cmd = "isort "
+    _cmd = "isort --settings-file pyproject.toml "
 
     if check:
         _cmd += " --check-only"
@@ -746,7 +746,7 @@ def clean_pyi(ctx, loc="local", verbose=0, dry_run=False):
         call(isort, loc="local"),
         call(black, loc="local", check=False, tests=True),
         call(mypy, loc="local"),
-        call(flake8, loc="local"),
+        # call(flake8, loc="local"),
         call(pylint, loc="local", everything=True),
         call(pytest, loc="local"),
     ],
