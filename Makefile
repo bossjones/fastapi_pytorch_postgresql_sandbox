@@ -67,3 +67,6 @@ start-docker-services:
 
 start-docker-services-d:
 	docker-compose -f deploy/docker-compose.yml -f deploy/docker-compose.otlp.yml --project-directory . up -d
+
+rm-docker-services:
+	docker-compose -f deploy/docker-compose.yml -f deploy/docker-compose.otlp.yml --project-directory . rm -v

@@ -143,6 +143,26 @@ def mypy(ctx, loc="local", verbose=0):
 
 
 @task(incrementable=["verbose"])
+def alembic(ctx, loc="local", verbose=0):
+    """
+    alembic upgrade
+    Usage: inv ci.alembic
+    """
+    env = get_compose_env(ctx, loc=loc)
+
+    # Only display result
+    ctx.config["run"]["echo"] = True
+
+    # Override run commands env variables one key at a time
+    for k, v in env.items():
+        ctx.config["run"]["env"][k] = v
+
+    ctx.run(
+        "alembic upgrade head",
+    )
+
+
+@task(incrementable=["verbose"])
 def sourcery(ctx, loc: str = "local", verbose: Union[bool, int] = 0):
     """
     sourcery pytorch_lab folder
