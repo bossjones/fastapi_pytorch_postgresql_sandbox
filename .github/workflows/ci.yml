@@ -226,7 +226,7 @@ jobs:
       with:
         # miniforge-variant: Mambaforge
         # use-mamba: true
-        architecture: ${{ matrix.architecture }}
+        architecture: ${{ matrix.arch }}
         miniconda-version: "latest"
         python-version: ${{ matrix.python }}
         auto-update-conda: true
@@ -236,13 +236,19 @@ jobs:
         # use-only-tar-bz2: true # IMPORTANT: This needs to be set for caching to work properly!
         # NOTE: 'Set this option to "false" to disable running the post cleanup step of the action. Default is "true"'
         # SOURCE: https://github.com/conda-incubator/setup-miniconda/blob/7e642bb2e4ca56ff706818a0febf72bb226d348d/action.yml
+        # FIXME: https://github.com/spyder-ide/spyder/blob/master/.github/workflows/test-mac.yml
         # run-post: ${{ matrix.os != 'windows-latest' && 'true' || 'false' }}
 
     - name: Test with pytest for ${{ matrix.os }} on ${{ matrix.arch }}
+      shell: bash -l {0}
       run: |
+        eval "$(conda shell.bash hook)"
         conda activate fastapi_pytorch_postgresql_sandbox3
         conda info
         conda list
+        python -V
+        python -c 'import torch; print("Torch version %s" % torch.__version__)'
+        python -c 'import tensorflow; print("Tensorflow version %s" % tensorflow.__version__)'
         inv ci.pytest -vvvvv
 
     - name: Upload pytest test results
