@@ -25,8 +25,9 @@ conda-delete:
 	conda env remove -n pytorch-lab3
 
 conda-lock-env:
-	conda env export > env.yml.lock
-	conda list --explicit > spec-file.txt
+	conda env export > environment.yml.lock
+	conda list -e > conda.requirements.txt
+	pip list --format=freeze > requirements.txt
 
 conda-env-export:
 	conda env export
