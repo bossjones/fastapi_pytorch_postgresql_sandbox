@@ -227,7 +227,7 @@
     // "https://json.schemastore.org/commitlintrc.json": "",
     // "https://json.schemastore.org/pre-commit-hooks.json": ".pre-commit-config.yaml"
   },
-  "ruff.fixAll": false,
+  "ruff.fixAll": true,
   "ruff.path": ["ruff"],
   "ruff.importStrategy": "fromEnvironment",
   "ruff.interpreter": ["/Users/malcolm/.pyenv/versions/anaconda3-2022.05/envs/fastapi_pytorch_postgresql_sandbox3/bin/python3"],

@@ -2,50 +2,39 @@
 from __future__ import annotations
 
 import pathlib
-
-from icecream import ic
-from rich import print
-
-# ---------------------------------------------------------------------------
-import torch
-import torchvision
-
-from fastapi_pytorch_postgresql_sandbox.deeplearning.common import devices
-from fastapi_pytorch_postgresql_sandbox.settings import Settings, settings
-
-assert int(torch.__version__.split(".")[1]) >= 12, "torch version should be 1.12+"
-assert (
-    int(torchvision.__version__.split(".")[1]) >= 13
-), "torchvision version should be 0.13+"
-
-# Continue with regular imports
-import mlxtend
-from torch import nn
-
-from fastapi_pytorch_postgresql_sandbox.deeplearning.architecture.screennet.config import (
-    PATH_TO_BEST_MODEL,
-)
-
-assert (
-    int(mlxtend.__version__.split(".")[1]) >= 19
-), "mlxtend verison should be 0.19.0 or higher"
-
 from pathlib import Path
 from typing import List, Union
 
+from icecream import ic
+
+# Continue with regular imports
+# import mlxtend
 import numpy as np
+from rich import print
 
 # SOURCE: https://github.com/rasbt/deeplearning-models/blob/35aba5dc03c43bc29af5304ac248fc956e1361bf/pytorch_ipynb/helper_evaluate.py
+# ---------------------------------------------------------------------------
 import torch
+
+# from torch import nn
+import torch.nn
 from torch.nn import CrossEntropyLoss
-import torch.nn as nn
+
+# import torch.nn as nn
 import torch.nn.parallel
 import torch.optim
 from torch.optim import Adam
 import torch.profiler
 import torch.utils.data
 import torch.utils.data.distributed
-import torchvision.models as models
+import torchvision
+import torchvision.models
+
+from fastapi_pytorch_postgresql_sandbox.deeplearning.architecture.screennet.config import (
+    PATH_TO_BEST_MODEL,
+)
+from fastapi_pytorch_postgresql_sandbox.deeplearning.common import devices
+from fastapi_pytorch_postgresql_sandbox.settings import Settings, settings
 
 # SOURCE: https://github.com/pytorch/pytorch/issues/78924
 torch.set_num_threads(1)
@@ -115,7 +104,7 @@ def create_effnetb0_model(
         _type_: _description_
     """
     # NEW: Setup the model with pretrained weights and send it to the target device (torchvision v0.13+)
-    weights = models.__dict__[settings.model_weights].DEFAULT
+    weights = torchvision.models.__dict__[settings.model_weights].DEFAULT
     # weights = (
     #     torchvision.models.EfficientNet_B0_Weights.DEFAULT
     # )  # .DEFAULT = best available weights
@@ -232,7 +221,7 @@ def load_model_for_inference(
     device: Union[str, torch.device],
     class_names: List[str],
     settings: Settings,
-) -> nn.Module:
+) -> torch.nn.Module:
     """_summary_
 
     Args:
@@ -257,12 +246,14 @@ def load_model_for_inference(
 
 
 # SOURCE: https://github.com/a-sasikumar/image_caption_errors/blob/d583dc77cfa9938bb15297b3096a959fe6084b66/models/model.py
-def load_model_from_disk(save_path: str, empty_model: nn.Module) -> nn.Module:
+def load_model_from_disk(
+    save_path: str, empty_model: torch.nn.Module,
+) -> torch.nn.Module:
     """_summary_
 
     Args:
         save_path (str): _description_
-        empty_model (nn.Module): _description_
+        empty_model (torch.nn.Module): _description_
 
     Returns:
         nn.Module: _description_
@@ -295,9 +286,11 @@ class ImageClassifier:
         self.path_to_model: str = path_to_model
         self.settings: Settings = settings
         self.device = devices.get_optimal_device(settings)
-        self.weights = models.__dict__[settings.model_weights].DEFAULT
+        self.weights = torchvision.models.__dict__[settings.model_weights].DEFAULT
         self.auto_transforms = self.weights.transforms()
-        self.model = models.__dict__[settings.arch](weights=settings.weights).to(
+        self.model = torchvision.models.__dict__[settings.arch](
+            weights=settings.weights,
+        ).to(
             settings.device,
         )
         self.model.name = settings.arch
@@ -335,12 +328,14 @@ class ImageClassifier:
 
             device = devices.get_optimal_device(settings)
 
-            weights = models.__dict__[settings.model_weights].DEFAULT
+            weights = torchvision.models.__dict__[settings.model_weights].DEFAULT
             weights.transforms()
-            model = models.__dict__[settings.arch](weights=weights).to(device)
+            model = torchvision.models.__dict__[settings.arch](weights=weights).to(
+                device,
+            )
         else:
             ic(f"=> creating model '{settings.arch}'")
-            model = models.__dict__[settings.arch]()
+            model = torchvision.models.__dict__[settings.arch]()
             model.name = settings.arch
 
         # Freeze all base layers in the "features" section of the model (the feature extractor) by setting requires_grad=False
@@ -362,7 +357,7 @@ class ImageClassifier:
 
         ic(next(model.parameters()).device)
 
-        loss_fn: CrossEntropyLoss = nn.CrossEntropyLoss()
+        loss_fn: CrossEntropyLoss = torch.nn.CrossEntropyLoss()
 
         optimizer: Adam = torch.optim.Adam(model.parameters(), lr=settings.lr)
 
@@ -372,7 +367,7 @@ class ImageClassifier:
         # this is the part we really need
         if settings.weights:
             ic(f"loading weights from -> {settings.weights}")
-            # loaded_model: nn.Module
+            # loaded_model: torch.nn.Module
             model = run_get_model_for_inference(
                 model,
                 device,
