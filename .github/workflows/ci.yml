@@ -75,7 +75,7 @@ jobs:
         LIMA_INSTANCE: "test-upgrade"
       run: |
         alias docker="lima nerdctl"
-        limactl start --tty=false "${LIMA_INSTANCE}"
+        limactl start --set='.cpus = 2 | .memory = "8GiB"' --tty=false "${LIMA_INSTANCE}"
         lima nerdctl info
         make start-docker-ci-d
 
