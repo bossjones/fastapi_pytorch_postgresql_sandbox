@@ -61,7 +61,10 @@ jobs:
         brew install readline || true
         brew install libxslt || true
         brew install perl || true
-        brew install docker colima docker-compose || true
+        brew install docker || true
+        brew install colima || true
+        brew install docker-compose
+        brew install tree || true
         brew install qemu || true
         brew install bash || true
         brew install lima || true
@@ -74,16 +77,48 @@ jobs:
         path: ~/Library/Caches/lima/download
         key: ${{ runner.os }}-archlinux
 
-    - name: Start lima for ${{ matrix.os }} on ${{ matrix.arch }}
+    # - name: Start lima for ${{ matrix.os }} on ${{ matrix.arch }}
+    #   env:
+    #     LANG: en_US.UTF-8
+    #     LC_CTYPE: en_US.UTF-8
+    #     # LIMA_INSTANCE: "test-upgrade"
+    #   working-directory: ./.ci/lima
+    #   run: |
+    #     time limactl start --name=default --tty=false ./github-ci.yaml
+    #     lima nerdctl info
+    #     make start-docker-ci-d
+
+    - name: Start colima for ${{ matrix.os }} on ${{ matrix.arch }}
       env:
         LANG: en_US.UTF-8
         LC_CTYPE: en_US.UTF-8
         # LIMA_INSTANCE: "test-upgrade"
-      working-directory: ./.ci/lima
+      # working-directory: ./.ci/lima
       run: |
-        time limactl start --name=default --tty=false ./github-ci.yaml
-        lima nerdctl info
-        make start-docker-ci-d
+        set +x
+        # change to 'arm64' for m1
+        ARCH=arm64
+        VERSION=v0.8.2
+        curl -LO https://github.com/docker/buildx/releases/download/${VERSION}/buildx-${VERSION}.darwin-${ARCH}
+        mkdir -p ~/.docker/cli-plugins
+        mv buildx-${VERSION}.darwin-${ARCH} ~/.docker/cli-plugins/docker-buildx || true
+        chmod +x ~/.docker/cli-plugins/docker-buildx
+        # verify installation
+        docker buildx version
+
+        colima start --help
+
+        time colima start --cpu 2 --memory 6 --layer=true --network-address --dns 8.8.8.8 --dns 1.1.1.1
+
+        mkdir -p ~/.docker/cli-plugins || true
+
+        ln -sfn $(brew --prefix)/opt/docker-compose/bin/docker-compose ~/.docker/cli-plugins/docker-compose
+
+        colima list
+
+
+        docker-compose -f deploy/docker-compose.yml -f deploy/docker-compose.otlp.yml --project-directory . up -d
+
 
     # - name: start lima for ${{ matrix.os }} on ${{ matrix.arch }}
     #   env:
