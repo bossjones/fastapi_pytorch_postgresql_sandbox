@@ -66,14 +66,14 @@ class Settings(BaseSettings):
     seed: int = 42
 
     # Variables for Redis
-    redis_host: str = "fastapi_pytorch_postgresql_sandbox-redis"
+    redis_host: str = "localhost"
     redis_port: int = 6379
     redis_user: Optional[str] = None
     redis_pass: Optional[str] = None
     redis_base: Optional[int] = None
 
     # Variables for RabbitMQ
-    rabbit_host: str = "fastapi_pytorch_postgresql_sandbox-rmq"
+    rabbit_host: str = "localhost"
     rabbit_port: int = 5672
     rabbit_user: str = "guest"
     rabbit_pass: str = "guest"
