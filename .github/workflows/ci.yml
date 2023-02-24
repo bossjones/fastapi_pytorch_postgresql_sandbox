@@ -71,8 +71,8 @@ jobs:
         brew install perl || true
         brew install docker || true
         brew install colima || true
-        brew install docker-compose
-        brew install tree || true
+        brew install docker-compose || true
+        # brew install tree || true
         brew install qemu || true
         brew install bash || true
         brew install lima || true
@@ -96,14 +96,6 @@ jobs:
       # working-directory: ./.ci/lima
       run: |
         set +x
-        # change to 'arm64' for m1
-        # ARCH=arm64
-        # VERSION=v0.8.2
-        # curl -LO https://github.com/docker/buildx/releases/download/${VERSION}/buildx-${VERSION}.darwin-${ARCH}
-        # mkdir -p ~/.docker/cli-plugins
-        # mv buildx-${VERSION}.darwin-${ARCH} ~/.docker/cli-plugins/docker-buildx || true
-        # chmod +x ~/.docker/cli-plugins/docker-buildx
-        # # verify installation
         brew install docker-buildx || true
         docker buildx version
 
@@ -155,8 +147,8 @@ jobs:
         brew install libmagic || true
         brew install libffi || true
         brew install atomicparsley || true
-        brew install tree || true
-        brew install tesseract || true
+        # brew install tree || true
+        # brew install tesseract || true
 
         # https://github.com/jiaaro/pydub#installation
         # libav
@@ -215,7 +207,7 @@ jobs:
         # NOTE: 'Set this option to "false" to disable running the post cleanup step of the action. Default is "true"'
         # SOURCE: https://github.com/conda-incubator/setup-miniconda/blob/7e642bb2e4ca56ff706818a0febf72bb226d348d/action.yml
         # FIXME: https://github.com/spyder-ide/spyder/blob/master/.github/workflows/test-mac.yml
-        # run-post: ${{ matrix.os != 'windows-latest' && 'true' || 'false' }}
+        run-post: ${{ matrix.os != 'windows-latest' && 'true' || 'false' }}
 
     - name: Test with pytest for ${{ matrix.os }} on ${{ matrix.arch }}
       # shell: bash -l {0}

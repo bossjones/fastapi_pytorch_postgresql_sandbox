@@ -23,7 +23,7 @@ dependencies:
   # sed -E 's/invokeai/invokeai-updated/;20,99s/- ([^=]+)==.+/- \1/' environment-mac.yml > environment-mac-updated.yml
   # CONDA_SUBDIR=osx-arm64 conda env create -f environment-mac-updated.yml && conda list -n invokeai-updated | awk ' {print "  - " $1 "==" $2;} '
   # ```
-- apple::tensorflow-deps
+# - apple::tensorflow-deps
 - coloredlogs=15.0
 - eventlet
 - humanfriendly=10.0
@@ -37,7 +37,7 @@ dependencies:
 - scikit-image
 - scikit-learn
 - scipy=1.9
-- tensorboard=2.11.0
+# - tensorboard=2.11.0
 - transformers=4.23
 - pip:
   - tqdm
