@@ -27,8 +27,7 @@ from torch.optim import Adam
 import torch.profiler
 import torch.utils.data
 import torch.utils.data.distributed
-import torchvision
-import torchvision.models
+import torchvision.models as torchvision_models
 
 from fastapi_pytorch_postgresql_sandbox.deeplearning.architecture.screennet.config import (
     PATH_TO_BEST_MODEL,
@@ -104,11 +103,9 @@ def create_effnetb0_model(
         _type_: _description_
     """
     # NEW: Setup the model with pretrained weights and send it to the target device (torchvision v0.13+)
-    weights = torchvision.models.__dict__[settings.model_weights].DEFAULT
-    # weights = (
-    #     torchvision.models.EfficientNet_B0_Weights.DEFAULT
-    # )  # .DEFAULT = best available weights
-    model = torchvision.models.efficientnet_b0(weights=weights).to(device)
+    weights = torchvision_models.__dict__[settings.model_weights].DEFAULT
+
+    model = torchvision_models.efficientnet_b0(weights=weights).to(device)
 
     # Freeze all base layers in the "features" section of the model (the feature extractor) by setting requires_grad=False
     for param in model.features.parameters():
@@ -158,7 +155,7 @@ def run_save_model_for_inference(
 
 # wrapper function of common code
 def run_get_model_for_inference(
-    model: torch.nn.Module,
+    # model: torch.nn.Module,
     device: Union[str, torch.device],
     class_names: List[str],
     path_to_model: str,
@@ -234,20 +231,25 @@ def load_model_for_inference(
         nn.Module: _description_
     """
     model = create_effnetb0_model(device, class_names, settings)
+
+    import bpdb
+
+    bpdb.set_trace()
+
     model.load_state_dict(torch.load(save_path))
     model.eval()
     print(f"Model loaded from path {save_path} successfully.")
-    # Get the model size in bytes then convert to megabytes
+
     model_size = Path(save_path).stat().st_size // (1024 * 1024)
     print(f"EfficientNetB2 feature extractor model size: {model_size} MB")
 
-    # get_model_summary(model)
     return model
 
 
 # SOURCE: https://github.com/a-sasikumar/image_caption_errors/blob/d583dc77cfa9938bb15297b3096a959fe6084b66/models/model.py
 def load_model_from_disk(
-    save_path: str, empty_model: torch.nn.Module,
+    save_path: str,
+    empty_model: torch.nn.Module,
 ) -> torch.nn.Module:
     """_summary_
 
@@ -286,16 +288,19 @@ class ImageClassifier:
         self.path_to_model: str = path_to_model
         self.settings: Settings = settings
         self.device = devices.get_optimal_device(settings)
-        self.weights = torchvision.models.__dict__[settings.model_weights].DEFAULT
+        self.weights = torchvision_models.__dict__[settings.model_weights].DEFAULT
         self.auto_transforms = self.weights.transforms()
-        self.model = torchvision.models.__dict__[settings.arch](
-            weights=settings.weights,
-        ).to(
-            settings.device,
-        )
-        self.model.name = settings.arch
+        self.model = None
+        # FIXME: ----------------------------------------------------
+        # self.model = torchvision_models.__dict__[settings.arch](
+        #     weights=settings.weights,
+        # ).to(
+        #     settings.device,
+        # )
+        # self.model.name = settings.arch
 
-        self.load_model(pretrained=True)
+        # self.load_model(pretrained=True)
+        # FIXME: ----------------------------------------------------
 
     # def predict(self):
 
@@ -323,27 +328,16 @@ class ImageClassifier:
         Args:
             pretrained (bool, optional): _description_. Defaults to True.
         """
-        if pretrained:
-            ic(f"=> using pre-trained model '{settings.arch}'")
-
-            device = devices.get_optimal_device(settings)
-
-            weights = torchvision.models.__dict__[settings.model_weights].DEFAULT
-            weights.transforms()
-            model = torchvision.models.__dict__[settings.arch](weights=weights).to(
-                device,
-            )
-        else:
-            ic(f"=> creating model '{settings.arch}'")
-            model = torchvision.models.__dict__[settings.arch]()
-            model.name = settings.arch
+        # if pretrained:
+        model = torchvision_models.__dict__[self.settings.arch]()
+        model.name = self.settings.arch
 
         # Freeze all base layers in the "features" section of the model (the feature extractor) by setting requires_grad=False
         for param in model.features.parameters():
             param.requires_grad = False
 
         # Get the length of class_names (one output unit for each class)
-        output_shape = len(settings.class_names)
+        output_shape = len(self.class_names)
 
         # Recreate the classifier layer and seed it to the target device
         model.classifier = torch.nn.Sequential(
@@ -353,28 +347,90 @@ class ImageClassifier:
                 out_features=output_shape,  # same number of output units as our number of classes
                 bias=True,
             ),
-        ).to(device)
+        ).to(self.device)
 
         ic(next(model.parameters()).device)
 
         loss_fn: CrossEntropyLoss = torch.nn.CrossEntropyLoss()
 
-        optimizer: Adam = torch.optim.Adam(model.parameters(), lr=settings.lr)
+        optimizer: Adam = torch.optim.Adam(model.parameters(), lr=self.settings.lr)
 
         self.loss_fn = loss_fn
         self.optimizer = optimizer
 
         # this is the part we really need
-        if settings.weights:
-            ic(f"loading weights from -> {settings.weights}")
-            # loaded_model: torch.nn.Module
-            model = run_get_model_for_inference(
-                model,
-                device,
-                self.class_names,
-                settings.weights,
-                settings,
-            )
+        # if settings.weights:
+        ic(f"loading weights from -> {self.settings.weights}")
+        # loaded_model: torch.nn.Module
+        model = run_get_model_for_inference(
+            # model,
+            self.device,
+            self.class_names,
+            self.settings.weights,
+            self.settings,
+        )
+
+        ic(f"Model state dictonary loaded -> {model}")
+        self.model = model
+
+    # def load_model_orig(self, pretrained: bool = True) -> None:
+    #     """Original load model code taken from jupyter notebook
+
+    #     Args:
+    #         pretrained (bool, optional): _description_. Defaults to True.
+    #     """
+    #     if pretrained:
+    #         ic(f"=> using pre-trained model '{settings.arch}'")
+
+    #         device = devices.get_optimal_device(settings)
+
+    #         weights = torchvision_models.__dict__[settings.model_weights].DEFAULT
+    #         weights.transforms()
+    #         model = torchvision_models.__dict__[settings.arch](weights=weights).to(
+    #             device,
+    #         )
+    #     else:
+    #         ic(f"=> creating model '{settings.arch}'")
+    #         model = torchvision_models.__dict__[settings.arch]()
+    #         model.name = settings.arch
+
+    #     # Freeze all base layers in the "features" section of the model (the feature extractor) by setting requires_grad=False
+    #     for param in model.features.parameters():
+    #         param.requires_grad = False
+
+    #     # Get the length of class_names (one output unit for each class)
+    #     output_shape = len(settings.class_names)
+
+    #     # Recreate the classifier layer and seed it to the target device
+    #     model.classifier = torch.nn.Sequential(
+    #         torch.nn.Dropout(p=0.2, inplace=True),
+    #         torch.nn.Linear(
+    #             in_features=1280,
+    #             out_features=output_shape,  # same number of output units as our number of classes
+    #             bias=True,
+    #         ),
+    #     ).to(device)
+
+    #     ic(next(model.parameters()).device)
+
+    #     loss_fn: CrossEntropyLoss = torch.nn.CrossEntropyLoss()
+
+    #     optimizer: Adam = torch.optim.Adam(model.parameters(), lr=settings.lr)
+
+    #     self.loss_fn = loss_fn
+    #     self.optimizer = optimizer
+
+    #     # this is the part we really need
+    #     if settings.weights:
+    #         ic(f"loading weights from -> {settings.weights}")
+    #         # loaded_model: torch.nn.Module
+    #         model = run_get_model_for_inference(
+    #             # model,
+    #             device,
+    #             self.class_names,
+    #             settings.weights,
+    #             settings,
+    #         )
 
     # def configure_optimal_settings(self) -> None:
     #     """_summary_"""
@@ -404,3 +460,12 @@ class ImageClassifier:
     #         device = torch.device("mps")
     #     else:
     #         device = torch.device("cpu")
+
+
+# # smoke test
+# if __name__ == "__main__":
+#     smoke_test_model = ImageClassifier()
+#     import bpdb
+
+#     bpdb.set_trace()
+#     print(smoke_test_model)

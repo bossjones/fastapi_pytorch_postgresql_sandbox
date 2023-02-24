@@ -1,36 +1,26 @@
 """ mlops """
 from __future__ import annotations
 
+import argparse
 import os
 import os.path
-
-from icecream import ic
-
-# Continue with regular imports
-import matplotlib.pyplot as plt
-import mlxtend
-import pandas as pd
-from rich import box, print
-from rich.table import Table
-
-# ---------------------------------------------------------------------------
-import torch
-from torchvision import transforms
-
-assert (
-    int(mlxtend.__version__.split(".")[1]) >= 19
-), "mlxtend verison should be 0.19.0 or higher"
-
-import argparse
 from pathlib import Path
 from typing import Dict, List, Optional
 
 from PIL import Image
+from icecream import ic
 import matplotlib
+
+# Continue with regular imports
+import matplotlib.pyplot as plt
 from mlxtend.plotting import plot_confusion_matrix
 import numpy as np
+import pandas as pd
+from rich import box, print
+from rich.table import Table
 
 # SOURCE: https://github.com/rasbt/deeplearning-models/blob/35aba5dc03c43bc29af5304ac248fc956e1361bf/pytorch_ipynb/helper_evaluate.py
+# ---------------------------------------------------------------------------
 import torch
 import torch.nn.parallel
 import torch.optim
@@ -38,7 +28,9 @@ import torch.profiler
 import torch.utils.data
 import torch.utils.data.distributed
 from torch.utils.tensorboard import SummaryWriter
-import torchvision.transforms as transforms
+from torchvision import transforms
+
+# import torchvision.transforms as transforms
 import torchvision.transforms.functional as pytorch_transforms_functional
 
 # # SOURCE: https://github.com/pytorch/vision/blob/main/references/classification/train.py

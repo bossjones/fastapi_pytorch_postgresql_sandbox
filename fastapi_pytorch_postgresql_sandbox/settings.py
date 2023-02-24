@@ -4,7 +4,7 @@ from __future__ import annotations
 import enum
 from pathlib import Path
 from tempfile import gettempdir
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from pydantic import BaseSettings
 from yarl import URL
@@ -60,7 +60,7 @@ class Settings(BaseSettings):
     arch: str = "efficientnet_b0"
     model_weights: str = "EfficientNet_B0_Weights"
     class_names: List[str] = ["twitter", "facebook", "tiktok"]
-    gpu: bool = False
+    gpu: Optional[Union[int, None]] = None
     weights: str = PATH_TO_BEST_MODEL
     lr: float = 0.001
     seed: int = 42

@@ -7,8 +7,7 @@ import os.path
 import pathlib
 from pathlib import Path
 
-import torchvision
-import torchvision.models
+import torchvision.models as torchvision_models
 
 # SOURCE: https://github.com/rasbt/deeplearning-models/blob/35aba5dc03c43bc29af5304ac248fc956e1361bf/pytorch_ipynb/helper_evaluate.py
 # Continue with regular imports
@@ -28,10 +27,10 @@ import torchvision.models
 
 model_names = sorted(
     name
-    for name in torchvision.models.__dict__
+    for name in torchvision_models.__dict__
     if name.islower()
     and not name.startswith("__")
-    and callable(torchvision.models.__dict__[name])
+    and callable(torchvision_models.__dict__[name])
 )
 # print(model_names)
 

@@ -4,6 +4,9 @@ link-conda-env:
 link-conda-env-intel:
 	ln -sf environments-and-requirements/environment-mac-intel.yml environment.yml
 
+link-conda-ci:
+	ln -sfv continuous_integration/environment-3.10-dev.yaml environment.yml
+
 conda-update:
 	conda env update
 	conda list --explicit > installed_conda.txt
@@ -61,3 +64,6 @@ label-studio:
 
 start-docker-services:
 	docker-compose -f deploy/docker-compose.yml -f deploy/docker-compose.otlp.yml --project-directory . up
+
+start-docker-services-d:
+	docker-compose -f deploy/docker-compose.yml -f deploy/docker-compose.otlp.yml --project-directory . up -d

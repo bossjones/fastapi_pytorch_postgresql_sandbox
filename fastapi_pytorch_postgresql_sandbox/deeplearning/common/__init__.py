@@ -1,0 +1,2 @@
+"""common"""
+# mypy: ignore-errors

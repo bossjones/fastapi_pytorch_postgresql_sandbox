@@ -5,6 +5,9 @@
     "--rcfile",
     "${workspaceFolder}/lint-configs-python/python/pylintrc"
   ],
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": true,
   "todohighlight.keywords": [
     {
       "text": "TODO:",
@@ -52,6 +55,11 @@
       "text": "SOURCE:",
       "color": "#fff",
       "backgroundColor": "maroon"
+    },
+    {
+      "text": "DISABLED:",
+      "color": "#fff",
+      "backgroundColor": "#f06292"
     }
   ],
   "python.linting.mypyCategorySeverity.error": "Error",

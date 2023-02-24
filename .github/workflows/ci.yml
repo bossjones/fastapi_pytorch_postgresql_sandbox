@@ -1,0 +1,107 @@
+# SOURCE: https://github.com/dask-contrib/dask-sql/blob/main/.github/workflows/test.yml
+name: Test Python package
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+
+# When this workflow is queued, automatically cancel any previous running
+# or pending jobs from the same branch
+concurrency:
+  group: test-${{ github.head_ref }}
+  cancel-in-progress: true
+
+# Required shell entrypoint to have properly activated conda environments
+defaults:
+  run:
+    shell: bash -l {0}
+
+jobs:
+  detect-ci-trigger:
+    name: Check for upstream trigger phrase
+    runs-on: ubuntu-latest
+    if: github.repository == 'bossjones/fastapi_pytorch_postgresql_sandbox'
+    outputs:
+      triggered: ${{ steps.detect-trigger.outputs.trigger-found }}
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 2
+    - uses: xarray-contrib/ci-trigger@v1.2
+      id: detect-trigger
+      with:
+        keyword: "[test-upstream]"
+
+  test:
+    name: "Build & Test (${{ matrix.os }}, python: ${{ matrix.python }})"
+    needs: [detect-ci-trigger]
+    runs-on: ${{ matrix.os }}
+    # env:
+    #   CONDA_FILE: continuous_integration/environment-${{ matrix.python }}-dev.yaml
+    strategy:
+      fail-fast: false
+      matrix:
+        # os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [macos-latest]
+        # python: ["3.8", "3.9", "3.10"]
+        python: ["3.10"]
+        # arch: [ amd64, arm64 ]
+        arch: [arm64]
+    steps:
+    - uses: actions/checkout@v3
+    - name: link environment yaml for ${{ matrix.os }} on ${{ matrix.arch }}
+      run: |
+        make link-conda-ci
+    - name: Set up Python for ${{ matrix.os }} on ${{ matrix.arch }}
+      uses: conda-incubator/setup-miniconda@v2.2.0
+      with:
+          # miniforge-variant: Mambaforge
+          # use-mamba: true
+        miniconda-version: "latest"
+        python-version: ${{ matrix.python }}
+          # channel-priority: strict
+        activate-environment: fastapi_pytorch_postgresql_sandbox3
+          # environment-file: ${{ env.CONDA_FILE }}
+          # NOTE: 'Set this option to "false" to disable running the post cleanup step of the action. Default is "true"'
+          # SOURCE: https://github.com/conda-incubator/setup-miniconda/blob/7e642bb2e4ca56ff706818a0febf72bb226d348d/action.yml
+        run-post: ${{ matrix.os != 'windows-latest' && 'true' || 'false' }}
+      # - name: Cache Rust
+      #   uses: Swatinem/rust-cache@v2
+      #   with:
+      #     workspaces: dask_planner
+      #     shared-key: test
+      # - name: Build the Rust DataFusion bindings
+      #   run: |
+      #     python setup.py build install
+      # - name: Install hive testing dependencies
+      #   if: matrix.os == 'ubuntu-latest'
+      #   run: |
+      #     mamba install -c conda-forge "sasl>=0.3.1"
+      #     docker pull bde2020/hive:2.3.2-postgresql-metastore
+      #     docker pull bde2020/hive-metastore-postgresql:2.3.0
+      # - name: Optionally install upstream dev Dask
+      #   if: needs.detect-ci-trigger.outputs.triggered == 'true'
+      #   run: |
+      #     mamba install --no-channel-priority dask/label/dev::dask
+    - name: Brew deps for ${{ matrix.os }} on ${{ matrix.arch }}
+      run: |
+        brew install docker colima
+
+        make start-docker-services-d
+
+        pg_isready -p 5432
+
+    - name: Test with pytest for ${{ matrix.os }} on ${{ matrix.arch }}
+      run: |
+        inv ci.pytest -vvvvv
+      # pytest --junitxml=junit/test-results.xml --cov-report=xml -n auto tests --dist loadfile
+    - name: Upload pytest test results
+      if: always()
+      uses: actions/upload-artifact@v1
+      with:
+        name: pytest-results
+        path: junit/test-results.xml
+    - name: Upload coverage to Codecov
+      if: github.repository == 'bossjones/fastapi_pytorch_postgresql_sandbox'
+      uses: codecov/codecov-action@v3
