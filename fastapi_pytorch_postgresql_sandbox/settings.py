@@ -88,7 +88,7 @@ class Settings(BaseSettings):
 
     # Grpc endpoint for opentelemetry.
     # E.G. http://localhost:4317
-    opentelemetry_endpoint: Optional[str] = None
+    opentelemetry_endpoint: Union[Optional[str], None] = None
 
     # kafka_bootstrap_servers: list[str] = [
     #     "fastapi_pytorch_postgresql_sandbox-kafka:9092",

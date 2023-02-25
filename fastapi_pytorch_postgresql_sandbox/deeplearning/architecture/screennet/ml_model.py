@@ -7,9 +7,6 @@ from pathlib import Path
 from typing import List, Union
 
 from icecream import ic
-
-# Continue with regular imports
-# import mlxtend
 import numpy as np
 from rich import print
 
@@ -104,7 +101,7 @@ def create_effnetb0_model(
         _type_: _description_
     """
     # NEW: Setup the model with pretrained weights and send it to the target device (torchvision v0.13+)
-    weights = torchvision_models.__dict__[settings.model_weights].DEFAULT
+    weights = torchvision_models.EfficientNet_B0_Weights.DEFAULT
 
     model = torchvision_models.efficientnet_b0(weights=weights).to(device)
 
@@ -289,39 +286,16 @@ class ImageClassifier:
         self.path_to_model: str = path_to_model
         self.settings: Settings = settings
         self.device = devices.get_optimal_device(settings)
-        self.weights = torchvision_models.__dict__[settings.model_weights].DEFAULT
+        self.weights = torchvision_models.EfficientNet_B0_Weights.DEFAULT
         self.auto_transforms = self.weights.transforms()
         self.model = None
-        # FIXME: ----------------------------------------------------
-        # self.model = torchvision_models.__dict__[settings.arch](
-        #     weights=settings.weights,
-        # ).to(
-        #     settings.device,
-        # )
-        # self.model.name = settings.arch
-
-        # self.load_model(pretrained=True)
-        # FIXME: ----------------------------------------------------
 
     # def predict(self):
-
-    def load_base_model(self) -> None:
-        """_summary_"""
 
     def set_seed(self) -> None:
         """_summary_"""
         if self.settings.seed:
             validate_seed(self.settings.seed)
-
-    # def load_weigths(self) -> None:
-    #     """_summary_"""
-
-    #     # path_to_model = save_model_to_disk("ScreenNetV1", model)
-
-    #     loaded_model_for_inference: nn.Module
-    #     loaded_model_for_inference = run_get_model_for_inference(
-    #         model, device, self.class_names, path_to_model, settings
-    #     )
 
     def load_model(self, pretrained: bool = True) -> None:
         """_summary_
@@ -330,8 +304,17 @@ class ImageClassifier:
             pretrained (bool, optional): _description_. Defaults to True.
         """
         # if pretrained:
-        model = torchvision_models.__dict__[self.settings.arch]()
+        model = torchvision_models.efficientnet_b0(weights=self.weights).to(self.device)
+        # model = torchvision_models.__dict__[self.settings.arch](
+        #     weights=self.weights
+        # ).to(self.device)
         model.name = self.settings.arch
+        model = model.to(self.device)
+
+        if torch.backends.mps.is_available():
+            device = torch.device("mps")
+            self.device = device
+            model = model.to(device)
 
         # Freeze all base layers in the "features" section of the model (the feature extractor) by setting requires_grad=False
         for param in model.features.parameters():
@@ -359,10 +342,9 @@ class ImageClassifier:
         self.loss_fn = loss_fn
         self.optimizer = optimizer
 
-        # this is the part we really need
-        # if settings.weights:
         ic(f"loading weights from -> {self.settings.weights}")
-        # loaded_model: torch.nn.Module
+
+        # NOTE: if args.weights:
         model = run_get_model_for_inference(
             # model,
             self.device,
