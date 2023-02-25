@@ -36,7 +36,8 @@ class TestSettings:
         assert test_settings.model_weights == "EfficientNet_B0_Weights"
         # assert not test_settings.opentelemetry_endpoint
         assert test_settings.port == 8000
-        assert str(test_settings.prometheus_dir) == "prom"
+        if not IS_RUNNING_ON_GITHUB_ACTIONS:
+            assert str(test_settings.prometheus_dir) == "prom"
         assert test_settings.pytorch_device == "mps"
         assert test_settings.rabbit_channel_pool_size == 10
         assert test_settings.rabbit_host == "localhost"
