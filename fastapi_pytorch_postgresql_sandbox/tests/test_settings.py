@@ -51,7 +51,8 @@ class TestSettings:
         assert not test_settings.redis_pass
         assert test_settings.redis_port == 6379
         assert not test_settings.redis_user
-        assert test_settings.reload
+        if not IS_RUNNING_ON_GITHUB_ACTIONS:
+            assert test_settings.reload
         assert test_settings.seed == 42
         assert test_settings.weights == tilda(
             "~/Documents/my_models/ScreenCropNetV1_378_epochs.pth",
