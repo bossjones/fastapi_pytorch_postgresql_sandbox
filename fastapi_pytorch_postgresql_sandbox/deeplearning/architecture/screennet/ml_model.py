@@ -101,7 +101,8 @@ def create_effnetb0_model(
         _type_: _description_
     """
     # NEW: Setup the model with pretrained weights and send it to the target device (torchvision v0.13+)
-    weights = torchvision_models.EfficientNet_B0_Weights.DEFAULT
+    # DISABLED: weights = torchvision_models.EfficientNet_B0_Weights.DEFAULT
+    weights = torchvision_models.__dict__[settings.model_weights].DEFAULT
 
     model = torchvision_models.efficientnet_b0(weights=weights).to(device)
 
@@ -304,17 +305,20 @@ class ImageClassifier:
             pretrained (bool, optional): _description_. Defaults to True.
         """
         # if pretrained:
-        model = torchvision_models.efficientnet_b0(weights=self.weights).to(self.device)
-        # model = torchvision_models.__dict__[self.settings.arch](
-        #     weights=self.weights
-        # ).to(self.device)
+        model = torchvision_models.__dict__[self.settings.arch]()
         model.name = self.settings.arch
-        model = model.to(self.device)
+
+        # DISABLED: model = torchvision_models.efficientnet_b0(weights=self.weights).to(self.device)
+        # DISABLED: # model = torchvision_models.__dict__[self.settings.arch](
+        # DISABLED: #     weights=self.weights
+        # DISABLED: # ).to(self.device)
+        # DISABLED: model.name = self.settings.arch
+        # DISABLED: model = model.to(self.device)
 
         if torch.backends.mps.is_available():
             device = torch.device("mps")
             self.device = device
-            model = model.to(device)
+            model = model.to(self.device)
 
         # Freeze all base layers in the "features" section of the model (the feature extractor) by setting requires_grad=False
         for param in model.features.parameters():

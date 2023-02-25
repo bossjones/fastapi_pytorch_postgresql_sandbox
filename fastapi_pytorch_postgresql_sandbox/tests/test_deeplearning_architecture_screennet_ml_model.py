@@ -2,6 +2,7 @@
 import os
 
 import pytest
+import torch
 
 from fastapi_pytorch_postgresql_sandbox import settings
 from fastapi_pytorch_postgresql_sandbox.deeplearning.architecture.screennet import (
@@ -36,14 +37,14 @@ class TestImageClassifier:
         test_model.load_model(pretrained=True)
 
 
-@pytest.mark.xfail(
-    reason="Looks like the model from state file is still busted, need to fix",
-)
+# @pytest.mark.xfail(
+#     reason="Looks like the model from state file is still busted, need to fix",
+# )
 class TestMlModelFunctions:
     def test_create_effnetb0_model(self):
         test_settings = settings.Settings()
         test_effnetb0 = ml_model.create_effnetb0_model(
-            "mps",
+            torch.device("mps"),
             ["twitter", "facebook", "tiktok"],
             test_settings,
         )
