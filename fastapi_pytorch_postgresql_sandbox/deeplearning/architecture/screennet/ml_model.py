@@ -2,10 +2,12 @@
 """ ml_model """
 from __future__ import annotations
 
+from io import BytesIO
 import pathlib
 from pathlib import Path
-from typing import List, Union
+from typing import Any, List, Union
 
+from PIL import Image
 from icecream import ic
 import numpy as np
 import rich
@@ -296,7 +298,7 @@ class ImageClassifier:
         self.device = devices.get_optimal_device(settings)
         self.weights = torchvision_models.EfficientNet_B0_Weights.DEFAULT
         self.auto_transforms = self.weights.transforms()
-        self.model = None
+        self.model: Union[None, torch.nn.Module] = None
 
     # def predict(self):
 
@@ -304,6 +306,27 @@ class ImageClassifier:
     #     """_summary_"""
     #     if self.settings.seed:
     #         validate_seed(self.settings.seed)
+
+    # def classify(self, image_payload_bytes: Any):
+    #     """Take an image and classify which type of screenshot it is
+
+    #     Args:
+    #         image_payload_bytes (BytesIO): _description_
+
+    #     Returns:
+    #         _type_: _description_
+    #     """
+
+    #     pil_image = Image.open(BytesIO(image_payload_bytes))
+
+    #     pil_images = [pil_image]  # batch size is one
+    #     input_tensor = torch.cat(
+    #         [self.auto_transforms(i).unsqueeze(0) for i in pil_images]
+    #     )
+
+    #     with torch.no_grad():
+    #         output_tensor = self.model(input_tensor)
+    #     return {"class_index": int(torch.argmax(output_tensor[0]))}
 
     def load_model(self, pretrained: bool = True) -> None:
         """_summary_

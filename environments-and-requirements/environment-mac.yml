@@ -119,6 +119,8 @@ dependencies:
   # - commitizen
   - ruff
   - codecov
+  - python-multipart
+  - ray[serve]
   - -e .
 # variables:
 #   PYTORCH_ENABLE_MPS_FALLBACK: 1

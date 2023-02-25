@@ -3,6 +3,8 @@ import os
 
 import pytest
 import torch
+from torch.nn import CrossEntropyLoss
+from torch.optim import Adam
 
 from fastapi_pytorch_postgresql_sandbox import settings
 from fastapi_pytorch_postgresql_sandbox.deeplearning.architecture.screennet import (
@@ -13,10 +15,6 @@ from fastapi_pytorch_postgresql_sandbox.utils.file_functions import tilda
 IS_RUNNING_ON_GITHUB_ACTIONS = bool(os.environ.get("GITHUB_ACTOR"))
 
 
-# @pytest.mark.xfail(
-#     reason="Looks like the model from state file is still busted, need to fix",
-# )
-# @pytest.mark.unittest
 class TestImageClassifier:
     @pytest.mark.torchtests
     def test_load_model(
@@ -35,6 +33,13 @@ class TestImageClassifier:
         # bpdb.set_trace()
 
         test_model.load_model(pretrained=True)
+
+        assert type(test_model.loss_fn) == CrossEntropyLoss
+        assert type(test_model.optimizer) == Adam
+        assert test_model.class_names == ["twitter", "facebook", "tiktok"]
+        assert test_model.path_to_model == tilda(
+            "~/Documents/my_models/ScreenNetV1.pth",
+        )
 
 
 # @pytest.mark.xfail(
