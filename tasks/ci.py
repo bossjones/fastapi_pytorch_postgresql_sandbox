@@ -424,6 +424,7 @@ def pytest(
     # loggeronly=False,
     # utilsonly=False,
     coverage=True,
+    config_path="",
 ):
     """
     Run pytest
@@ -505,6 +506,9 @@ def pytest(
     if mypy:
         _cmd += r" --mypy "
 
+    if config_path:
+        _cmd += rf" -c {config_path} "
+
     if coverage:
         _cmd += r" --cov-config=setup.cfg --verbose --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=fastapi_pytorch_postgresql_sandbox "
 
@@ -515,6 +519,7 @@ def pytest(
         sys.exit(resp.exited)
 
 
+# py.test --verbose  -c setup.cfg  --showlocals --tb=short .
 @task(incrementable=["verbose"])
 def view_coverage(ctx, loc="local"):
     """

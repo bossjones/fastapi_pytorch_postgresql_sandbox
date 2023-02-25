@@ -31,7 +31,35 @@
           "purpose": ["debug-test"],
           "console": "integratedTerminal",
           "justMyCode": false,
-          "python": "/Users/malcolm/.pyenv/versions/anaconda3-2022.05/envs/fastapi_pytorch_postgresql_sandbox3/bin/pytho"
-        }
+          "python": "/Users/malcolm/.pyenv/versions/anaconda3-2022.05/envs/fastapi_pytorch_postgresql_sandbox3/bin/python"
+        },
+        {
+          "name": "Python: Invoke pylint pdb",
+          "type": "python",
+          "request": "launch",
+          "module": "invoke",
+          "python": "/Users/malcolm/.pyenv/versions/anaconda3-2022.05/envs/fastapi_pytorch_postgresql_sandbox3/bin/python",
+          "args": [
+              "ci.pytest",
+              "--no-coverage",
+              "-vvvvv",
+              "--config-path=setup.cfg"
+          ],
+          "cwd": "${workspaceFolder}"
+      },
+        {
+          "name": "Python: pytest debugger",
+          "type": "python",
+          "request": "launch",
+          "module": "pytest",
+          "python": "/Users/malcolm/.pyenv/versions/anaconda3-2022.05/envs/fastapi_pytorch_postgresql_sandbox3/bin/python",
+          "args": [
+              "--verbose",
+              "--showlocals",
+              "--tb=short",
+              "."
+          ],
+          "cwd": "${workspaceFolder}"
+      },
     ]
 }
