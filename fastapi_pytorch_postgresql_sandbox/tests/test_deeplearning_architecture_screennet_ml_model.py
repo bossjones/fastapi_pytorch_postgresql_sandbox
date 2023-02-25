@@ -13,10 +13,10 @@ from fastapi_pytorch_postgresql_sandbox.utils.file_functions import tilda
 IS_RUNNING_ON_GITHUB_ACTIONS = bool(os.environ.get("GITHUB_ACTOR"))
 
 
-@pytest.mark.xfail(
-    reason="Looks like the model from state file is still busted, need to fix",
-)
-@pytest.mark.unittest
+# @pytest.mark.xfail(
+#     reason="Looks like the model from state file is still busted, need to fix",
+# )
+# @pytest.mark.unittest
 class TestImageClassifier:
     @pytest.mark.torchtests
     def test_load_model(
@@ -25,7 +25,7 @@ class TestImageClassifier:
         test_model: ml_model.ImageClassifier = ml_model.ImageClassifier()
 
         assert test_model.path_to_model == tilda(
-            "~/Documents/my_models/ScreenCropNetV1_378_epochs.pth",
+            "~/Documents/my_models/ScreenNetV1.pth",
         )
 
         assert str(test_model.device) == "mps"

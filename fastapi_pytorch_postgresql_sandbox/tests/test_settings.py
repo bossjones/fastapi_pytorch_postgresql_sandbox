@@ -55,6 +55,6 @@ class TestSettings:
             assert test_settings.reload
         assert test_settings.seed == 42
         assert test_settings.weights == tilda(
-            "~/Documents/my_models/ScreenCropNetV1_378_epochs.pth",
+            "~/Documents/my_models/ScreenNetV1.pth",
         )
         assert test_settings.workers_count == 1

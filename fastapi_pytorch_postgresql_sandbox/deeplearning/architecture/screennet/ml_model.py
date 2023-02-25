@@ -8,6 +8,7 @@ from typing import List, Union
 
 from icecream import ic
 import numpy as np
+import rich
 from rich import print
 
 # SOURCE: https://github.com/rasbt/deeplearning-models/blob/35aba5dc03c43bc29af5304ac248fc956e1361bf/pytorch_ipynb/helper_evaluate.py
@@ -25,7 +26,9 @@ from torch.optim import Adam
 import torch.profiler
 import torch.utils.data
 import torch.utils.data.distributed
+import torchvision
 import torchvision.models as torchvision_models
+import torchvision.models as tv_models
 
 from fastapi_pytorch_postgresql_sandbox.deeplearning.architecture.screennet.config import (
     PATH_TO_BEST_MODEL,
@@ -102,17 +105,17 @@ def create_effnetb0_model(
     """
     # NEW: Setup the model with pretrained weights and send it to the target device (torchvision v0.13+)
     # DISABLED: weights = torchvision_models.EfficientNet_B0_Weights.DEFAULT
-    weights = torchvision_models.__dict__[settings.model_weights].DEFAULT
+    weights = tv_models.__dict__[settings.model_weights].DEFAULT
 
-    model = torchvision_models.efficientnet_b0(weights=weights).to(device)
+    model = torchvision.models.efficientnet_b0(weights=weights).to(device)
 
     # Freeze all base layers in the "features" section of the model (the feature extractor) by setting requires_grad=False
     for param in model.features.parameters():
         param.requires_grad = False
 
-    if settings.seed:
-        # Set the manual seeds
-        validate_seed(settings.seed)
+    # if settings.seed:
+    #     # Set the manual seeds
+    validate_seed(settings.seed)
 
     # Get the length of class_names (one output unit for each class)
     output_shape = len(class_names)
@@ -170,12 +173,15 @@ def run_get_model_for_inference(
     Returns:
         Tuple[pathlib.PosixPath, torch.nn.Module]: _description_
     """
-    return load_model_for_inference(
+    loaded_model_for_inference = load_model_for_inference(
         path_to_model,
         device,
         class_names,
         settings,
     )
+    rich.inspect(loaded_model_for_inference, all=True)
+
+    return loaded_model_for_inference
 
 
 # SOURCE: https://pytorch.org/tutorials/beginner/saving_loading_models.html#saving-loading-model-for-inference
@@ -229,13 +235,11 @@ def load_model_for_inference(
     Returns:
         nn.Module: _description_
     """
+    ic("running load_model_for_inference...")
     model = create_effnetb0_model(device, class_names, settings)
-
-    # import bpdb
-
-    # bpdb.set_trace()
-
-    model.load_state_dict(torch.load(save_path))
+    ic(next(model.parameters()).device)
+    model = model.to(device)
+    model.load_state_dict(torch.load(save_path, map_location=device))
     model.eval()
     print(f"Model loaded from path {save_path} successfully.")
 
@@ -281,6 +285,9 @@ class ImageClassifier:
         Args:
             seed (_type_, optional): _description_. Defaults to None.
         """
+
+        validate_seed(42)
+
         self.loss_fn: Union[None, CrossEntropyLoss] = None
         self.optimizer: Union[None, Adam] = None
         self.class_names: List[str] = settings.class_names
@@ -293,10 +300,10 @@ class ImageClassifier:
 
     # def predict(self):
 
-    def set_seed(self) -> None:
-        """_summary_"""
-        if self.settings.seed:
-            validate_seed(self.settings.seed)
+    # def set_seed(self) -> None:
+    #     """_summary_"""
+    #     if self.settings.seed:
+    #         validate_seed(self.settings.seed)
 
     def load_model(self, pretrained: bool = True) -> None:
         """_summary_
@@ -304,9 +311,14 @@ class ImageClassifier:
         Args:
             pretrained (bool, optional): _description_. Defaults to True.
         """
+
+        # create model
         # if pretrained:
+        ic(f"=> creating model '{self.settings.arch}'")
         model = torchvision_models.__dict__[self.settings.arch]()
         model.name = self.settings.arch
+        model = model.to(self.device)
+        ic(next(model.parameters()).device)
 
         # DISABLED: model = torchvision_models.efficientnet_b0(weights=self.weights).to(self.device)
         # DISABLED: # model = torchvision_models.__dict__[self.settings.arch](
@@ -316,6 +328,7 @@ class ImageClassifier:
         # DISABLED: model = model.to(self.device)
 
         if torch.backends.mps.is_available():
+            ic("MPS mode enabled")
             device = torch.device("mps")
             self.device = device
             model = model.to(self.device)
