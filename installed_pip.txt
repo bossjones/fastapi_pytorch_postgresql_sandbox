@@ -43,6 +43,7 @@ clean-fid==0.1.35
 click @ file:///home/conda/feedstock_root/build_artifacts/click_1666798198223/work
 clip @ git+https://github.com/openai/CLIP.git@3702849800aa56e2223035bccd1c6ef91c704ca8
 cloudpickle @ file:///home/conda/feedstock_root/build_artifacts/cloudpickle_1674202310934/work
+codecov==2.1.12
 colorama @ file:///home/conda/feedstock_root/build_artifacts/colorama_1666700638685/work
 coloredlogs @ file:///home/conda/feedstock_root/build_artifacts/coloredlogs_1643220139154/work
 comm==0.1.2
@@ -76,7 +77,7 @@ fakeredis==2.9.2
 fancycompleter==0.9.1
 fastai @ file:///home/conda/feedstock_root/build_artifacts/fastai_1675786314653/work
 fastapi==0.90.0
--e git+ssh://git@github.com/bossjones/fastapi_pytorch_postgresql_sandbox.git@acc459f7facd2921496fb42e43ec988c7614ec49#egg=fastapi_pytorch_postgresql_sandbox
+-e git+ssh://git@github.com/bossjones/fastapi_pytorch_postgresql_sandbox.git@53ef8b9e1ed38599d85601e845d0d382abde80d2#egg=fastapi_pytorch_postgresql_sandbox
 fastcore @ file:///home/conda/feedstock_root/build_artifacts/fastcore_1663188308722/work
 fastdownload @ file:///home/jhoward/mambaforge/conda-bld/fastdownload_1657219113869/work
 fastprogress @ file:///home/conda/feedstock_root/build_artifacts/fastprogress_1658690818839/work
@@ -230,6 +231,7 @@ pytest-asyncio==0.20.3
 pytest-clarity==1.0.1
 pytest-cov==4.0.0
 pytest-env==0.8.1
+pytest-mock==3.10.0
 pytest-sugar==0.9.6
 pytest-timeout==2.1.0
 python-dateutil @ file:///home/conda/feedstock_root/build_artifacts/python-dateutil_1626286286081/work

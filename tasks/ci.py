@@ -1,12 +1,16 @@
+# pylint: disable=too-many-arguments,too-many-locals
+
 """
 ci tasks
 """
+
 import logging
 import sys
 from typing import Union
 
 import click
 from invoke import call, task
+
 from tasks.utils import get_compose_env
 
 from .ml_logger import get_logger  # noqa: E402
@@ -139,6 +143,26 @@ def mypy(ctx, loc="local", verbose=0):
 
 
 @task(incrementable=["verbose"])
+def alembic(ctx, loc="local", verbose=0):
+    """
+    alembic upgrade
+    Usage: inv ci.alembic
+    """
+    env = get_compose_env(ctx, loc=loc)
+
+    # Only display result
+    ctx.config["run"]["echo"] = True
+
+    # Override run commands env variables one key at a time
+    for k, v in env.items():
+        ctx.config["run"]["env"][k] = v
+
+    ctx.run(
+        "alembic upgrade head",
+    )
+
+
+@task(incrementable=["verbose"])
 def sourcery(ctx, loc: str = "local", verbose: Union[bool, int] = 0):
     """
     sourcery pytorch_lab folder
@@ -175,6 +199,26 @@ def flake8(ctx, loc: str = "local", verbose: Union[bool, int] = 0):
 
     ctx.run(
         "flake8 --count --max-line-length=200 --ignore=D100,D104,E203,E402,E501,W503 --docstring-convention=google .",
+    )
+
+
+@task(incrementable=["verbose"])
+def ruff(ctx, loc: str = "local", verbose: Union[bool, int] = 0):
+    """
+    ruff pytorch_lab folder
+    Usage: inv ci.ruff
+    """
+    env = get_compose_env(ctx, loc=loc)
+
+    # Only display result
+    ctx.config["run"]["echo"] = True
+
+    # Override run commands env variables one key at a time
+    for k, v in env.items():
+        ctx.config["run"]["env"][k] = v
+
+    ctx.run(
+        "ruff --show-source --diff --config pyproject.toml --format text -v --exclude setup.py .",
     )
 
 
@@ -460,7 +504,7 @@ def pytest(
     if mypy:
         _cmd += r" --mypy "
 
-    _cmd += r" --cov-config=setup.cfg --verbose --cov-append --cov-report=term-missing --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate  --showlocals --tb=short --cov=fastapi_pytorch_postgresql_sandbox ."
+    _cmd += r" --cov-config=setup.cfg --verbose --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate  --showlocals --tb=short --cov=fastapi_pytorch_postgresql_sandbox ."
 
     resp = ctx.run(_cmd)
     if not resp.ok:

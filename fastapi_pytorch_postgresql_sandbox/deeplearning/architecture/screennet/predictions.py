@@ -10,17 +10,17 @@ from timeit import default_timer as timer
 from typing import Dict, List, Union
 from urllib.parse import urlparse
 
+from fastai.data.transforms import get_image_files
+from icecream import ic
 import pandas as pd
 import requests
+from rich import print
 import torch
 import torch.optim
 import torch.profiler
 import torch.utils.data
 import torch.utils.data.distributed
 import torchvision
-from fastai.data.transforms import get_image_files
-from icecream import ic
-from rich import print
 from tqdm.auto import tqdm
 
 from fastapi_pytorch_postgresql_sandbox.utils.mlops import (
@@ -59,7 +59,7 @@ def pred_and_store(
     ic(class_names)
     ic(device)
     # 2. Create an empty list to store prediction dictionaires
-    pred_list = []
+    pred_l = []
 
     # 3. Loop through target paths
     for path in tqdm(paths):
@@ -109,10 +109,10 @@ def pred_and_store(
         pred_d["correct"] = class_name == pred_class
 
         # 14. Add the dictionary to the list of preds
-        pred_list.append(pred_d)
+        pred_l.append(pred_d)
 
     # 15. Return list of prediction dictionaries
-    return pred_list
+    return pred_l
 
 
 def predict_from_dir(
@@ -238,7 +238,7 @@ def download_and_predict(
     if not custom_image_path.is_file():
         with open(custom_image_path, "wb") as f:
             # When downloading from GitHub, need to use the "raw" file link
-            request = requests.get(url)
+            request = requests.get(url)  # pylint: disable=missing-timeout
             print(f"Downloading {custom_image_path}...")
             f.write(request.content)
     else:

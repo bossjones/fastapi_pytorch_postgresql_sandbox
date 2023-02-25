@@ -1,8 +1,8 @@
 import uuid
 
-import pytest
 from fastapi import FastAPI
 from httpx import AsyncClient
+import pytest
 from starlette import status
 
 from fastapi_pytorch_postgresql_sandbox.db.dao.dummy_dao import DummyDAO

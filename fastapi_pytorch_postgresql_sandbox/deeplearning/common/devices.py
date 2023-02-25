@@ -4,8 +4,8 @@ from __future__ import annotations
 # SOURCE: https://github.com/socialhourmobile/SD-hassan-ns/blob/3b6b266b17e0fd0a9b17374cd2afbf4c59b7c245/modules/devices.py
 from typing import Optional, Union
 
-import torch
 from icecream import ic
+import torch
 
 from fastapi_pytorch_postgresql_sandbox.deeplearning.common import errors
 from fastapi_pytorch_postgresql_sandbox.settings import Settings
@@ -41,25 +41,31 @@ def has_mps() -> bool:
 #     return next((args[x + 1] for x in range(len(args)) if name in args[x]), None)
 
 
+def has_cuda(settings: Settings) -> torch.device:
+    """Returns device cuda if gpu setting is enabled and cuda is present"""
+    # from modules import shared
+    device_id: Optional[Union[int, None]]
+    device_id = settings.gpu
+
+    if device_id is None:
+        return torch.device("cuda")
+
+    cuda_device = f"cuda:{device_id}"
+
+    return torch.device(cuda_device)
+
+
 def get_optimal_device(settings: Settings) -> torch.device:
     """_summary_
 
-    Args:
+    Args:fan
         args (argparse.Namespace): _description_
 
     Returns:
         _type_: _description_
     """
     if torch.cuda.is_available():
-        # from modules import shared
-        device_id: Optional[Union[int, None]]
-        device_id = settings.gpu
-
-        if device_id is None:
-            return torch.device("cuda")
-
-        cuda_device = f"cuda:{device_id}"
-        return torch.device(cuda_device)
+        return has_cuda(settings)
     return torch.device("mps") if has_mps() else cpu
 
 

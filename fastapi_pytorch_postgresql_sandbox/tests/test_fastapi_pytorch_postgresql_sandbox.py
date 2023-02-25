@@ -1,6 +1,6 @@
-import pytest
 from fastapi import FastAPI
 from httpx import AsyncClient
+import pytest
 from starlette import status
 
 

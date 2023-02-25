@@ -1,0 +1,250 @@
+# SOURCE: https://github.com/dask-contrib/dask-sql/blob/main/.github/workflows/test.yml
+name: Test Python package
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+
+# When this workflow is queued, automatically cancel any previous running
+# or pending jobs from the same branch
+concurrency:
+  group: test-${{ github.head_ref }}
+  cancel-in-progress: true
+
+# Required shell entrypoint to have properly activated conda environments
+defaults:
+  run:
+    shell: bash -l {0}
+
+jobs:
+  detect-ci-trigger:
+    name: Check for upstream trigger phrase
+    runs-on: ubuntu-latest
+    if: github.repository == 'bossjones/fastapi_pytorch_postgresql_sandbox'
+    outputs:
+      triggered: ${{ steps.detect-trigger.outputs.trigger-found }}
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 2
+    - uses: xarray-contrib/ci-trigger@v1.2
+      id: detect-trigger
+      with:
+        keyword: "[test-upstream]"
+
+  test:
+    name: "Build & Test (${{ matrix.os }}, python: ${{ matrix.python }})"
+    needs: [detect-ci-trigger]
+    runs-on: ${{ matrix.os }}
+    # env:
+    #   CONDA_FILE: continuous_integration/environment-${{ matrix.python }}-dev.yaml
+    strategy:
+      fail-fast: false
+      matrix:
+        # os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [macos-latest]
+        # python: ["3.8", "3.9", "3.10"]
+        python: ["3.10"]
+        # arch: [ amd64, arm64 ]
+        arch: [arm64]
+        include:
+        # - os: ubuntu-latest
+        #   path: ~/.cache/pip
+        - os: macos-latest
+          path: ~/Library/Caches/pip
+        # - os: windows-latest
+        #   path: ~\AppData\Local\pip\Cache
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: SetLocale for ${{ matrix.os }} on ${{ matrix.arch }}
+      env:
+        LANG: en_US.UTF-8
+        LC_CTYPE: en_US.UTF-8
+        HOMEBREW_NO_INSTALL_CLEANUP: 1
+      run: |
+        brew update
+        brew install icu4c || true
+        brew install readline || true
+        brew install libxslt || true
+        brew install perl || true
+        brew install docker || true
+        brew install colima || true
+        brew install docker-compose || true
+        # brew install tree || true
+        brew install qemu || true
+        brew install bash || true
+        brew install lima || true
+        brew install jq || true
+        brew install curl || true
+
+    - name: Cache ~/Library/Caches/colima for ${{ matrix.os }} on ${{ matrix.arch }}
+      uses: actions/cache@v3
+      env:
+        # Increase this value to reset cache if etc/example-environment.yml has not changed
+        CACHE_NUMBER: 0
+      with:
+        path: ~/Library/Caches/colima
+        key: ${{ runner.os }}-colima-${{ env.CACHE_NUMBER }}-
+
+    - name: Start colima for ${{ matrix.os }} on ${{ matrix.arch }}
+      env:
+        LANG: en_US.UTF-8
+        LC_CTYPE: en_US.UTF-8
+        # LIMA_INSTANCE: "test-upgrade"
+      # working-directory: ./.ci/lima
+      run: |
+        set +x
+        brew install docker-buildx || true
+        docker buildx version
+
+        colima start --help
+
+        time colima start --cpu 2 --memory 6 --layer=true --network-address --dns 8.8.8.8 --dns 1.1.1.1
+
+        mkdir -p ~/.docker/cli-plugins || true
+
+        ln -sfn $(brew --prefix)/opt/docker-compose/bin/docker-compose ~/.docker/cli-plugins/docker-compose
+
+        colima list
+
+    - name: Brew deps for ${{ matrix.os }} on ${{ matrix.arch }}
+      env:
+        LANG: en_US.UTF-8
+        LC_CTYPE: en_US.UTF-8
+      run: |
+        brew install cmake || true  # macos image has cmake installed, but a new version may exist; ignore it if so
+        # brew install doxygen || true
+        # brew install hdf5 || true
+        brew install pkg-config || true
+        brew install wget || true
+        # brew install jpeg || true
+        # brew install libpng || true
+        # brew install libtiff || true
+        # brew install openexr || true
+        # brew install eigen || true
+        # brew install tbb || true
+        # brew install hdf5 || true
+        # pytorch
+        brew install openblas || true
+        brew install libomp || true
+        brew install openmpi || true
+        brew install tcl-tk || true
+        brew install openssl || true
+        brew install readline || true
+        brew install sqlite3 || true
+        brew install xz || true
+        brew install zlib || true
+        # https://techblog.willshouse.com/2013/05/20/brew-install-gnu-stat/
+        brew install coreutils || true
+        brew install findutils || true
+        brew install gnu-tar || true
+        brew install gnu-sed || true
+        brew install gawk || true
+        brew install gnutls || true
+        brew install gnu-getopt || true
+        brew install libmagic || true
+        brew install libffi || true
+        # brew install atomicparsley || true
+        # brew install tree || true
+        # brew install tesseract || true
+
+        # https://github.com/jiaaro/pydub#installation
+        # libav
+        brew install libav || true
+        ####    OR    #####
+        # SOURCE: https://matham.github.io/ffpyplayer/installation.html#using-binary-wheels
+        # ffmpeg
+        # brew install ffmpeg || true
+        # brew install sdl2 || true
+        # brew install sdl2_mixer || true
+
+        make start-docker-services-d
+
+        docker ps
+
+        # pg_isready -p 5432
+
+    # TODO: enable this
+    - name: Cache model for ${{ matrix.os }} on ${{ matrix.arch }}
+      uses: actions/cache@v3
+      env:
+        # Increase this value to reset cache if etc/example-environment.yml has not changed
+        CACHE_NUMBER: 0
+      with:
+        path: ~/Documents/my_models/ScreenCropNetV1_378_epochs.pth
+        key: ${{ runner.os }}-torch-model-${{ env.CACHE_NUMBER }}-
+
+    - name: link environment yaml for ${{ matrix.os }} on ${{ matrix.arch }}
+      run: |
+        make link-conda-ci
+        make download-model
+
+    # TODO: enable this
+    - name: Cache conda for ${{ matrix.os }} on ${{ matrix.arch }}
+      uses: actions/cache@v3
+      env:
+        # Increase this value to reset cache if etc/example-environment.yml has not changed
+        CACHE_NUMBER: 0
+      with:
+        path: ~/conda_pkgs_dir
+        key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('conda.requirements.txt') }}
+
+    - name: Cache pip for ${{ matrix.os }} on ${{ matrix.arch }}
+      uses: actions/cache@v3
+      env:
+        # Increase this value to reset cache if etc/example-environment.yml has not changed
+        CACHE_NUMBER: 0
+      with:
+        path: ${{ matrix.path }}
+        key: ${{ runner.os }}-pip-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Set up Python for ${{ matrix.os }} on ${{ matrix.arch }}
+      uses: conda-incubator/setup-miniconda@v2.2.0
+      with:
+        # miniforge-variant: Mambaforge
+        # use-mamba: true
+        # architecture: ${{ matrix.arch }}
+        miniconda-version: "latest"
+        python-version: ${{ matrix.python }}
+        # auto-update-conda: true
+        # channel-priority: strict
+        activate-environment: fastapi_pytorch_postgresql_sandbox3
+        environment-file: environment.yml
+        use-only-tar-bz2: true # IMPORTANT: This needs to be set for caching to work properly!
+        # NOTE: 'Set this option to "false" to disable running the post cleanup step of the action. Default is "true"'
+        # SOURCE: https://github.com/conda-incubator/setup-miniconda/blob/7e642bb2e4ca56ff706818a0febf72bb226d348d/action.yml
+        # FIXME: https://github.com/spyder-ide/spyder/blob/master/.github/workflows/test-mac.yml
+        run-post: ${{ matrix.os != 'windows-latest' && 'true' || 'false' }}
+
+    - name: Test with pytest for ${{ matrix.os }} on ${{ matrix.arch }}
+      # shell: bash -l {0}
+      run: |
+        eval "$(conda shell.bash hook)"
+        conda activate fastapi_pytorch_postgresql_sandbox3
+        conda info
+        conda list
+        conda config --show-sources
+        conda config --show
+        set +x
+        printenv | sort
+        python -c "import sys;print(sys.executable)"
+        set -x
+        python -V
+        python -c 'import torch; print("Torch version %s" % torch.__version__)'
+        python -c 'import tensorflow; print("Tensorflow version %s" % tensorflow.__version__)'
+        inv ci.pytest -vvvvv
+
+    - name: Upload pytest test results
+      if: always()
+      uses: actions/upload-artifact@v1
+      with:
+        name: pytest-results
+        path: junit/test-results.xml
+
+    - name: Upload coverage to Codecov
+      if: github.repository == 'bossjones/fastapi_pytorch_postgresql_sandbox'
+      uses: codecov/codecov-action@v3

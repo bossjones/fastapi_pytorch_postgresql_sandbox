@@ -1,11 +1,10 @@
 """ conftest """
 from __future__ import annotations
 
-import uuid
 from typing import Any, AsyncGenerator
 from unittest.mock import Mock
+import uuid
 
-import pytest
 from aio_pika import Channel
 from aio_pika.abc import AbstractExchange, AbstractQueue
 from aio_pika.pool import Pool
@@ -15,6 +14,7 @@ from fakeredis import FakeServer
 from fakeredis.aioredis import FakeConnection
 from fastapi import FastAPI
 from httpx import AsyncClient
+import pytest
 from redis.asyncio import ConnectionPool
 from sqlalchemy.engine import create_engine
 

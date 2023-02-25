@@ -56,6 +56,17 @@ services:
     ports:
     - "5432:5432"
 
+  # SOURCE: https://onexlab-io.medium.com/docker-compose-postgres-initdb-ba0021deef76
+  pgadmin-compose:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "test@gmail.com"
+      PGADMIN_DEFAULT_PASSWORD: "test123!"
+    ports:
+    - "16543:80"
+    depends_on:
+    - db
+
   # migrator:
   #   image: fastapi_pytorch_postgresql_sandbox:${FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_VERSION:-latest}
   #   restart: "no"
