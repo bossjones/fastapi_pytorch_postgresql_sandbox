@@ -1,3 +1,4 @@
+# pylint: disable=too-many-instance-attributes
 """ ml_model """
 from __future__ import annotations
 
@@ -232,9 +233,9 @@ def load_model_for_inference(
     """
     model = create_effnetb0_model(device, class_names, settings)
 
-    import bpdb
+    # import bpdb
 
-    bpdb.set_trace()
+    # bpdb.set_trace()
 
     model.load_state_dict(torch.load(save_path))
     model.eval()

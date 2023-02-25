@@ -423,6 +423,7 @@ def pytest(
     # convertingtotestclientstarlette=False,
     # loggeronly=False,
     # utilsonly=False,
+    coverage=True,
 ):
     """
     Run pytest
@@ -504,7 +505,10 @@ def pytest(
     if mypy:
         _cmd += r" --mypy "
 
-    _cmd += r" --cov-config=setup.cfg --verbose --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate  --showlocals --tb=short --cov=fastapi_pytorch_postgresql_sandbox ."
+    if coverage:
+        _cmd += r" --cov-config=setup.cfg --verbose --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=fastapi_pytorch_postgresql_sandbox "
+
+    _cmd += r" --showlocals --tb=short ."
 
     resp = ctx.run(_cmd)
     if not resp.ok:
@@ -792,7 +796,7 @@ def clean_pyi(ctx, loc="local", verbose=0, dry_run=False):
         call(mypy, loc="local"),
         # call(flake8, loc="local"),
         call(pylint, loc="local", everything=True),
-        call(pytest, loc="local"),
+        call(pytest, loc="local", coverage=True),
     ],
     incrementable=["verbose"],
 )
