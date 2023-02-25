@@ -68,6 +68,9 @@ label-studio:
 start-docker-services:
 	docker-compose -f deploy/docker-compose.yml -f deploy/docker-compose.otlp.yml --project-directory . up
 
+ps-docker-services:
+	docker-compose -f deploy/docker-compose.yml -f deploy/docker-compose.otlp.yml --project-directory . ps
+
 start-docker-services-d:
 	docker-compose -f deploy/docker-compose.yml -f deploy/docker-compose.otlp.yml --project-directory . up -d
 
@@ -79,3 +82,6 @@ rm-docker-services:
 
 download-model:
 	bash contrib/download-model.sh
+
+web:
+	python -m fastapi_pytorch_postgresql_sandbox

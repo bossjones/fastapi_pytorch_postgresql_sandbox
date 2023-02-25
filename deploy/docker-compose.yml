@@ -95,8 +95,9 @@ services:
     ports:
     - "6379:6379"
 
+  # https://www.rabbitmq.com/management.html#http-api
   rmq:
-    image: rabbitmq:3.9.16-alpine
+    image: rabbitmq:3.9.16-management-alpine
     hostname: "fastapi_pytorch_postgresql_sandbox-rmq"
     restart: always
     environment:
@@ -115,6 +116,7 @@ services:
     - "15691:15691"
     - "15692:15692"
     - "25672:25672"
+    - "15672:15672"
 
   zookeeper:
     image: "bitnami/zookeeper:3.7.1"

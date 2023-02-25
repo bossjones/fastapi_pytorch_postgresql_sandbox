@@ -35,7 +35,7 @@ class TestSettings:
         assert test_settings.lr == 0.001
         assert test_settings.model_weights == "EfficientNet_B0_Weights"
         # assert not test_settings.opentelemetry_endpoint
-        assert test_settings.port == 8000
+        assert test_settings.port == 8008
         if not IS_RUNNING_ON_GITHUB_ACTIONS:
             assert str(test_settings.prometheus_dir) == "prom"
         assert test_settings.pytorch_device == "mps"

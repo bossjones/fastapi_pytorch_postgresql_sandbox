@@ -6,7 +6,7 @@ ci tasks
 
 import logging
 import sys
-from typing import Union
+from typing import List, Union
 
 import click
 from invoke import call, task
@@ -538,6 +538,60 @@ def view_coverage(ctx, loc="local"):
     _cmd = r"./scripts/open-browser.py file://${PWD}/htmlcov/index.html"
 
     ctx.run(_cmd)
+
+
+# py.test --verbose  -c setup.cfg  --showlocals --tb=short .
+@task(incrementable=["verbose"])
+def docs(ctx, loc="local"):
+    """
+    Open fastapi swagger docs inside of browser
+    Usage: inv ci.docs
+    """
+    env = get_compose_env(ctx, loc=loc)
+
+    # Only display result
+    ctx.config["run"]["echo"] = True
+
+    # Override run commands env variables one key at a time
+    for k, v in env.items():
+        ctx.config["run"]["env"][k] = v
+
+    _cmd = r"./scripts/open-browser.py http://localhost:8008/api/docs"
+
+    ctx.run(_cmd)
+
+
+@task(incrementable=["verbose"])
+def admin(ctx, loc="local"):
+    """
+    Open fastapi swagger docs inside of browser
+    Usage: inv ci.admin
+    """
+    env = get_compose_env(ctx, loc=loc)
+
+    # Only display result
+    ctx.config["run"]["echo"] = True
+
+    # Override run commands env variables one key at a time
+    for k, v in env.items():
+        ctx.config["run"]["env"][k] = v
+
+    urls: List[str] = [
+        # swagger
+        r"./scripts/open-browser.py http://localhost:8008/api/docs",
+        # jaegar
+        r"./scripts/open-browser.py http://localhost:16686/search",
+        # pgadmin
+        r"./scripts/open-browser.py http://localhost:16543",
+        # rabbitmq management
+        r"./scripts/open-browser.py http://localhost:15672",
+    ]
+
+    for url in urls:
+
+        _cmd = url
+
+        ctx.run(_cmd)
 
 
 @task(
