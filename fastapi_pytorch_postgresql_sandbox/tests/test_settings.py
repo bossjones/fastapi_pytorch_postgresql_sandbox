@@ -26,7 +26,12 @@ class TestSettings:
         assert test_settings.db_user == "fastapi_pytorch_postgresql_sandbox"
         assert test_settings.environment == "dev"
         assert not test_settings.gpu
-        assert test_settings.host == "localhost"
+
+        if not IS_RUNNING_ON_GITHUB_ACTIONS:
+            assert test_settings.host == "localhost"
+        else:
+            assert test_settings.host == "127.0.0.1"
+
         assert test_settings.lr == 0.001
         assert test_settings.model_weights == "EfficientNet_B0_Weights"
         # assert not test_settings.opentelemetry_endpoint
