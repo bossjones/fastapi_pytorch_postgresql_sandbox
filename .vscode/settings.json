@@ -129,7 +129,7 @@
     "--profile",
     "black"
   ],
-  "python.defaultInterpreterPath": "~/.pyenv/versions/anaconda3-2022.05/envs/fastapi_pytorch_postgresql_sandbox3/bin/python3",
+  "python.defaultInterpreterPath": "/Users/malcolm/.pyenv/versions/anaconda3-2022.05/envs/fastapi_pytorch_postgresql_sandbox3/bin/python3",
   "output.smartScroll.enabled": true,
   "files.exclude": {
     ".idea/": true,
@@ -243,12 +243,21 @@
   "ruff.args": [
     "--config=pyproject.toml"
   ],
-  "python.testing.pytestPath": "invoke",
+  "python.testing.pytestPath": "py.test",
+  "python.testing.autoTestDiscoverOnSaveEnabled": true,
   "python.testing.pytestArgs": [
-    "ci.pytest",
-    "-vvvvvv",
-    "--no-coverage"
+    "--no-cov",
+    // "--verbose",
+    // "--showlocals",
+    // "--tb=short",
+    "--rootdir=${workspaceFolder}/fastapi_pytorch_postgresql_sandbox/tests",
+    "."
   ],
+  "python.testing.cwd": "${workspaceFolder}/fastapi_pytorch_postgresql_sandbox",
   "python.testing.unittestEnabled": false,
-  "python.testing.pytestEnabled": true
+  "python.testing.pytestEnabled": true,
+  "python.envFile":"${workspaceFolder}/.env",
+
+
+  // py.test --verbose  --showlocals --tb=short .
 }

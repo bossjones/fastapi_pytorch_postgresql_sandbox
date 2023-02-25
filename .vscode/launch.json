@@ -30,7 +30,8 @@
           "program": "${file}",
           "purpose": ["debug-test"],
           "console": "integratedTerminal",
-          "justMyCode": false
+          "justMyCode": false,
+          "python": "/Users/malcolm/.pyenv/versions/anaconda3-2022.05/envs/fastapi_pytorch_postgresql_sandbox3/bin/pytho"
         }
     ]
 }
