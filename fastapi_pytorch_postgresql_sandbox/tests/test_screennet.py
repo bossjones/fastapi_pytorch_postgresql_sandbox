@@ -9,6 +9,7 @@ import pytest
 
 HERE = os.path.dirname(__file__)
 
+
 # @pytest.mark.xfail(
 #     reason="wip",
 # )
@@ -26,7 +27,7 @@ async def test_message_publishing_classify(
     It sends message to rabbitmq and reads it
     from binded queue.
     """
-    message_text = uuid.uuid4().hex
+    uuid.uuid4().hex
     url = fastapi_app.url_path_for("classify")
     # NOTE: https://aio-pika.readthedocs.io/en/latest/rabbitmq-tutorial/4-routing.html#multiple-bindings
     path = pathlib.Path(

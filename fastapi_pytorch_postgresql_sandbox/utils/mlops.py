@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+from io import BytesIO
 import os
 import os.path
 from pathlib import Path
@@ -64,7 +65,7 @@ import torchvision.transforms.functional as pytorch_transforms_functional
 #     return cache_path
 
 
-def get_pil_image_channels(image_path: Union[str, bytes]) -> int:
+def get_pil_image_channels(image_path: Union[str, bytes, BytesIO]) -> int:
     """Open an image and get the number of channels it has.
 
     Args:
@@ -82,7 +83,7 @@ def get_pil_image_channels(image_path: Union[str, bytes]) -> int:
     return pil_img_tensor.shape[0]
 
 
-def convert_pil_image_to_rgb_channels(image_path: Union[str, bytes]) -> Image:
+def convert_pil_image_to_rgb_channels(image_path: Union[str, bytes, BytesIO]) -> Image:
     """Convert Pil image to have the appropriate number of color channels
 
     Args:
@@ -91,6 +92,17 @@ def convert_pil_image_to_rgb_channels(image_path: Union[str, bytes]) -> Image:
     Returns:
         _type_: _description_
     """
+    # NOTE: from PIL.Image.open()
+    # filename = ""
+    # if isinstance(fp, Path):
+    #     filename = str(fp.resolve())
+    # elif is_path(fp):
+    #     filename = fp
+
+    # if filename:
+    #     fp = builtins.open(filename, "rb")
+    #     exclusive_fp = True
+
     return (
         Image.open(image_path).convert("RGB")
         if get_pil_image_channels(image_path) != 4
@@ -152,10 +164,10 @@ def from_pil_image_to_plt_display(
     # Plot the image with matplotlib
     plt.figure(figsize=(10, 7))
     plt.imshow(img_as_array)
-    title_font_dict = {"fontsize": "10"}
+    title_font_d = {"fontsize": "10"}
     plt.title(
         f"Image class: {image_class} | Image Pred Prob: {image_pred_prob} | Prediction time: {image_time_for_pred} | Image shape: {img_as_array.shape} -> [height, width, color_channels]",
-        fontdict=title_font_dict,
+        fontdict=title_font_d,
     )
     plt.axis(False)
 
@@ -525,8 +537,8 @@ def inspect_csv_results() -> pd.DataFrame:
     """
     results_paths = list(Path("results").glob("*.csv"))
 
-    df_list = [pd.read_csv(path) for path in results_paths]
-    results_df = pd.concat(df_list).reset_index(drop=True)
+    df_l = [pd.read_csv(path) for path in results_paths]
+    results_df = pd.concat(df_l).reset_index(drop=True)
     # prettify(results_df)
 
     # # Initiate a Table instance to be modified
