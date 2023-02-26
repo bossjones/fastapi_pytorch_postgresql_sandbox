@@ -1,3 +1,6 @@
+"""services.redis.lifetime"""
+# sourcery skip: avoid-global-variables
+# pylint: disable=no-name-in-module
 from fastapi import FastAPI
 from redis.asyncio import ConnectionPool
 

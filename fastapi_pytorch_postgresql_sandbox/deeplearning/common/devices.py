@@ -4,7 +4,6 @@ from __future__ import annotations
 # SOURCE: https://github.com/socialhourmobile/SD-hassan-ns/blob/3b6b266b17e0fd0a9b17374cd2afbf4c59b7c245/modules/devices.py
 from typing import Optional, Union
 
-from icecream import ic
 import torch
 
 from fastapi_pytorch_postgresql_sandbox.deeplearning.common import errors
@@ -184,7 +183,7 @@ def mps_check() -> None:
     """_summary_"""
     # Check that MPS is available
     if torch.backends.mps.is_available():
-        ic(torch.has_mps)
+        # ic(torch.has_mps)
         if torch.backends.mps.is_available():
             mps_device = torch.device("mps")
             x_ones = torch.ones(1, device=mps_device)

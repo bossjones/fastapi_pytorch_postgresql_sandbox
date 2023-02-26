@@ -1,3 +1,5 @@
+"""web.lifetime"""
+
 from typing import Awaitable, Callable
 
 from fastapi import FastAPI
@@ -33,7 +35,13 @@ from fastapi_pytorch_postgresql_sandbox.services.redis.lifetime import (
     init_redis,
     shutdown_redis,
 )
+from fastapi_pytorch_postgresql_sandbox.services.screennet.lifetime import (  # shutdown_redis,
+    init_screennet,
+)
 from fastapi_pytorch_postgresql_sandbox.settings import settings
+
+# import ray
+# from ray import serve
 
 
 def setup_opentelemetry(app: FastAPI) -> None:  # pragma: no cover
@@ -133,6 +141,7 @@ def register_startup_event(
     @app.on_event("startup")
     async def _startup() -> None:  # noqa: WPS430
         await database.connect()
+        init_screennet(app)
         setup_opentelemetry(app)
         init_redis(app)
         init_rabbit(app)
@@ -154,6 +163,11 @@ def register_shutdown_event(
 
     @app.on_event("shutdown")
     async def _shutdown() -> None:  # noqa: WPS430
+        # try:
+        #     serve.shutdown()
+        #     ray.shutdown()
+        # except ValueError:
+        #     pass
         await database.disconnect()
         await shutdown_redis(app)
         await shutdown_rabbit(app)

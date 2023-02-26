@@ -588,7 +588,6 @@ def admin(ctx, loc="local"):
     ]
 
     for url in urls:
-
         _cmd = url
 
         ctx.run(_cmd)

@@ -5,7 +5,7 @@ import argparse
 import os
 import os.path
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from PIL import Image
 from icecream import ic
@@ -58,7 +58,7 @@ import torchvision.transforms.functional as pytorch_transforms_functional
 #     return cache_path
 
 
-def get_pil_image_channels(image_path: str) -> int:
+def get_pil_image_channels(image_path: Union[str, bytes]) -> int:
     """Open an image and get the number of channels it has.
 
     Args:
@@ -76,7 +76,7 @@ def get_pil_image_channels(image_path: str) -> int:
     return pil_img_tensor.shape[0]
 
 
-def convert_pil_image_to_rgb_channels(image_path: str) -> Image:
+def convert_pil_image_to_rgb_channels(image_path: Union[str, bytes]) -> Image:
     """Convert Pil image to have the appropriate number of color channels
 
     Args:

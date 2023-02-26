@@ -2,15 +2,13 @@
 """ ml_model """
 from __future__ import annotations
 
-from io import BytesIO
 import pathlib
 from pathlib import Path
+from timeit import default_timer as timer
 from typing import Any, List, Union
 
-from PIL import Image
 from icecream import ic
 import numpy as np
-import rich
 from rich import print
 
 # SOURCE: https://github.com/rasbt/deeplearning-models/blob/35aba5dc03c43bc29af5304ac248fc956e1361bf/pytorch_ipynb/helper_evaluate.py
@@ -30,7 +28,6 @@ import torch.utils.data
 import torch.utils.data.distributed
 import torchvision
 import torchvision.models as torchvision_models
-import torchvision.models as tv_models
 
 from fastapi_pytorch_postgresql_sandbox.deeplearning.architecture.screennet.config import (
     PATH_TO_BEST_MODEL,
@@ -50,7 +47,7 @@ def validate_seed(seed: int) -> None:
     Args:
         seed (int): _description_
     """
-    ic(seed, type(seed))
+    # ic(seed, type(seed))
     devices.seed_everything(seed)
 
     # Nevermind, the unexpected behaviour is from cpu not mps. I was using from_numpy which the document indicate it will create a tensor buffer that shared memory space (I didn't catch this at first). This shared memory space seems to only be valid for cpu version, and nor mps version
@@ -107,7 +104,7 @@ def create_effnetb0_model(
     """
     # NEW: Setup the model with pretrained weights and send it to the target device (torchvision v0.13+)
     # DISABLED: weights = torchvision_models.EfficientNet_B0_Weights.DEFAULT
-    weights = tv_models.__dict__[settings.model_weights].DEFAULT
+    weights = torchvision_models.__dict__[settings.model_weights].DEFAULT
 
     model = torchvision.models.efficientnet_b0(weights=weights).to(device)
 
@@ -181,7 +178,7 @@ def run_get_model_for_inference(
         class_names,
         settings,
     )
-    rich.inspect(loaded_model_for_inference, all=True)
+    # rich.inspect(loaded_model_for_inference, all=True)
 
     return loaded_model_for_inference
 
@@ -328,6 +325,85 @@ class ImageClassifier:
     #         output_tensor = self.model(input_tensor)
     #     return {"class_index": int(torch.argmax(output_tensor[0]))}
 
+    def infer(self, image_data: Any) -> List[dict]:
+        """_summary_
+
+        Args:
+            image_data (_type_): _description_
+
+        Returns:
+            _type_: List[dict]
+        """
+        self.load_model()
+        preprocessed_image_data = self._preprocess(image_data)
+        # prediction =
+
+        return self._predict(preprocessed_image_data)
+
+    def _preprocess(self, image_data):
+        """pre processing workflow before infering with model
+
+        Args:
+            image_data (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+
+        pil_images = [image_data]  # batch size is one
+        # input_tensor =
+        return torch.cat(
+            [self.auto_transforms(i).unsqueeze(dim=0) for i in pil_images],
+        )
+
+    def _predict(self, transformed_image):
+        """prediction workflow
+
+        Args:
+            transformed_image (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        # 4. Create empty dictionary to store prediction information for each sample
+        pred_d = {}
+
+        # 6. Start the prediction timer
+        start_time = timer()
+        with torch.inference_mode():
+            pred_logit = self.model(
+                transformed_image.to(self.device),
+            )  # perform inference on target sample
+            pred_prob = torch.softmax(
+                pred_logit,
+                dim=1,
+            )  # turn logits into prediction probabilities
+            pred_label = torch.argmax(
+                pred_prob,
+                dim=1,
+            )  # turn prediction probabilities into prediction label
+            pred_class = self.class_names[
+                pred_label.cpu()
+            ]  # hardcode prediction class to be on CPU
+
+            # 11. Make sure things in the dictionary are on CPU (required for inspecting predictions later on)
+            pred_d["pred_prob"] = round(pred_prob.unsqueeze(0).max().cpu().item(), 4)
+            pred_d["pred_class"] = pred_class
+
+            # 12. End the timer and calculate time per pred
+            end_time = timer()
+            pred_d["time_for_pred"] = round(end_time - start_time, 4)
+
+            # pred_d["time_for_pred"] = round(end_time - start_time, 4)
+            # data = image_data.to(self.device)
+            # output = self.model(data)
+            # pred = output.argmax(dim=1, keepdim=True)
+            # return pred.item()
+
+        res = [pred_d]
+        print(res)
+        return res
+
     def load_model(self, pretrained: bool = True) -> None:
         """_summary_
 
@@ -382,7 +458,7 @@ class ImageClassifier:
         self.loss_fn = loss_fn
         self.optimizer = optimizer
 
-        ic(f"loading weights from -> {self.settings.weights}")
+        # ic(f"loading weights from -> {self.settings.weights}")
 
         # NOTE: if args.weights:
         model = run_get_model_for_inference(
@@ -393,7 +469,7 @@ class ImageClassifier:
             self.settings,
         )
 
-        ic(f"Model state dictonary loaded -> {model}")
+        # ic(f"Model state dictonary loaded -> {model}")
         self.model = model
 
     # def load_model_orig(self, pretrained: bool = True) -> None:
