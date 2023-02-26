@@ -359,11 +359,12 @@ class ImageClassifier:
         """
         ic("_preprocess")
         ic(image_data)
-        pil_images = [image_data]  # batch size is one
+        # pil_images = [image_data]  # batch size is one
         # input_tensor =
-        return torch.cat(
-            [self.auto_transforms(i).unsqueeze(dim=0) for i in pil_images],
-        )
+        # return torch.cat(
+        #     [self.auto_transforms(i).unsqueeze(dim=0) for i in pil_images],
+        # )
+        return self.auto_transforms(image_data).unsqueeze(dim=0)
 
     def _predict(self, transformed_image):
         """prediction workflow
@@ -374,31 +375,34 @@ class ImageClassifier:
         Returns:
             _type_: _description_
         """
-        ic(f"_predict | {transformed_image}")
+        # ic(f"_predict | {transformed_image}")
         # 4. Create empty dictionary to store prediction information for each sample
         pred_d = {}
 
         # 6. Start the prediction timer
         start_time = timer()
+
+        # self.model.to(self.device)
+        # self.model.eval()
+
         with torch.inference_mode():
             pred_logit = self.model(
                 transformed_image.to(self.device),
             )  # perform inference on target sample
-            ic(f"_predict | {pred_logit}")
+
             pred_prob = torch.softmax(
                 pred_logit,
                 dim=1,
             )  # turn logits into prediction probabilities
-            ic(f"_predict | {pred_prob}")
+
             pred_label = torch.argmax(
                 pred_prob,
                 dim=1,
             )  # turn prediction probabilities into prediction label
-            ic(f"_predict | {pred_label}")
+
             pred_class = self.class_names[
                 pred_label.cpu()
             ]  # hardcode prediction class to be on CPU
-            ic(f"_predict | {pred_class}")
 
             # 11. Make sure things in the dictionary are on CPU (required for inspecting predictions later on)
             pred_d["pred_prob"] = round(pred_prob.unsqueeze(0).max().cpu().item(), 4)
