@@ -81,7 +81,7 @@ fakeredis==2.9.2
 fancycompleter==0.9.1
 fastai @ file:///home/conda/feedstock_root/build_artifacts/fastai_1675786314653/work
 fastapi==0.90.0
--e git+ssh://git@github.com/bossjones/fastapi_pytorch_postgresql_sandbox.git@1bac8d8723455eb31af331b62fd9e7d9766defd7#egg=fastapi_pytorch_postgresql_sandbox
+-e git+ssh://git@github.com/bossjones/fastapi_pytorch_postgresql_sandbox.git@5ec65a0eeb683c8ad9af12449f69e04f8c10785f#egg=fastapi_pytorch_postgresql_sandbox
 fastcore @ file:///home/conda/feedstock_root/build_artifacts/fastcore_1663188308722/work
 fastdownload @ file:///home/jhoward/mambaforge/conda-bld/fastdownload_1657219113869/work
 fastprogress @ file:///home/conda/feedstock_root/build_artifacts/fastprogress_1658690818839/work
@@ -322,6 +322,7 @@ traitlets==5.9.0
 trampoline==0.1.2
 transformers @ file:///home/conda/feedstock_root/build_artifacts/transformers_1665546244975/work
 typer @ file:///home/conda/feedstock_root/build_artifacts/typer_1667832226065/work
+types-aiofiles==22.1.0.9
 types-mock==5.0.0.5
 types-requests==2.28.11.15
 types-urllib3==1.26.25.5
