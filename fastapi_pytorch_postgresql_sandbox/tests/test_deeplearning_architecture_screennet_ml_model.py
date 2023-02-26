@@ -26,7 +26,8 @@ class TestImageClassifier:
             "~/Documents/my_models/ScreenNetV1.pth",
         )
 
-        assert str(test_model.device) == "mps"
+        if not IS_RUNNING_ON_GITHUB_ACTIONS:
+            assert str(test_model.device) == "mps"
 
         # import bpdb
 

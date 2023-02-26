@@ -172,15 +172,20 @@ def run_get_model_for_inference(
     Returns:
         Tuple[pathlib.PosixPath, torch.nn.Module]: _description_
     """
-    loaded_model_for_inference = load_model_for_inference(
+    # loaded_model_for_inference = load_model_for_inference(
+    #     path_to_model,
+    #     device,
+    #     class_names,
+    #     settings,
+    # )
+    # rich.inspect(loaded_model_for_inference, all=True)
+
+    return load_model_for_inference(
         path_to_model,
         device,
         class_names,
         settings,
     )
-    # rich.inspect(loaded_model_for_inference, all=True)
-
-    return loaded_model_for_inference
 
 
 # SOURCE: https://pytorch.org/tutorials/beginner/saving_loading_models.html#saving-loading-model-for-inference

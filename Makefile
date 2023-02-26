@@ -85,3 +85,6 @@ download-model:
 
 web:
 	python -m fastapi_pytorch_postgresql_sandbox
+
+worker:
+	python -m fastapi_pytorch_postgresql_sandbox.worker

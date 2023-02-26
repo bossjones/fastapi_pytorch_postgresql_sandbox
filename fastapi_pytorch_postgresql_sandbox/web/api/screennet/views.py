@@ -5,12 +5,9 @@ import pickle
 import uuid
 
 from PIL import Image
-from aio_pika import Channel, Message
+from aio_pika import Channel, DeliveryMode, ExchangeType, Message
 from aio_pika.pool import Pool
 from fastapi import APIRouter, Depends, UploadFile
-
-# from fastapi import UploadFile
-from fastapi.param_functions import Depends
 
 from fastapi_pytorch_postgresql_sandbox.services.rabbit.dependencies import (
     get_rmq_channel_pool,
@@ -48,10 +45,27 @@ async def classify(
 
     async with pool.acquire() as conn:
         exchange = await conn.declare_exchange(
-            # name=message.exchange_name,
-            name="",  # default exchange
+            message.exchange_name,
+            # SOURCE: https://aio-pika.readthedocs.io/en/latest/rabbitmq-tutorial/4-routing.html#multiple-bindings
+            type=ExchangeType.DIRECT,
+            # name="",  # default exchange
             auto_delete=True,
         )
+        # Declaring queue
+        queue = await conn.declare_queue(
+            message.queue_name,
+            # "screennet_inference_queue",
+            # properties=BasicProperties(headers={'inference_id': inference_id})
+            # NOTE: When RabbitMQ quits or crashes it will forget the queues and messages unless you tell it not to. Two things are required to make sure that messages aren't lost: we need to mark both the queue and messages as durable.
+            # NOTE: First, we need to make sure that RabbitMQ will never lose our queue. In order to do so, we need to declare it as durable:
+            durable=True,
+        )
+
+        # NOTE: https://aio-pika.readthedocs.io/en/latest/rabbitmq-tutorial/4-routing.html#multiple-bindings
+        # A binding is a relationship between an exchange and a queue. This can be simply read as: the queue is interested in messages from this exchange.
+        # Binding the queue to the exchange
+        await queue.bind(exchange, routing_key=message.routing_key)
+
         await exchange.publish(
             message=Message(
                 # body=message.message.encode("utf-8"),
@@ -61,9 +75,9 @@ async def classify(
                 # correlation_id: Useful to correlate RPC responses with requests.
                 # correlation_id
                 headers={"inference_id": inference_id},
-                # properties=BasicProperties(headers={'inference_id': inference_id})
+                delivery_mode=DeliveryMode.PERSISTENT,
             ),
-            routing_key="screennet_inference_queue",
+            routing_key=message.routing_key,
         )
 
 

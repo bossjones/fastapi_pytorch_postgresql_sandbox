@@ -12,10 +12,10 @@ from aio_pika.pool import Pool
 from redis.asyncio import ConnectionPool
 import rich
 
+from fastapi_pytorch_postgresql_sandbox.logging import configure_logging
 from fastapi_pytorch_postgresql_sandbox.settings import settings
 
-# from pika import BasicProperties
-# from inference_model import MNISTInferenceModel
+configure_logging()
 
 
 def init_worker_rabbit() -> (
@@ -135,7 +135,22 @@ async def main() -> None:
 
     async with rabbit_connection_pool.acquire() as connection:
         async with rabbit_channel_pool.acquire() as channel:
+            await channel.set_qos(prefetch_count=1)
+
+            # -------------------------------------------------------
+            # Message durability
+            # We have learned how to make sure that even if the consumer dies, the task isn't lost. But our tasks will still be lost if RabbitMQ server stops.
+            # When RabbitMQ quits or crashes it will forget the queues and messages unless you tell it not to. Two things are required to make sure that messages aren't lost: we need to mark both the queue and messages as durable.
+            # First, we need to make sure that RabbitMQ will never lose our queue. In order to do so, we need to declare it as durable:
             # Initializing Master with channel
+            # -------------------------------------------------------
+            # SOURCE: https://aio-pika.readthedocs.io/en/latest/rabbitmq-tutorial/2-work-queues.html
+            # Declaring queue
+            queue = await channel.declare_queue(
+                "screennet_inference_queue",
+                durable=True,
+            )
+
             master = Master(channel)
             await master.create_worker("fastapiworker", worker, auto_delete=True)
 
