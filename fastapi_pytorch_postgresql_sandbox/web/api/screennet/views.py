@@ -51,12 +51,12 @@ async def classify(
     # SOURCE: https://github.com/tiangolo/fastapi/discussions/4308
     pil_image: Image = Image.open(BytesIO(request_object_content))
 
-    rich.inspect(file, all=True)
+    # rich.inspect(file, all=True)
 
     try:
         # if hasattr(pil_image, "filename"):
         #     # FIXME: # we need this
-        print(f"{file.file}")
+        # print(f"{file.file}")
         image_data: Image = convert_pil_image_to_rgb_channels(file.file)
 
         # else:
