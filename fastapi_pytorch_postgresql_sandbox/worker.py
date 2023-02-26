@@ -12,7 +12,7 @@ from aio_pika.abc import (
     AbstractIncomingMessage,
     AbstractRobustConnection,
 )
-from aio_pika.patterns import Master, NackMessage, RejectMessage
+from aio_pika.patterns import NackMessage, RejectMessage
 from aio_pika.pool import Pool
 from redis.asyncio import ConnectionPool
 import rich
@@ -136,10 +136,14 @@ async def on_message(message: AbstractIncomingMessage) -> None:
     """
     async with message.process():
         image_data = pickle.loads(message.body)
+
+        # HACK: For some reason the image isn't being converted properly in the view route, lets catch it here just in case and convert to what we expect to use
+        if image_data.mode == "RGBA":
+            image_data = image_data.convert("RGB")
+
         result = net_api.infer(image_data)
         rich.print(f"Result: {result}")
-        # print(f" [x] Received message {message!r}")
-        # print(f"     Message body is: {message.body!r}")
+        # Looks like this # Result: [{'pred_prob': 0.439, 'pred_class': 'twitter', 'time_for_pred': 4.2298}]
 
 
 async def main() -> None:

@@ -122,6 +122,7 @@ dependencies:
   - python-multipart
   - ray[serve]
   - codetiming
+  - types-aiofiles
   - -e .
 variables:
   PYTORCH_ENABLE_MPS_FALLBACK: 1

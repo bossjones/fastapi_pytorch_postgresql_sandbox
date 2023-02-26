@@ -20,5 +20,6 @@ async def handle_save_attachment_locally(img_container: dict, dir_root: Any) -> 
     fname = f"{dir_root}/{img_container['prefix']}_{img_container['filename']}"
     rich.print(f"Saving to ... {fname}")
     await img_container["upload_file_obj"].write(img_container["data"])
+    rich.print(f"SAVED {fname}")
     await asyncio.sleep(1)
     return fname
