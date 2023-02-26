@@ -121,4 +121,5 @@ class TestMlModelFunctions:
             )
         )
         test_device = next(test_effnetb0.parameters()).device
-        assert str(test_device) == "mps:0"
+        if not IS_RUNNING_ON_GITHUB_ACTIONS:
+            assert str(test_device) == "mps:0"
