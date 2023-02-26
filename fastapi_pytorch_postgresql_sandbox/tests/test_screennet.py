@@ -1,3 +1,4 @@
+import os
 import pathlib
 import uuid
 
@@ -6,10 +7,11 @@ from fastapi import FastAPI
 from httpx import AsyncClient
 import pytest
 
+HERE = os.path.dirname(__file__)
 
-@pytest.mark.xfail(
-    reason="wip",
-)
+# @pytest.mark.xfail(
+#     reason="wip",
+# )
 @pytest.mark.anyio
 async def test_message_publishing_classify(
     fastapi_app: FastAPI,
@@ -28,24 +30,29 @@ async def test_message_publishing_classify(
     url = fastapi_app.url_path_for("classify")
     # NOTE: https://aio-pika.readthedocs.io/en/latest/rabbitmq-tutorial/4-routing.html#multiple-bindings
     path = pathlib.Path(
-        "/Users/malcolm/dev/bossjones/fastapi_pytorch_postgresql_sandbox/fastapi_pytorch_postgresql_sandbox/tests/fixtures/test1.jpg",
+        f"{HERE}/fixtures/test1.jpg",
     )
     with path.open("rb") as file:
-        import bpdb
+        # import bpdb
 
-        bpdb.set_trace()
+        # bpdb.set_trace()
         await client.post(
             url,
-            json={
-                "exchange_name": test_exchange_name,  # default exchange
-                "routing_key": test_routing_key,
-                # NOTE: These are the production values below
-                # "exchange_name": "", # default exchange
-                # "routing_key": "screennet_inference_queue",
-                "queue_name": test_queue.name,
-                "message": message_text,
+            # json={
+            #     "exchange_name": test_exchange_name,  # default exchange
+            #     "routing_key": test_routing_key,
+            #     # NOTE: These are the production values below
+            #     # "exchange_name": "", # default exchange
+            #     # "routing_key": "screennet_inference_queue",
+            #     "queue_name": test_queue.name,
+            #     "message": message_text,
+            # },
+            # files={"file": file},
+            files={"file": ("filename", file, "image/jpeg")},
+            headers={
+                "accept": "application/json",
+                "Content-Type": "multipart/form-data",
             },
-            files={"file": file},
         )
 
         # print("hello")

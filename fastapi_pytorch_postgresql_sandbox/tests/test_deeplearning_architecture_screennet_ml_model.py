@@ -1,3 +1,4 @@
+# sourcery skip: no-complex-if-expressions
 # pylint: disable=no-self-use
 import os
 
@@ -49,11 +50,18 @@ class TestImageClassifier:
 class TestMlModelFunctions:
     def test_create_effnetb0_model(self):
         test_settings = settings.Settings()
-        test_effnetb0 = ml_model.create_effnetb0_model(
-            torch.device("mps"),
-            ["twitter", "facebook", "tiktok"],
-            test_settings,
+        test_effnetb0 = (
+            ml_model.create_effnetb0_model(
+                torch.device("cpu"),
+                ["twitter", "facebook", "tiktok"],
+                test_settings,
+            )
+            if IS_RUNNING_ON_GITHUB_ACTIONS
+            else ml_model.create_effnetb0_model(
+                torch.device("mps"),
+                ["twitter", "facebook", "tiktok"],
+                test_settings,
+            )
         )
-
         test_device = next(test_effnetb0.parameters()).device
         assert str(test_device) == "mps:0"

@@ -425,6 +425,7 @@ def pytest(
     # utilsonly=False,
     coverage=True,
     config_path="",
+    capture_no=False,
 ):
     """
     Run pytest
@@ -502,6 +503,9 @@ def pytest(
 
     if pdb:
         _cmd += r" --pdb --pdbcls bpdb:BPdb "
+
+    if capture_no:
+        _cmd += r" -s "
 
     if mypy:
         _cmd += r" --mypy "
