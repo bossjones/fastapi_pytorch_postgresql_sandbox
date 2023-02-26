@@ -118,24 +118,25 @@ services:
     - "25672:25672"
     - "15672:15672"
 
-  zookeeper:
-    image: "bitnami/zookeeper:3.7.1"
-    hostname: "fastapi_pytorch_postgresql_sandbox-zookeeper"
-    environment:
-      ALLOW_ANONYMOUS_LOGIN: "yes"
-      ZOO_LOG_LEVEL: "ERROR"
-      ZOO_ADMIN_SERVER_PORT_NUMBER: 18080
-      JVMFLAGS: "-Xmx1024m"
-    healthcheck:
-      test: zkServer.sh status
-      interval: 1s
-      timeout: 3s
-      retries: 30
-    ports:
-    - "2181:2181"
-    - "2888:2888"
-    - "3888:3888"
-    - "18080:18080"
+  # NOTE: We only need this if we are usking kafka
+  # zookeeper:
+  #   image: "bitnami/zookeeper:3.7.1"
+  #   hostname: "fastapi_pytorch_postgresql_sandbox-zookeeper"
+  #   environment:
+  #     ALLOW_ANONYMOUS_LOGIN: "yes"
+  #     ZOO_LOG_LEVEL: "ERROR"
+  #     ZOO_ADMIN_SERVER_PORT_NUMBER: 18080
+  #     JVMFLAGS: "-Xmx1024m"
+  #   healthcheck:
+  #     test: zkServer.sh status
+  #     interval: 1s
+  #     timeout: 3s
+  #     retries: 30
+  #   ports:
+  #   - "2181:2181"
+  #   - "2888:2888"
+  #   - "3888:3888"
+  #   - "18080:18080"
 
 volumes:
   fastapi_pytorch_postgresql_sandbox-db-data:

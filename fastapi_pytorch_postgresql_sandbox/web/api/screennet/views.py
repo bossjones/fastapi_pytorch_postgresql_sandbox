@@ -7,6 +7,7 @@ import asyncio
 import concurrent.futures
 import functools
 from io import BytesIO
+import json
 import pickle
 import sys
 import tempfile
@@ -20,17 +21,24 @@ import aiofiles
 import bpdb
 from codetiming import Timer
 from fastapi import APIRouter, Depends, UploadFile
+from redis.asyncio import ConnectionPool, Redis
 import rich
 
 from fastapi_pytorch_postgresql_sandbox.services.rabbit.dependencies import (
     get_rmq_channel_pool,
 )
+from fastapi_pytorch_postgresql_sandbox.services.redis.dependency import get_redis_pool
 from fastapi_pytorch_postgresql_sandbox.settings import settings
 from fastapi_pytorch_postgresql_sandbox.utils.imgops import (
     handle_save_attachment_locally,
 )
 from fastapi_pytorch_postgresql_sandbox.utils.mlops import (
     convert_pil_image_to_rgb_channels,
+)
+from fastapi_pytorch_postgresql_sandbox.web.api.redis.schema import (
+    RedisPredictionData,
+    RedisPredictionValueDTO,
+    RedisValueDTO,
 )
 from fastapi_pytorch_postgresql_sandbox.web.api.screennet.schema import (
     PendingClassificationDTO,
@@ -193,37 +201,18 @@ async def classify(
     return PendingClassificationDTO(inference_id=inference_id)
 
 
-# @router.get("/", response_model=RedisValueDTO)
-# async def get_redis_value(
-#     key: str,
-#     redis_pool: ConnectionPool = Depends(get_redis_pool),
-# ) -> RedisValueDTO:
-#     """
-#     Get value from redis.
+@router.get("/", response_model=RedisPredictionValueDTO)
+async def get_classify_value(
+    key: str,
+    redis_pool: ConnectionPool = Depends(get_redis_pool),
+) -> RedisPredictionValueDTO:
+    """
+    Get value from redis.
 
-#     :param key: redis key, to get data from.
-#     :param redis_pool: redis connection pool.
-#     :returns: information from redis.
-#     """
-#     async with Redis(connection_pool=redis_pool) as redis:
-#         redis_value = await redis.get(key)
-#     return RedisValueDTO(
-#         key=key,
-#         value=redis_value,
-#     )
-
-
-# @router.put("/")
-# async def set_redis_value(
-#     redis_value: RedisValueDTO,
-#     redis_pool: ConnectionPool = Depends(get_redis_pool),
-# ) -> None:
-#     """
-#     Set value in redis.
-
-#     :param redis_value: new value data.
-#     :param redis_pool: redis connection pool.
-#     """
-#     if redis_value.value is not None:
-#         async with Redis(connection_pool=redis_pool) as redis:
-#             await redis.set(name=redis_value.key, value=redis_value.value)
+    :param key: redis key, to get data from.
+    :param redis_pool: redis connection pool.
+    :returns: information from redis.
+    """
+    async with Redis(connection_pool=redis_pool) as redis:
+        redis_value = await redis.hgetall(key)
+    return RedisPredictionValueDTO(data=redis_value)
