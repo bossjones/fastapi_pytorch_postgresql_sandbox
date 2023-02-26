@@ -1,7 +1,7 @@
 # pylint: disable=no-name-in-module
 """web.api.screennet"""
 
-from typing import Dict, Optional, Union
+from typing import Dict, Union
 
 from pydantic import BaseModel
 

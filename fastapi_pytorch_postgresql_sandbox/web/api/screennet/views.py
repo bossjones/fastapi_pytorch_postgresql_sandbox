@@ -7,7 +7,6 @@ import asyncio
 import concurrent.futures
 import functools
 from io import BytesIO
-import json
 import pickle
 import sys
 import tempfile
@@ -36,12 +35,13 @@ from fastapi_pytorch_postgresql_sandbox.utils.imgops import (
 from fastapi_pytorch_postgresql_sandbox.utils.mlops import (
     convert_pil_image_to_rgb_channels,
 )
-from fastapi_pytorch_postgresql_sandbox.web.api.redis.schema import RedisValueDTO
 from fastapi_pytorch_postgresql_sandbox.web.api.screennet.schema import (
     PendingClassificationDTO,
-    RedisPredictionData,
     RedisPredictionValueDTO,
 )
+
+# NOTE: Inspired by https://www.auroria.io/running-pytorch-models-for-inference-using-fastapi-rabbitmq-redis-docker/
+
 
 # from codetiming import Timer
 
@@ -208,7 +208,7 @@ async def classify(
 async def get_classify_value(
     inference_id: str,
     redis_pool: ConnectionPool = Depends(get_redis_pool),
-) -> RedisPredictionValueDTO:
+) -> Union[RedisPredictionValueDTO, PendingClassificationDTO]:
     """
     Get value from redis.
 

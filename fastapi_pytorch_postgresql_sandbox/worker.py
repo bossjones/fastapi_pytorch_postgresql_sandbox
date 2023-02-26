@@ -176,7 +176,8 @@ async def on_message(message: AbstractIncomingMessage) -> None:
         if result is not None:
             async with Redis(connection_pool=redis_pool) as redis:
                 await redis.hset(
-                    name=message.headers["inference_id"], mapping=result[0],
+                    name=message.headers["inference_id"],
+                    mapping=result[0],
                 )
                 # print("")
 
