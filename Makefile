@@ -89,6 +89,10 @@ web:
 worker:
 	python -m fastapi_pytorch_postgresql_sandbox.worker
 
-test-classify:
-# curl -X POST 'http://localhost:8000/classify' --form 'file=@"/Users/malcolm/dev/bossjones/fastapi_pytorch_postgresql_sandbox/fastapi_pytorch_postgresql_sandbox/tests/fixtures/test1.jpg"' -d '{"json": {"exchange_name": "7cf7aaa6aea14e0d9ffbde33e689b1e8","routing_key": "90e78f506fd84cf39bb05014c66cae44","queue_name": "b504ebf81a044ae39f402e7f47f30ebc","message": "d66a3c34d2da4153a7e5451a48bb6960"}}'
-# > {"inference_id":"30684d7f-b86a-4014-9029-85554dccf3e7"}
+# test-classify:
+# # curl -X POST 'http://localhost:8000/classify' --form 'file=@"/Users/malcolm/dev/bossjones/fastapi_pytorch_postgresql_sandbox/fastapi_pytorch_postgresql_sandbox/tests/fixtures/test1.jpg"' -d '{"json": {"exchange_name": "7cf7aaa6aea14e0d9ffbde33e689b1e8","routing_key": "90e78f506fd84cf39bb05014c66cae44","queue_name": "b504ebf81a044ae39f402e7f47f30ebc","message": "d66a3c34d2da4153a7e5451a48bb6960"}}'
+# # > {"inference_id":"30684d7f-b86a-4014-9029-85554dccf3e7"}
+
+doku:
+	docker pull amerkurev/doku:latest || true
+	docker run --rm --name doku -d -v /var/run/docker.sock:/var/run/docker.sock:ro -v /:/hostroot:ro -p 9090:9090 amerkurev/doku

@@ -115,7 +115,8 @@ async def classify(
 
                     # nuke the originals
                     convert_func = functools.partial(
-                        convert_pil_image_to_rgb_channels, img_fpaths,
+                        convert_pil_image_to_rgb_channels,
+                        img_fpaths,
                     )
 
                     # 2. Run in a custom thread pool:

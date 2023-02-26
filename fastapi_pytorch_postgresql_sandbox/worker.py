@@ -14,7 +14,7 @@ from aio_pika.abc import (
 )
 from aio_pika.patterns import NackMessage, RejectMessage
 from aio_pika.pool import Pool
-from redis.asyncio import ConnectionPool
+from redis.asyncio import ConnectionPool, Redis
 import rich
 
 from fastapi_pytorch_postgresql_sandbox.deeplearning.architecture.screennet.ml_model import (
@@ -86,7 +86,7 @@ async def shutdown_worker_rabbit(
     await channel_pool.close()
 
 
-def init_worker_redis() -> None:  # pragma: no cover
+def init_worker_redis() -> ConnectionPool:  # pragma: no cover
     """
     Creates connection pool for redis.
     """
@@ -134,7 +134,32 @@ async def on_message(message: AbstractIncomingMessage) -> None:
     Args:
         message (AbstractIncomingMessage): _description_
     """
+    # NOTE: Example message data
+    # IncomingMessage:{'app_id': None,
+    #  'body_size': 10963333,
+    #  'cluster_id': '',
+    #  'consumer_tag': 'ctag1.bdd640fb06674ad19c80317fa3b1799d',
+    #  'content_encoding': None,
+    #  'content_type': None,
+    #  'correlation_id': None,
+    #  'delivery_mode': <DeliveryMode.PERSISTENT: 2>,
+    #  'delivery_tag': 1,
+    #  'exchange': 'screenet',
+    #  'expiration': None,
+    #  'headers': {'inference_id': '6f226399-bf6b-4aa2-8a73-586f6627eaff',
+    #              'traceparent': '00-bdd640fb06671ad11c80317fa3b1799d-371ecd7b27cd8130-01'},
+    #  'message_id': '1a2a73ed562b4f79837459eef50bea63',
+    #  'priority': 0,
+    #  'redelivered': False,
+    #  'reply_to': None,
+    #  'routing_key': 'classify_worker',
+    #  'timestamp': None,
+    #  'type': 'None',
+    #  'user_id': None}
     async with message.process():
+        # import bpdb
+
+        # bpdb.set_trace()
         image_data = pickle.loads(message.body)
 
         # HACK: For some reason the image isn't being converted properly in the view route, lets catch it here just in case and convert to what we expect to use
@@ -145,19 +170,23 @@ async def on_message(message: AbstractIncomingMessage) -> None:
         rich.print(f"Result: {result}")
         # Looks like this # Result: [{'pred_prob': 0.439, 'pred_class': 'twitter', 'time_for_pred': 4.2298}]
 
+        # SOURCE: https://www.auroria.io/running-pytorch-models-for-inference-using-fastapi-rabbitmq-redis-docker/
+        # Storing prediction in redis database
+        # FIXME: set the values using redis now
+        if result is not None:
+            async with Redis(connection_pool=redis_pool) as redis:
+                await redis.hset(
+                    name=message.headers["inference_id"], mapping=result[0],
+                )
+                # print("")
+
 
 async def main() -> None:
     """_summary_"""
     rabbit_connection_pool, rabbit_channel_pool = init_worker_rabbit()
 
-    rich.print(rabbit_connection_pool)
-    rich.print(rabbit_channel_pool)
-    # connection = await connect_robust(
-    #     "amqp://guest:guest@127.0.0.1/?name=aio-pika%20worker",
-    # )
-
-    #     # # Creating channel
-    #     # channel = await connection.channel()
+    # rich.print(rabbit_connection_pool)
+    # rich.print(rabbit_channel_pool)
 
     async with rabbit_connection_pool.acquire() as connection:
         async with rabbit_channel_pool.acquire() as channel:
@@ -195,6 +224,7 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
+    redis_pool = init_worker_redis()
     net_api = ImageClassifier()
     net_api.load_model()
     asyncio.run(main())
