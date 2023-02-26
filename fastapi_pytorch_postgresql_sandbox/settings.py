@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     """
 
     host: str = "127.0.0.1"
-    port: int = 8000
+    port: int = 8008
     # quantity of workers for uvicorn
     workers_count: int = 1
     # Enable uvicorn reloading
@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     # Current environment
     environment: str = "dev"
 
-    log_level: LogLevel = LogLevel.INFO
+    log_level: LogLevel = LogLevel.DEBUG
 
     # Variables for the database
     db_host: str = "localhost"
@@ -59,7 +59,7 @@ class Settings(BaseSettings):
     pytorch_device: str = "mps"
     arch: str = "efficientnet_b0"
     model_weights: str = "EfficientNet_B0_Weights"
-    class_names: List[str] = ["twitter", "facebook", "tiktok"]
+    class_names: List[str] = ["facebook", "tiktok", "twitter"]
     gpu: Optional[Union[int, None]] = None
     weights: str = PATH_TO_BEST_MODEL
     lr: float = 0.001
@@ -82,13 +82,18 @@ class Settings(BaseSettings):
     rabbit_pool_size: int = 2
     rabbit_channel_pool_size: int = 10
 
+    # worker configs
+    worker_exchange_name: str = "screenet"
+    worker_queue_name: str = "screennet_inference_queue"
+    worker_routing_key: str = "classify_worker"
+
     # This variable is used to define
     # multiproc_dir. It's required for [uvi|guni]corn projects.
     prometheus_dir: Path = TEMP_DIR / "prom"
 
     # Grpc endpoint for opentelemetry.
     # E.G. http://localhost:4317
-    opentelemetry_endpoint: Optional[str] = None
+    opentelemetry_endpoint: Union[Optional[str], None] = None
 
     # kafka_bootstrap_servers: list[str] = [
     #     "fastapi_pytorch_postgresql_sandbox-kafka:9092",

@@ -144,3 +144,4 @@ cython_debug/
 cov.xml
 junit/
 .envrc
+prom/

@@ -1,3 +1,6 @@
+"""web.api.rabbit.views"""
+# sourcery skip: avoid-global-variables
+# pylint: disable=no-name-in-module
 from aio_pika import Channel, Message
 from aio_pika.pool import Pool
 from fastapi import APIRouter, Depends

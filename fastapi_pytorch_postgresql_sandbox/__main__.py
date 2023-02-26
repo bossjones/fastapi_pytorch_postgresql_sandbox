@@ -1,3 +1,4 @@
+"""fastapi_pytorch_postgresql_sandbox.main"""
 import os
 import shutil
 

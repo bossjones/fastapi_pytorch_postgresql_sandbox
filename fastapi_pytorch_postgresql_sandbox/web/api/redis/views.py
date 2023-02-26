@@ -1,3 +1,6 @@
+"""web.api.redis.views"""
+# sourcery skip: avoid-global-variables
+# pylint: disable=no-name-in-module
 from fastapi import APIRouter
 from fastapi.param_functions import Depends
 from redis.asyncio import ConnectionPool, Redis

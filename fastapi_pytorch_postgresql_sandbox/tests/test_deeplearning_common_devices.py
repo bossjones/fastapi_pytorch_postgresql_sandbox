@@ -8,7 +8,7 @@ IS_RUNNING_ON_GITHUB_ACTIONS = bool(os.environ.get("GITHUB_ACTOR"))
 
 
 @pytest.mark.unittest
-class TestMeilisearchCaseIsolated:
+class TestDevices:
     @pytest.mark.skipif(
         IS_RUNNING_ON_GITHUB_ACTIONS,
         reason="Not sure if mps is enabled on github actions yet, disabling",

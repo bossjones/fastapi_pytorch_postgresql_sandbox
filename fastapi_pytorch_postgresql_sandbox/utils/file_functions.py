@@ -6,8 +6,12 @@ import os.path
 import pathlib
 from pathlib import Path
 import shutil
-from typing import Any
+from typing import Any, Generator
 
+import aiofiles
+import aiofiles.os
+
+# from fastapi.responses import StreamingResponse
 from rich import print
 
 
@@ -127,3 +131,40 @@ def clean_dirs_in_dir(image_path: str) -> None:
         shutil.rmtree(image_path)
     except OSError as e:
         print(f"Error: {image_path} : {e.strerror}")
+
+
+# SOURCE: https://github.com/objective-core/objective_backend/blob/f721a950e001b8a4044b93c984f8c7a9353a36e3/thumbnailer/main.py
+async def aio_is_path_exists(path: str) -> bool:
+    """_summary_
+
+    Args:
+        path (str): _description_
+
+    Returns:
+        bool: _description_
+    """
+    try:
+        await aiofiles.os.stat(path)
+    except (OSError, ValueError):
+        return False
+    return True
+
+
+# SOURCE: https://github.com/objective-core/objective_backend/blob/f721a950e001b8a4044b93c984f8c7a9353a36e3/thumbnailer/main.py
+# https://fastapi.tiangolo.com/advanced/custom-response/#streamingresponse
+# If your generator will only yield values, set the SendType and ReturnType to None
+def iterfile(file_path: str) -> Generator[Any, None, None]:
+    """If you have a file-like object (e.g. the object returned by open()), you can create a generator function to iterate over that file-like object.
+
+    That way, you don't have to read it all first in memory, and you can pass that generator function to the StreamingResponse, and return it.
+
+    This includes many libraries to interact with cloud storage, video processing, and others.
+
+    Args:
+        file_path (_type_): _description_
+
+    Yields:
+        _type_: _description_
+    """
+    with open(file_path, mode="rb") as file_like:
+        yield from file_like

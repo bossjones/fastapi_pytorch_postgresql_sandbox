@@ -2,21 +2,21 @@
 from __future__ import annotations
 
 import argparse
+from io import BytesIO
 import os
 import os.path
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from PIL import Image
-from icecream import ic
-import matplotlib
 
 # Continue with regular imports
 import matplotlib.pyplot as plt
-from mlxtend.plotting import plot_confusion_matrix
+
+# from mlxtend.plotting import plot_confusion_matrix
 import numpy as np
 import pandas as pd
-from rich import box, print
+from rich import box
 from rich.table import Table
 
 # SOURCE: https://github.com/rasbt/deeplearning-models/blob/35aba5dc03c43bc29af5304ac248fc956e1361bf/pytorch_ipynb/helper_evaluate.py
@@ -27,11 +27,18 @@ import torch.optim
 import torch.profiler
 import torch.utils.data
 import torch.utils.data.distributed
-from torch.utils.tensorboard import SummaryWriter
+
+# from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms
 
 # import torchvision.transforms as transforms
 import torchvision.transforms.functional as pytorch_transforms_functional
+
+# from icecream import ic
+
+
+# import matplotlib
+
 
 # # SOURCE: https://github.com/pytorch/vision/blob/main/references/classification/train.py
 # def _get_cache_path(filepath) -> str:
@@ -58,7 +65,7 @@ import torchvision.transforms.functional as pytorch_transforms_functional
 #     return cache_path
 
 
-def get_pil_image_channels(image_path: str) -> int:
+def get_pil_image_channels(image_path: Union[str, bytes, BytesIO]) -> int:
     """Open an image and get the number of channels it has.
 
     Args:
@@ -76,7 +83,7 @@ def get_pil_image_channels(image_path: str) -> int:
     return pil_img_tensor.shape[0]
 
 
-def convert_pil_image_to_rgb_channels(image_path: str) -> Image:
+def convert_pil_image_to_rgb_channels(image_path: Union[str, bytes, BytesIO]) -> Image:
     """Convert Pil image to have the appropriate number of color channels
 
     Args:
@@ -85,6 +92,17 @@ def convert_pil_image_to_rgb_channels(image_path: str) -> Image:
     Returns:
         _type_: _description_
     """
+    # NOTE: from PIL.Image.open()
+    # filename = ""
+    # if isinstance(fp, Path):
+    #     filename = str(fp.resolve())
+    # elif is_path(fp):
+    #     filename = fp
+
+    # if filename:
+    #     fp = builtins.open(filename, "rb")
+    #     exclusive_fp = True
+
     return (
         Image.open(image_path).convert("RGB")
         if get_pil_image_channels(image_path) != 4
@@ -146,10 +164,10 @@ def from_pil_image_to_plt_display(
     # Plot the image with matplotlib
     plt.figure(figsize=(10, 7))
     plt.imshow(img_as_array)
-    title_font_dict = {"fontsize": "10"}
+    title_font_d = {"fontsize": "10"}
     plt.title(
         f"Image class: {image_class} | Image Pred Prob: {image_pred_prob} | Prediction time: {image_time_for_pred} | Image shape: {img_as_array.shape} -> [height, width, color_channels]",
-        fontdict=title_font_dict,
+        fontdict=title_font_d,
     )
     plt.axis(False)
 
@@ -158,79 +176,79 @@ def from_pil_image_to_plt_display(
         plt.savefig(fname)
 
 
-def create_writer(
-    experiment_name: str,
-    model_name: str,
-    extra: str | None = None,
-) -> SummaryWriter:
-    """Creates a torch.utils.tensorboard.writer.SummaryWriter() instance saving to a specific log_dir.
+# def create_writer(
+#     experiment_name: str,
+#     model_name: str,
+#     extra: str | None = None,
+# ) -> SummaryWriter:
+#     """Creates a torch.utils.tensorboard.writer.SummaryWriter() instance saving to a specific log_dir.
 
-    log_dir is a combination of runs/timestamp/experiment_name/model_name/extra.
+#     log_dir is a combination of runs/timestamp/experiment_name/model_name/extra.
 
-    Where timestamp is the current date in YYYY-MM-DD format.
+#     Where timestamp is the current date in YYYY-MM-DD format.
 
-    Args:
-        experiment_name (str): Name of experiment.
-        model_name (str): Name of model.
-        extra (str, optional): Anything extra to add to the directory. Defaults to None.
+#     Args:
+#         experiment_name (str): Name of experiment.
+#         model_name (str): Name of model.
+#         extra (str, optional): Anything extra to add to the directory. Defaults to None.
 
-    Returns:
-        torch.utils.tensorboard.writer.SummaryWriter(): Instance of a writer saving to log_dir.
+#     Returns:
+#         torch.utils.tensorboard.writer.SummaryWriter(): Instance of a writer saving to log_dir.
 
-    Example usage:
-        # Create a writer saving to "runs/2022-06-04/data_10_percent/effnetb2/5_epochs/"
-        writer = create_writer(experiment_name="data_10_percent",
-                               model_name="effnetb2",
-                               extra="5_epochs")
-        # The above is the same as:
-        writer = SummaryWriter(log_dir="runs/2022-06-04/data_10_percent/effnetb2/5_epochs/")
-    """
-    from datetime import datetime  # pylint: disable=import-outside-toplevel
-    import os  # pylint: disable=import-outside-toplevel
+#     Example usage:
+#         # Create a writer saving to "runs/2022-06-04/data_10_percent/effnetb2/5_epochs/"
+#         writer = create_writer(experiment_name="data_10_percent",
+#                                model_name="effnetb2",
+#                                extra="5_epochs")
+#         # The above is the same as:
+#         writer = SummaryWriter(log_dir="runs/2022-06-04/data_10_percent/effnetb2/5_epochs/")
+#     """
+#     from datetime import datetime  # pylint: disable=import-outside-toplevel
+#     import os  # pylint: disable=import-outside-toplevel
 
-    # Get timestamp of current date (all experiments on certain day live in same folder)
-    timestamp = datetime.now().strftime(
-        "%Y-%m-%d",
-    )  # returns current date in YYYY-MM-DD format
+#     # Get timestamp of current date (all experiments on certain day live in same folder)
+#     timestamp = datetime.now().strftime(
+#         "%Y-%m-%d",
+#     )  # returns current date in YYYY-MM-DD format
 
-    if extra:
-        # Create log directory path
-        log_dir = os.path.join("runs", timestamp, experiment_name, model_name, extra)
-    else:
-        log_dir = os.path.join("runs", timestamp, experiment_name, model_name)
+#     if extra:
+#         # Create log directory path
+#         log_dir = os.path.join("runs", timestamp, experiment_name, model_name, extra)
+#     else:
+#         log_dir = os.path.join("runs", timestamp, experiment_name, model_name)
 
-    print(f"[INFO] Created SummaryWriter, saving to: {log_dir}...")
-    return SummaryWriter(log_dir=log_dir)
+#     print(f"[INFO] Created SummaryWriter, saving to: {log_dir}...")
+#     return SummaryWriter(log_dir=log_dir)
 
 
-def show_confusion_matrix_helper(
-    cmat: np.ndarray,
-    class_names: List[str],
-    to_disk: bool = True,
-    fname: str = "plot.png",
-) -> None:
-    """_summary_
+# def show_confusion_matrix_helper(
+#     cmat: np.ndarray,
+#     class_names: List[str],
+#     to_disk: bool = True,
+#     fname: str = "plot.png",
+# ) -> None:
+#     """_summary_
 
-    Args:
-        cmat (np.ndarray): _description_
-        class_names (List[str]): _description_
-        to_disk (bool, optional): _description_. Defaults to True.
-        fname (str, optional): _description_. Defaults to "plot.png".
-    """
-    # boss: function via https://colab.research.google.com/github/mrdbourke/pytorch-deep-learning/blob/main/03_pytorch_computer_vision.ipynb#scrollTo=7aed6d76-ad1c-429e-b8e0-c80572e3ebf4
-    fig, ax = plot_confusion_matrix(
-        conf_mat=cmat,
-        class_names=class_names,
-        norm_colormap=matplotlib.colors.LogNorm(),
-        # normed colormaps highlight the off-diagonals
-        # for high-accuracy models better
-    )
+#     Args:
+#         cmat (np.ndarray): _description_
+#         class_names (List[str]): _description_
+#         to_disk (bool, optional): _description_. Defaults to True.
+#         fname (str, optional): _description_. Defaults to "plot.png".
+#     """
+#     # boss: function via https://colab.research.google.com/github/mrdbourke/pytorch-deep-learning/blob/main/03_pytorch_computer_vision.ipynb#scrollTo=7aed6d76-ad1c-429e-b8e0-c80572e3ebf4
+#     fig, ax = plot_confusion_matrix(
+#         conf_mat=cmat,
+#         class_names=class_names,
+#         norm_colormap=matplotlib.colors.LogNorm(),
+#         # normed colormaps highlight the off-diagonals
+#         # for high-accuracy models better
+#     )
 
-    if to_disk:
-        ic("Writing confusion matrix to disk ...")
-        ic(plt.savefig(fname))
-    else:
-        plt.show()
+#     if to_disk:
+#         ic("Writing confusion matrix to disk ...")
+#         ic(plt.savefig(fname))
+#     else:
+#         plt.show()
 
 
 # def compute_accuracy(
@@ -519,8 +537,8 @@ def inspect_csv_results() -> pd.DataFrame:
     """
     results_paths = list(Path("results").glob("*.csv"))
 
-    df_list = [pd.read_csv(path) for path in results_paths]
-    results_df = pd.concat(df_list).reset_index(drop=True)
+    df_l = [pd.read_csv(path) for path in results_paths]
+    results_df = pd.concat(df_l).reset_index(drop=True)
     # prettify(results_df)
 
     # # Initiate a Table instance to be modified

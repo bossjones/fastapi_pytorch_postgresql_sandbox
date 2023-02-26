@@ -1,3 +1,8 @@
+"""logging"""
+# sourcery skip: avoid-global-variables
+# pylint: disable=no-name-in-module
+# pylint: disable=no-member
+
 import logging
 import sys
 from typing import Any, Union

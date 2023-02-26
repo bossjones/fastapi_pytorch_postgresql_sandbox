@@ -1,3 +1,6 @@
+"""web.api.monitoring.views"""
+# sourcery skip: avoid-global-variables
+# pylint: disable=no-name-in-module
 from fastapi import APIRouter
 
 router = APIRouter()

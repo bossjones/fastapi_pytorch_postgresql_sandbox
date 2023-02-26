@@ -119,6 +119,11 @@ dependencies:
   # - commitizen
   - ruff
   - codecov
+  - python-multipart
+  - ray[serve]
+  - codetiming
+  - aiofiles
+  - types-aiofiles
   - -e .
-variables:
-  PYTORCH_ENABLE_MPS_FALLBACK: 1
+# variables:
+#   PYTORCH_ENABLE_MPS_FALLBACK: 1

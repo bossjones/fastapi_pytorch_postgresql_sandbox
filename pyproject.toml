@@ -95,16 +95,6 @@ module = [
 ]
 ignore_missing_imports = true
 
-# [tool.pytest.ini_options]
-# filterwarnings = [
-#     "error",
-#     "ignore::DeprecationWarning",
-#     "ignore:.*unclosed.*:ResourceWarning",
-# ]
-# env = [
-#     "FASTAPI_PYTORCH_POSTGRESQL_SANDBOX_DB_BASE=fastapi_pytorch_postgresql_sandbox_test",
-# ]
-
 [tool.poetry2conda]
 name = "fastapi_pytorch_postgresql_sandbox3"
 

@@ -1,14 +1,13 @@
+# pylint: disable=too-many-instance-attributes
 """ ml_model """
 from __future__ import annotations
 
 import pathlib
 from pathlib import Path
-from typing import List, Union
+from timeit import default_timer as timer
+from typing import Any, List, Union
 
 from icecream import ic
-
-# Continue with regular imports
-# import mlxtend
 import numpy as np
 from rich import print
 
@@ -27,6 +26,7 @@ from torch.optim import Adam
 import torch.profiler
 import torch.utils.data
 import torch.utils.data.distributed
+import torchvision
 import torchvision.models as torchvision_models
 
 from fastapi_pytorch_postgresql_sandbox.deeplearning.architecture.screennet.config import (
@@ -47,7 +47,7 @@ def validate_seed(seed: int) -> None:
     Args:
         seed (int): _description_
     """
-    ic(seed, type(seed))
+    # ic(seed, type(seed))
     devices.seed_everything(seed)
 
     # Nevermind, the unexpected behaviour is from cpu not mps. I was using from_numpy which the document indicate it will create a tensor buffer that shared memory space (I didn't catch this at first). This shared memory space seems to only be valid for cpu version, and nor mps version
@@ -103,17 +103,18 @@ def create_effnetb0_model(
         _type_: _description_
     """
     # NEW: Setup the model with pretrained weights and send it to the target device (torchvision v0.13+)
+    # DISABLED: weights = torchvision_models.EfficientNet_B0_Weights.DEFAULT
     weights = torchvision_models.__dict__[settings.model_weights].DEFAULT
 
-    model = torchvision_models.efficientnet_b0(weights=weights).to(device)
+    model = torchvision.models.efficientnet_b0(weights=weights).to(device)
 
     # Freeze all base layers in the "features" section of the model (the feature extractor) by setting requires_grad=False
     for param in model.features.parameters():
         param.requires_grad = False
 
-    if settings.seed:
-        # Set the manual seeds
-        validate_seed(settings.seed)
+    # if settings.seed:
+    #     # Set the manual seeds
+    validate_seed(settings.seed)
 
     # Get the length of class_names (one output unit for each class)
     output_shape = len(class_names)
@@ -171,6 +172,14 @@ def run_get_model_for_inference(
     Returns:
         Tuple[pathlib.PosixPath, torch.nn.Module]: _description_
     """
+    # loaded_model_for_inference = load_model_for_inference(
+    #     path_to_model,
+    #     device,
+    #     class_names,
+    #     settings,
+    # )
+    # rich.inspect(loaded_model_for_inference, all=True)
+
     return load_model_for_inference(
         path_to_model,
         device,
@@ -230,13 +239,11 @@ def load_model_for_inference(
     Returns:
         nn.Module: _description_
     """
+    ic("running load_model_for_inference...")
     model = create_effnetb0_model(device, class_names, settings)
-
-    import bpdb
-
-    bpdb.set_trace()
-
-    model.load_state_dict(torch.load(save_path))
+    ic(next(model.parameters()).device)
+    model = model.to(device)
+    model.load_state_dict(torch.load(save_path, map_location=device))
     model.eval()
     print(f"Model loaded from path {save_path} successfully.")
 
@@ -282,45 +289,139 @@ class ImageClassifier:
         Args:
             seed (_type_, optional): _description_. Defaults to None.
         """
+
+        validate_seed(42)
+
         self.loss_fn: Union[None, CrossEntropyLoss] = None
         self.optimizer: Union[None, Adam] = None
         self.class_names: List[str] = settings.class_names
         self.path_to_model: str = path_to_model
         self.settings: Settings = settings
         self.device = devices.get_optimal_device(settings)
-        self.weights = torchvision_models.__dict__[settings.model_weights].DEFAULT
+        self.weights = torchvision_models.EfficientNet_B0_Weights.DEFAULT
         self.auto_transforms = self.weights.transforms()
-        self.model = None
-        # FIXME: ----------------------------------------------------
-        # self.model = torchvision_models.__dict__[settings.arch](
-        #     weights=settings.weights,
-        # ).to(
-        #     settings.device,
-        # )
-        # self.model.name = settings.arch
-
-        # self.load_model(pretrained=True)
-        # FIXME: ----------------------------------------------------
+        self.model: Union[None, torch.nn.Module] = None
+        self.loaded: bool = False
 
     # def predict(self):
 
-    def load_base_model(self) -> None:
-        """_summary_"""
-
-    def set_seed(self) -> None:
-        """_summary_"""
-        if self.settings.seed:
-            validate_seed(self.settings.seed)
-
-    # def load_weigths(self) -> None:
+    # def set_seed(self) -> None:
     #     """_summary_"""
+    #     if self.settings.seed:
+    #         validate_seed(self.settings.seed)
 
-    #     # path_to_model = save_model_to_disk("ScreenNetV1", model)
+    # def classify(self, image_payload_bytes: Any):
+    #     """Take an image and classify which type of screenshot it is
 
-    #     loaded_model_for_inference: nn.Module
-    #     loaded_model_for_inference = run_get_model_for_inference(
-    #         model, device, self.class_names, path_to_model, settings
+    #     Args:
+    #         image_payload_bytes (BytesIO): _description_
+
+    #     Returns:
+    #         _type_: _description_
+    #     """
+
+    #     pil_image = Image.open(BytesIO(image_payload_bytes))
+
+    #     pil_images = [pil_image]  # batch size is one
+    #     input_tensor = torch.cat(
+    #         [self.auto_transforms(i).unsqueeze(0) for i in pil_images]
     #     )
+
+    #     with torch.no_grad():
+    #         output_tensor = self.model(input_tensor)
+    #     return {"class_index": int(torch.argmax(output_tensor[0]))}
+
+    def infer(self, image_data: Any) -> List[dict]:
+        """_summary_
+
+        Args:
+            image_data (_type_): _description_
+
+        Returns:
+            _type_: List[dict]
+        """
+        ic("infer")
+        ic(image_data)
+        # self.load_model()
+        preprocessed_image_data = self._preprocess(image_data)
+        # prediction =
+
+        return self._predict(preprocessed_image_data)
+
+    def _preprocess(self, image_data):
+        """pre processing workflow before infering with model
+
+        Args:
+            image_data (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        ic("_preprocess")
+        ic(image_data)
+        # pil_images = [image_data]  # batch size is one
+        # input_tensor =
+        # return torch.cat(
+        #     [self.auto_transforms(i).unsqueeze(dim=0) for i in pil_images],
+        # )
+        return self.auto_transforms(image_data).unsqueeze(dim=0)
+
+    def _predict(self, transformed_image):
+        """prediction workflow
+
+        Args:
+            transformed_image (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        # ic(f"_predict | {transformed_image}")
+        # 4. Create empty dictionary to store prediction information for each sample
+        pred_d = {}
+
+        # 6. Start the prediction timer
+        start_time = timer()
+
+        # self.model.to(self.device)
+        # self.model.eval()
+
+        with torch.inference_mode():
+            pred_logit = self.model(
+                transformed_image.to(self.device),
+            )  # perform inference on target sample
+
+            pred_prob = torch.softmax(
+                pred_logit,
+                dim=1,
+            )  # turn logits into prediction probabilities
+
+            pred_label = torch.argmax(
+                pred_prob,
+                dim=1,
+            )  # turn prediction probabilities into prediction label
+
+            pred_class = self.class_names[
+                pred_label.cpu()
+            ]  # hardcode prediction class to be on CPU
+
+            # 11. Make sure things in the dictionary are on CPU (required for inspecting predictions later on)
+            pred_d["pred_prob"] = round(pred_prob.unsqueeze(0).max().cpu().item(), 4)
+            pred_d["pred_class"] = pred_class
+
+            # 12. End the timer and calculate time per pred
+            end_time = timer()
+            pred_d["time_for_pred"] = round(end_time - start_time, 4)
+
+            # pred_d["time_for_pred"] = round(end_time - start_time, 4)
+            # data = image_data.to(self.device)
+            # output = self.model(data)
+            # pred = output.argmax(dim=1, keepdim=True)
+            # return pred.item()
+
+        res = [pred_d]
+        # print(res)
+        ic(f"_predict | {res}")
+        return res
 
     def load_model(self, pretrained: bool = True) -> None:
         """_summary_
@@ -328,9 +429,27 @@ class ImageClassifier:
         Args:
             pretrained (bool, optional): _description_. Defaults to True.
         """
+
+        # create model
         # if pretrained:
+        ic(f"=> creating model '{self.settings.arch}'")
         model = torchvision_models.__dict__[self.settings.arch]()
         model.name = self.settings.arch
+        model = model.to(self.device)
+        ic(next(model.parameters()).device)
+
+        # DISABLED: model = torchvision_models.efficientnet_b0(weights=self.weights).to(self.device)
+        # DISABLED: # model = torchvision_models.__dict__[self.settings.arch](
+        # DISABLED: #     weights=self.weights
+        # DISABLED: # ).to(self.device)
+        # DISABLED: model.name = self.settings.arch
+        # DISABLED: model = model.to(self.device)
+
+        if torch.backends.mps.is_available():
+            ic("MPS mode enabled")
+            device = torch.device("mps")
+            self.device = device
+            model = model.to(self.device)
 
         # Freeze all base layers in the "features" section of the model (the feature extractor) by setting requires_grad=False
         for param in model.features.parameters():
@@ -358,10 +477,9 @@ class ImageClassifier:
         self.loss_fn = loss_fn
         self.optimizer = optimizer
 
-        # this is the part we really need
-        # if settings.weights:
-        ic(f"loading weights from -> {self.settings.weights}")
-        # loaded_model: torch.nn.Module
+        # ic(f"loading weights from -> {self.settings.weights}")
+
+        # NOTE: if args.weights:
         model = run_get_model_for_inference(
             # model,
             self.device,
@@ -370,8 +488,9 @@ class ImageClassifier:
             self.settings,
         )
 
-        ic(f"Model state dictonary loaded -> {model}")
+        # ic(f"Model state dictonary loaded -> {model}")
         self.model = model
+        self.loaded = True
 
     # def load_model_orig(self, pretrained: bool = True) -> None:
     #     """Original load model code taken from jupyter notebook

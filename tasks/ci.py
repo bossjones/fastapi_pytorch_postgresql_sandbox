@@ -6,7 +6,7 @@ ci tasks
 
 import logging
 import sys
-from typing import Union
+from typing import List, Union
 
 import click
 from invoke import call, task
@@ -423,6 +423,9 @@ def pytest(
     # convertingtotestclientstarlette=False,
     # loggeronly=False,
     # utilsonly=False,
+    coverage=True,
+    config_path="",
+    capture_no=False,
 ):
     """
     Run pytest
@@ -501,16 +504,26 @@ def pytest(
     if pdb:
         _cmd += r" --pdb --pdbcls bpdb:BPdb "
 
+    if capture_no:
+        _cmd += r" -s "
+
     if mypy:
         _cmd += r" --mypy "
 
-    _cmd += r" --cov-config=setup.cfg --verbose --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate  --showlocals --tb=short --cov=fastapi_pytorch_postgresql_sandbox ."
+    if config_path:
+        _cmd += rf" -c {config_path} "
+
+    if coverage:
+        _cmd += r" --cov-config=setup.cfg --verbose --cov-append --cov-report=term-missing --junitxml=junit/test-results.xml --cov-report=xml:cov.xml --cov-report=html:htmlcov --cov-report=annotate:cov_annotate --cov=fastapi_pytorch_postgresql_sandbox "
+
+    _cmd += r" --showlocals --tb=short ."
 
     resp = ctx.run(_cmd)
     if not resp.ok:
         sys.exit(resp.exited)
 
 
+# py.test --verbose  -c setup.cfg  --showlocals --tb=short .
 @task(incrementable=["verbose"])
 def view_coverage(ctx, loc="local"):
     """
@@ -529,6 +542,59 @@ def view_coverage(ctx, loc="local"):
     _cmd = r"./scripts/open-browser.py file://${PWD}/htmlcov/index.html"
 
     ctx.run(_cmd)
+
+
+# py.test --verbose  -c setup.cfg  --showlocals --tb=short .
+@task(incrementable=["verbose"])
+def docs(ctx, loc="local"):
+    """
+    Open fastapi swagger docs inside of browser
+    Usage: inv ci.docs
+    """
+    env = get_compose_env(ctx, loc=loc)
+
+    # Only display result
+    ctx.config["run"]["echo"] = True
+
+    # Override run commands env variables one key at a time
+    for k, v in env.items():
+        ctx.config["run"]["env"][k] = v
+
+    _cmd = r"./scripts/open-browser.py http://localhost:8008/api/docs"
+
+    ctx.run(_cmd)
+
+
+@task(incrementable=["verbose"])
+def admin(ctx, loc="local"):
+    """
+    Open fastapi swagger docs inside of browser
+    Usage: inv ci.admin
+    """
+    env = get_compose_env(ctx, loc=loc)
+
+    # Only display result
+    ctx.config["run"]["echo"] = True
+
+    # Override run commands env variables one key at a time
+    for k, v in env.items():
+        ctx.config["run"]["env"][k] = v
+
+    urls: List[str] = [
+        # swagger
+        r"./scripts/open-browser.py http://localhost:8008/api/docs",
+        # jaegar
+        r"./scripts/open-browser.py http://localhost:16686/search",
+        # pgadmin
+        r"./scripts/open-browser.py http://localhost:16543",
+        # rabbitmq management
+        r"./scripts/open-browser.py http://localhost:15672",
+    ]
+
+    for url in urls:
+        _cmd = url
+
+        ctx.run(_cmd)
 
 
 @task(
@@ -792,7 +858,7 @@ def clean_pyi(ctx, loc="local", verbose=0, dry_run=False):
         call(mypy, loc="local"),
         # call(flake8, loc="local"),
         call(pylint, loc="local", everything=True),
-        call(pytest, loc="local"),
+        call(pytest, loc="local", coverage=True),
     ],
     incrementable=["verbose"],
 )

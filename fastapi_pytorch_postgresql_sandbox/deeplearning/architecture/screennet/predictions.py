@@ -53,11 +53,11 @@ def pred_and_store(
         List[Dict]: _description_
     """
 
-    ic(paths)
-    ic(model.name)
-    ic(transform)
-    ic(class_names)
-    ic(device)
+    # ic(paths)
+    # ic(model.name)
+    # ic(transform)
+    # ic(class_names)
+    # ic(device)
     # 2. Create an empty list to store prediction dictionaires
     pred_l = []
 
@@ -135,7 +135,7 @@ def predict_from_dir(
     """
     ic(f"Predict | directory {path_to_image_from_cli} ...")
     image_folder_api = get_image_files(path_to_image_from_cli)
-    ic(image_folder_api)
+    # ic(image_folder_api)
 
     paths = image_folder_api
 
@@ -170,7 +170,7 @@ def predict_from_file(
     """
     ic(f"Predict | individual file {path_to_image_from_cli} ...")
     image_path_api = pathlib.Path(path_to_image_from_cli).resolve()
-    ic(image_path_api)
+    # ic(image_path_api)
 
     paths = [image_path_api]
     img = convert_pil_image_to_rgb_channels(f"{paths[0]}")

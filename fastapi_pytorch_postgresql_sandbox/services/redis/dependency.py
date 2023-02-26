@@ -1,3 +1,6 @@
+"""services.redis.dependency"""
+# sourcery skip: avoid-global-variables
+# pylint: disable=no-name-in-module
 from typing import AsyncGenerator
 
 from redis.asyncio import Redis

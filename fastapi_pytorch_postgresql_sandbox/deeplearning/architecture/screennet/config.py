@@ -42,7 +42,7 @@ DEFAULT_DATASET_DIR = Path(f"{shared_datasets_path}")
 best_acc1 = 0
 
 PATH_TO_BEST_MODEL_API = pathlib.Path(
-    os.path.expanduser("~/Documents/my_models/ScreenCropNetV1_378_epochs.pth"),
+    os.path.expanduser("~/Documents/my_models/ScreenNetV1.pth"),
 )
 assert PATH_TO_BEST_MODEL_API.exists()
 

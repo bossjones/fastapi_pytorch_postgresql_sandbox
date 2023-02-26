@@ -173,7 +173,7 @@ jobs:
         # Increase this value to reset cache if etc/example-environment.yml has not changed
         CACHE_NUMBER: 0
       with:
-        path: ~/Documents/my_models/ScreenCropNetV1_378_epochs.pth
+        path: ~/Documents/my_models/ScreenNetV1.pth
         key: ${{ runner.os }}-torch-model-${{ env.CACHE_NUMBER }}-
 
     - name: link environment yaml for ${{ matrix.os }} on ${{ matrix.arch }}
@@ -204,6 +204,8 @@ jobs:
 
     - name: Set up Python for ${{ matrix.os }} on ${{ matrix.arch }}
       uses: conda-incubator/setup-miniconda@v2.2.0
+      env:
+        PYTORCH_ENABLE_MPS_FALLBACK: 1
       with:
         # miniforge-variant: Mambaforge
         # use-mamba: true
