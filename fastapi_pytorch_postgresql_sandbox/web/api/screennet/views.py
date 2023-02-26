@@ -12,6 +12,7 @@ import pickle
 import sys
 import tempfile
 import traceback
+from typing import Union
 import uuid
 
 from PIL import Image
@@ -35,13 +36,11 @@ from fastapi_pytorch_postgresql_sandbox.utils.imgops import (
 from fastapi_pytorch_postgresql_sandbox.utils.mlops import (
     convert_pil_image_to_rgb_channels,
 )
-from fastapi_pytorch_postgresql_sandbox.web.api.redis.schema import (
-    RedisPredictionData,
-    RedisPredictionValueDTO,
-    RedisValueDTO,
-)
+from fastapi_pytorch_postgresql_sandbox.web.api.redis.schema import RedisValueDTO
 from fastapi_pytorch_postgresql_sandbox.web.api.screennet.schema import (
     PendingClassificationDTO,
+    RedisPredictionData,
+    RedisPredictionValueDTO,
 )
 
 # from codetiming import Timer
@@ -201,9 +200,13 @@ async def classify(
     return PendingClassificationDTO(inference_id=inference_id)
 
 
-@router.get("/", response_model=RedisPredictionValueDTO)
+@router.get(
+    "/result/{inference_id}",
+    status_code=200,
+    response_model=Union[RedisPredictionValueDTO, PendingClassificationDTO],
+)
 async def get_classify_value(
-    key: str,
+    inference_id: str,
     redis_pool: ConnectionPool = Depends(get_redis_pool),
 ) -> RedisPredictionValueDTO:
     """
@@ -213,6 +216,12 @@ async def get_classify_value(
     :param redis_pool: redis connection pool.
     :returns: information from redis.
     """
+
     async with Redis(connection_pool=redis_pool) as redis:
-        redis_value = await redis.hgetall(key)
+        # exists = await redis.hexists(inference_id, "pred_prob")
+        exists = await redis.exists(inference_id)
+        if not exists:
+            return PendingClassificationDTO(inference_id=inference_id)
+
+        redis_value = await redis.hgetall(inference_id)
     return RedisPredictionValueDTO(data=redis_value)
