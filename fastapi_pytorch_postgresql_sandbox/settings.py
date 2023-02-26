@@ -59,7 +59,7 @@ class Settings(BaseSettings):
     pytorch_device: str = "mps"
     arch: str = "efficientnet_b0"
     model_weights: str = "EfficientNet_B0_Weights"
-    class_names: List[str] = ["twitter", "facebook", "tiktok"]
+    class_names: List[str] = ["facebook", "tiktok", "twitter"]
     gpu: Optional[Union[int, None]] = None
     weights: str = PATH_TO_BEST_MODEL
     lr: float = 0.001

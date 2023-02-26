@@ -46,7 +46,7 @@ class TestImageClassifier:
 
         assert type(test_model.loss_fn) == CrossEntropyLoss
         assert type(test_model.optimizer) == Adam
-        assert test_model.class_names == ["twitter", "facebook", "tiktok"]
+        assert test_model.class_names == ["facebook", "tiktok", "twitter"]
         assert test_model.path_to_model == tilda(
             "~/Documents/my_models/ScreenNetV1.pth",
         )
@@ -81,9 +81,7 @@ class TestImageClassifier:
         print(f"Image height: {image_data.height}")
         print(f"Image width: {image_data.width}")
 
-        # FIXME: Currently this is wrong classification, lets see if we can improve it
-
-        assert image_class == "tiktok"
+        assert image_class == "twitter"
 
     @pytest.mark.torchtests
     def test_infer_from_bytesio(self):

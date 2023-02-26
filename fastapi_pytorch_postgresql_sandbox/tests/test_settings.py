@@ -17,7 +17,7 @@ class TestSettings:
         test_settings: settings.Settings = settings.Settings()
 
         assert test_settings.arch == "efficientnet_b0"
-        assert test_settings.class_names == ["twitter", "facebook", "tiktok"]
+        assert test_settings.class_names == ["facebook", "tiktok", "twitter"]
         assert test_settings.db_base == "fastapi_pytorch_postgresql_sandbox_test"
         assert not test_settings.db_echo
         assert test_settings.db_host == "localhost"
