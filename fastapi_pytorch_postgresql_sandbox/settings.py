@@ -82,6 +82,11 @@ class Settings(BaseSettings):
     rabbit_pool_size: int = 2
     rabbit_channel_pool_size: int = 10
 
+    # worker configs
+    worker_exchange_name: str = "screenet"
+    worker_queue_name: str = "screennet_inference_queue"
+    worker_routing_key: str = "classify_worker"
+
     # This variable is used to define
     # multiproc_dir. It's required for [uvi|guni]corn projects.
     prometheus_dir: Path = TEMP_DIR / "prom"

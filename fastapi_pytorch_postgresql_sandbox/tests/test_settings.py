@@ -58,3 +58,7 @@ class TestSettings:
             "~/Documents/my_models/ScreenNetV1.pth",
         )
         assert test_settings.workers_count == 1
+
+        assert test_settings.worker_exchange_name == "screenet"
+        assert test_settings.worker_queue_name == "screennet_inference_queue"
+        assert test_settings.worker_routing_key == "classify_worker"

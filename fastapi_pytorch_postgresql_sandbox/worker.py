@@ -3,15 +3,23 @@
 # pylint: disable=no-name-in-module
 # SOURCE: https://aio-pika.readthedocs.io/en/latest/patterns.html#master-worker
 import asyncio
+import pickle
 
 # from bridge import rabbitmq_client, redis_client
 import aio_pika
-from aio_pika.abc import AbstractChannel, AbstractRobustConnection
+from aio_pika.abc import (
+    AbstractChannel,
+    AbstractIncomingMessage,
+    AbstractRobustConnection,
+)
 from aio_pika.patterns import Master, NackMessage, RejectMessage
 from aio_pika.pool import Pool
 from redis.asyncio import ConnectionPool
 import rich
 
+from fastapi_pytorch_postgresql_sandbox.deeplearning.architecture.screennet.ml_model import (
+    ImageClassifier,
+)
 from fastapi_pytorch_postgresql_sandbox.logging import configure_logging
 from fastapi_pytorch_postgresql_sandbox.settings import settings
 
@@ -120,6 +128,20 @@ async def worker(*, task_id: int) -> None:
     print(task_id)
 
 
+async def on_message(message: AbstractIncomingMessage) -> None:
+    """_summary_
+
+    Args:
+        message (AbstractIncomingMessage): _description_
+    """
+    async with message.process():
+        image_data = pickle.loads(message.body)
+        result = net_api.infer(image_data)
+        rich.print(f"Result: {result}")
+        # print(f" [x] Received message {message!r}")
+        # print(f"     Message body is: {message.body!r}")
+
+
 async def main() -> None:
     """_summary_"""
     rabbit_connection_pool, rabbit_channel_pool = init_worker_rabbit()
@@ -145,15 +167,23 @@ async def main() -> None:
             # Initializing Master with channel
             # -------------------------------------------------------
             # SOURCE: https://aio-pika.readthedocs.io/en/latest/rabbitmq-tutorial/2-work-queues.html
+
             # Declaring queue
             queue = await channel.declare_queue(
-                "screennet_inference_queue",
+                # "screennet_inference_queue",
+                settings.worker_queue_name,
                 durable=True,
             )
 
-            master = Master(channel)
-            await master.create_worker("fastapiworker", worker, auto_delete=True)
+            # https://aio-pika.readthedocs.io/en/latest/rabbitmq-tutorial/2-work-queues.html
 
+            # Start listening the queue with name 'task_queue'
+            await queue.consume(on_message)
+
+            # master = Master(channel)
+            # await master.create_worker("fastapiworker", worker, auto_delete=True)
+
+            print(" [*] Waiting for messages. To exit press CTRL+C")
             try:
                 await asyncio.Future()
             finally:
@@ -161,4 +191,6 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
+    net_api = ImageClassifier()
+    net_api.load_model()
     asyncio.run(main())

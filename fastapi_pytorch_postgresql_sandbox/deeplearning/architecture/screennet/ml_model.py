@@ -301,6 +301,7 @@ class ImageClassifier:
         self.weights = torchvision_models.EfficientNet_B0_Weights.DEFAULT
         self.auto_transforms = self.weights.transforms()
         self.model: Union[None, torch.nn.Module] = None
+        self.loaded: bool = False
 
     # def predict(self):
 
@@ -339,7 +340,9 @@ class ImageClassifier:
         Returns:
             _type_: List[dict]
         """
-        self.load_model()
+        ic("infer")
+        ic(image_data)
+        # self.load_model()
         preprocessed_image_data = self._preprocess(image_data)
         # prediction =
 
@@ -354,7 +357,8 @@ class ImageClassifier:
         Returns:
             _type_: _description_
         """
-
+        ic("_preprocess")
+        ic(image_data)
         pil_images = [image_data]  # batch size is one
         # input_tensor =
         return torch.cat(
@@ -370,6 +374,7 @@ class ImageClassifier:
         Returns:
             _type_: _description_
         """
+        ic(f"_predict | {transformed_image}")
         # 4. Create empty dictionary to store prediction information for each sample
         pred_d = {}
 
@@ -379,17 +384,21 @@ class ImageClassifier:
             pred_logit = self.model(
                 transformed_image.to(self.device),
             )  # perform inference on target sample
+            ic(f"_predict | {pred_logit}")
             pred_prob = torch.softmax(
                 pred_logit,
                 dim=1,
             )  # turn logits into prediction probabilities
+            ic(f"_predict | {pred_prob}")
             pred_label = torch.argmax(
                 pred_prob,
                 dim=1,
             )  # turn prediction probabilities into prediction label
+            ic(f"_predict | {pred_label}")
             pred_class = self.class_names[
                 pred_label.cpu()
             ]  # hardcode prediction class to be on CPU
+            ic(f"_predict | {pred_class}")
 
             # 11. Make sure things in the dictionary are on CPU (required for inspecting predictions later on)
             pred_d["pred_prob"] = round(pred_prob.unsqueeze(0).max().cpu().item(), 4)
@@ -406,7 +415,8 @@ class ImageClassifier:
             # return pred.item()
 
         res = [pred_d]
-        print(res)
+        # print(res)
+        ic(f"_predict | {res}")
         return res
 
     def load_model(self, pretrained: bool = True) -> None:
@@ -476,6 +486,7 @@ class ImageClassifier:
 
         # ic(f"Model state dictonary loaded -> {model}")
         self.model = model
+        self.loaded = True
 
     # def load_model_orig(self, pretrained: bool = True) -> None:
     #     """Original load model code taken from jupyter notebook
