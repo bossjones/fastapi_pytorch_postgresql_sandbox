@@ -282,6 +282,14 @@ class ApifyClientAsync(_BaseApifyClient):
         """
         return ActorClientAsync(resource_id=actor_id, **self._options())
 
+    # def actor(self, actor_id: str) -> ActorClientAsync:
+    #     """Retrieve the sub-client for manipulating a single actor.
+
+    #     Args:
+    #         actor_id (str): ID of the actor to be manipulated
+    #     """
+    #     return ActorClientAsync(resource_id=actor_id, **self._options())
+
     # def actors(self) -> ActorCollectionClientAsync:
     #     """Retrieve the sub-client for manipulating actors."""
     #     return ActorCollectionClientAsync(**self._options())

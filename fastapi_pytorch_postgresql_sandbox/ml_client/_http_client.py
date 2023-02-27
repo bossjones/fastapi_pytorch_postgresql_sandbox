@@ -63,10 +63,14 @@ class _BaseHTTPClient:
             headers["Authorization"] = f"Bearer {token}"
 
         self.httpx_client = httpx.Client(
-            headers=headers, follow_redirects=True, timeout=timeout_secs,
+            headers=headers,
+            follow_redirects=True,
+            timeout=timeout_secs,
         )
         self.httpx_async_client = httpx.AsyncClient(
-            headers=headers, follow_redirects=True, timeout=timeout_secs,
+            headers=headers,
+            follow_redirects=True,
+            timeout=timeout_secs,
         )
 
     @staticmethod
@@ -123,7 +127,10 @@ class _BaseHTTPClient:
         # dump JSON data to string, so they can be gzipped
         if json:
             data = jsonlib.dumps(
-                json, ensure_ascii=False, allow_nan=False, default=str,
+                json,
+                ensure_ascii=False,
+                allow_nan=False,
+                default=str,
             ).encode("utf-8")
             headers["Content-Type"] = "application/json"
 
@@ -157,7 +164,10 @@ class _HTTPClient(_BaseHTTPClient):
             raise ValueError("Cannot stream response and parse it at the same time!")
 
         headers, params, content = self._prepare_request_call(
-            headers, params, data, json,
+            headers,
+            params,
+            data,
+            json,
         )
 
         httpx_client = self.httpx_client
@@ -189,7 +199,9 @@ class _HTTPClient(_BaseHTTPClient):
                         else:
                             _maybe_parsed_body = response.content
                         setattr(
-                            response, "_maybe_parsed_body", _maybe_parsed_body,
+                            response,
+                            "_maybe_parsed_body",
+                            _maybe_parsed_body,
                         )  # noqa: B010
 
                     return response
@@ -252,13 +264,17 @@ class _HTTPClientAsync(_BaseHTTPClient):
             raise ValueError("Cannot stream response and parse it at the same time!")
 
         headers, params, content = self._prepare_request_call(
-            headers, params, data, json,
+            headers,
+            params,
+            data,
+            json,
         )
 
         httpx_async_client = self.httpx_async_client
 
         async def _make_request(
-            stop_retrying: Callable, attempt: int,
+            stop_retrying: Callable,
+            attempt: int,
         ) -> httpx.Response:
             logger.debug("Sending request")
             try:
@@ -286,7 +302,9 @@ class _HTTPClientAsync(_BaseHTTPClient):
                         else:
                             _maybe_parsed_body = response.content
                         setattr(
-                            response, "_maybe_parsed_body", _maybe_parsed_body,
+                            response,
+                            "_maybe_parsed_body",
+                            _maybe_parsed_body,
                         )  # noqa: B010
 
                     return response
@@ -301,7 +319,8 @@ class _HTTPClientAsync(_BaseHTTPClient):
             # We want to retry only requests which are server errors (status >= 500) and could resolve on their own,
             # and also retry rate limited requests that throw 429 Too Many Requests errors
             logger.debug(
-                "Request unsuccessful", extra={"status_code": response.status_code},
+                "Request unsuccessful",
+                extra={"status_code": response.status_code},
             )
             if (
                 response.status_code < 500

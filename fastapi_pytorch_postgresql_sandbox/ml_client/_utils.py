@@ -45,7 +45,8 @@ ListOrDict = TypeVar("ListOrDict", List, Dict)
 
 
 def _parse_date_fields(
-    data: ListOrDict, max_depth: int = PARSE_DATE_FIELDS_MAX_DEPTH,
+    data: ListOrDict,
+    max_depth: int = PARSE_DATE_FIELDS_MAX_DEPTH,
 ) -> ListOrDict:
     if max_depth < 0:
         return data
@@ -60,7 +61,8 @@ def _parse_date_fields(
             if key.endswith(PARSE_DATE_FIELDS_KEY_SUFFIX) and isinstance(value, str):
                 try:
                     parsed_value = datetime.strptime(
-                        value, "%Y-%m-%dT%H:%M:%S.%fZ",
+                        value,
+                        "%Y-%m-%dT%H:%M:%S.%fZ",
                     ).replace(tzinfo=timezone.utc)
                 except ValueError:
                     pass
@@ -212,13 +214,15 @@ def _filter_out_none_values_recursively(dictionary: Dict) -> Dict:
 
 # Unfortunately, it's necessary to have an internal function for the correct result typing, without having to create complicated overloads
 def _filter_out_none_values_recursively_internal(
-    dictionary: Dict, remove_empty_dicts: Optional[bool] = None,
+    dictionary: Dict,
+    remove_empty_dicts: Optional[bool] = None,
 ) -> Optional[Dict]:
     result = {}
     for k, v in dictionary.items():
         if isinstance(v, dict):
             v = _filter_out_none_values_recursively_internal(
-                v, remove_empty_dicts is True or remove_empty_dicts is None,
+                v,
+                remove_empty_dicts is True or remove_empty_dicts is None,
             )
         if v is not None:
             result[k] = v
@@ -226,7 +230,8 @@ def _filter_out_none_values_recursively_internal(
 
 
 def _encode_key_value_store_record_value(
-    value: Any, content_type: Optional[str] = None,
+    value: Any,
+    content_type: Optional[str] = None,
 ) -> Tuple[Any, str]:
     if not content_type:
         if _is_file_or_bytes(value):
@@ -242,7 +247,11 @@ def _encode_key_value_store_record_value(
         and not isinstance(value, str)
     ):
         value = json.dumps(
-            value, ensure_ascii=False, indent=2, allow_nan=False, default=str,
+            value,
+            ensure_ascii=False,
+            indent=2,
+            allow_nan=False,
+            default=str,
         ).encode("utf-8")
 
     return (value, content_type)

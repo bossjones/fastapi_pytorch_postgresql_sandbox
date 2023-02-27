@@ -214,7 +214,8 @@ class ActorClient(ResourceClient):
             dict: The run object
         """
         run_input, content_type = _encode_key_value_store_record_value(
-            run_input, content_type,
+            run_input,
+            content_type,
         )
 
         request_params = self._params(
@@ -523,7 +524,8 @@ class ActorClientAsync(ResourceClientAsync):
             dict: The run object
         """
         run_input, content_type = _encode_key_value_store_record_value(
-            run_input, content_type,
+            run_input,
+            content_type,
         )
 
         request_params = self._params(
