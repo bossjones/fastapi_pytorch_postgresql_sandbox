@@ -24,6 +24,8 @@ from fastapi_pytorch_postgresql_sandbox.utils.file_functions import (
     go_get_image_files,
 )
 
+WORKERS = 100
+
 mime = MimeTypes()
 
 session = httpx.AsyncClient()
@@ -76,7 +78,7 @@ async def go_partial(loop: Any) -> List[PathLike]:
     # chunked_lists = list(misc.divide_chunks(file_to_upload, n=10))
     # discord has a limit of 10 media uploads per api call. break them up.
     # SOURCE: https://www.geeksforgeeks.org/break-list-chunks-size-n-python/
-    num = 10
+    num = WORKERS
     final = [
         images[i * num : (i + 1) * num] for i in range((len(images) + num - 1) // num)
     ]
@@ -104,7 +106,9 @@ async def go_partial(loop: Any) -> List[PathLike]:
 
         jobs = [functools.partial(fetch, session, request) for request in requests]
         # results = await aiometer.run_all(jobs, max_at_once=10, max_per_second=10)
-        results = await aiometer.run_all(jobs, max_at_once=10, max_per_second=10)
+        results = await aiometer.run_all(
+            jobs, max_at_once=WORKERS, max_per_second=WORKERS,
+        )
         # rich.print(" -> results: \n")
         # pprint(results)
 
