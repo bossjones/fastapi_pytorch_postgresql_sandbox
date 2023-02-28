@@ -7,12 +7,14 @@
 # NOTE: For more examples tqdm + aiofile, search https://github.com/search?l=Python&q=aiofile+tqdm&type=Code
 from __future__ import annotations
 
+import argparse
 import asyncio
 import concurrent.futures
 import functools
 from mimetypes import MimeTypes
+import sys
 import time
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 import aiometer
 from codetiming import Timer
@@ -32,6 +34,8 @@ WORKERS = 100
 mime = MimeTypes()
 
 session = httpx.AsyncClient()
+
+DEFAULT_PATH_TO_DIR = "/Users/malcolm/Downloads/datasets/twitter_facebook_tiktok/"
 
 
 def run_inspect(obj: Any) -> None:
@@ -57,13 +61,12 @@ async def fetch(client: httpx.AsyncClient, request: httpx.Request) -> JSONType:
     return response.json()
 
 
-async def aio_get_images() -> List[PathLike]:
+async def aio_get_images(path_to_dir: str = DEFAULT_PATH_TO_DIR) -> List[PathLike]:
     """Get all images inside of a directory
 
     Returns:
         _type_: _description_
     """
-    path_to_dir = "/Users/malcolm/Downloads/datasets/twitter_facebook_tiktok/"
 
     handle_go_get_image_files_func = functools.partial(go_get_image_files, path_to_dir)
 
@@ -78,7 +81,8 @@ async def aio_get_images() -> List[PathLike]:
 
 
 def get_chunked_lists(
-    img_paths: List[PathLike], num: int = WORKERS,
+    img_paths: List[PathLike],
+    num: int = WORKERS,
 ) -> list[list[PathLike]]:
     """Chunked_lists = list(misc.divide_chunks(file_to_upload, n=10)).
     discord has a limit of 10 media uploads per api call. break them up.
@@ -101,7 +105,7 @@ def get_chunked_lists(
     ]
 
 
-async def go_partial(loop: Any) -> List[PathLike]:
+async def go_partial(loop: Any, args: argparse.Namespace) -> List[PathLike]:
     """entrypoint
 
     Args:
@@ -110,7 +114,7 @@ async def go_partial(loop: Any) -> List[PathLike]:
     Returns:
         _type_: _description_
     """
-    images = await aio_get_images()
+    images = await aio_get_images(args.predict)
 
     # ---------------------------------------------------------
     # chunked_lists = list(misc.divide_chunks(file_to_upload, n=10))
@@ -152,10 +156,62 @@ async def go_partial(loop: Any) -> List[PathLike]:
     return images
 
 
+parser = argparse.ArgumentParser(description="Screennet cli tool")
+parser.add_argument(
+    "--predict",
+    default=DEFAULT_PATH_TO_DIR,
+    type=str,
+    metavar="PREDICT_PATH",
+    help="path to image to run prediction on (default: none)",
+)
+
+
+def main(args: Union[None, Any] = None) -> argparse.Namespace:
+    """As you can see, main() takes an optional list of arguments. The default for that is None which will cause argparse to read sys.argv - but I can inject arguments to the function from my tests if I need to.
+
+    Args:
+        args (Union[None, Any], optional): _description_. Defaults to None.
+
+    Returns:
+        argparse.Namespace: _description_
+    """
+    ic(args)
+    ic(type(args))
+    parsed_args = parser.parse_args(args)
+    ic(parsed_args)
+    ic(type(parsed_args))
+    return parsed_args
+
+
 if __name__ == "__main__":
+    # SOURCE: https://stackoverflow.com/questions/2831597/processing-command-line-arguments-in-prefix-notation-in-python
+    cli_args = main(sys.argv[1:])
     session = httpx.AsyncClient()
     start_time = time.time()
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(go_partial(loop))
+    # loop = asyncio.get_event_loop()
+    # NOTE: https://github.com/pytest-dev/pytest-asyncio/pull/214/files#diff-cc48ab986692b5999611086a9c031ed6d88fd37496e706865aaefedb3acb9fe9
+    loop: asyncio.AbstractEventLoop = asyncio.get_event_loop_policy().get_event_loop()
+    loop.run_until_complete(go_partial(loop, cli_args))
     duration = time.time() - start_time
     print(f"Computed in {duration} seconds")
+
+# SOURCE: https://realpython.com/async-io-python/
+# async def main(nprod: int, ncon: int):
+#     q = asyncio.Queue()
+#     producers = [asyncio.create_task(produce(n, q)) for n in range(nprod)]
+#     consumers = [asyncio.create_task(consume(n, q)) for n in range(ncon)]
+#     await asyncio.gather(*producers)
+#     await q.join()  # Implicitly awaits consumers, too
+#     for c in consumers:
+#         c.cancel()
+# if __name__ == "__main__":
+#     import argparse
+#     random.seed(444)
+#     parser = argparse.ArgumentParser()
+#     parser.add_argument("-p", "--nprod", type=int, default=5)
+#     parser.add_argument("-c", "--ncon", type=int, default=10)
+#     ns = parser.parse_args()
+#     start = time.perf_counter()
+#     asyncio.run(main(**ns.__dict__))
+#     elapsed = time.perf_counter() - start
+#     print(f"Program completed in {elapsed:0.5f} seconds.")
