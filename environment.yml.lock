@@ -489,6 +489,7 @@ dependencies:
       - torchsummary==1.5.1
       - traitlets==5.9.0
       - trampoline==0.1.2
+      - types-aiofiles==22.1.0.9
       - types-mock==5.0.0.5
       - types-requests==2.28.11.15
       - types-urllib3==1.26.25.5

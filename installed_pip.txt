@@ -5,6 +5,7 @@ aiofiles==23.1.0
 aiohttp @ file:///Users/runner/miniforge3/conda-bld/aiohttp_1666878637568/work
 aiohttp-cors==0.7.0
 aiokafka==0.8.0
+aiometer==0.4.0
 aiormq==6.7.2
 aiorwlock==1.3.0
 aiosignal @ file:///home/conda/feedstock_root/build_artifacts/aiosignal_1667935791922/work
@@ -81,7 +82,7 @@ fakeredis==2.9.2
 fancycompleter==0.9.1
 fastai @ file:///home/conda/feedstock_root/build_artifacts/fastai_1675786314653/work
 fastapi==0.90.0
--e git+ssh://git@github.com/bossjones/fastapi_pytorch_postgresql_sandbox.git@5ec65a0eeb683c8ad9af12449f69e04f8c10785f#egg=fastapi_pytorch_postgresql_sandbox
+-e git+ssh://git@github.com/bossjones/fastapi_pytorch_postgresql_sandbox.git@ac2e05e1b729e04b9aa1e6ee0c8687eb03a2bf00#egg=fastapi_pytorch_postgresql_sandbox
 fastcore @ file:///home/conda/feedstock_root/build_artifacts/fastcore_1663188308722/work
 fastdownload @ file:///home/jhoward/mambaforge/conda-bld/fastdownload_1657219113869/work
 fastprogress @ file:///home/conda/feedstock_root/build_artifacts/fastprogress_1658690818839/work
@@ -200,7 +201,7 @@ pathtools==0.1.2
 pathy @ file:///home/conda/feedstock_root/build_artifacts/pathy_1670689864140/work
 pdbpp==0.10.3
 pexpect==4.8.0
-picklescan==0.0.7
+picklescan==0.0.8
 pickleshare==0.7.5
 Pillow @ file:///Users/runner/miniforge3/conda-bld/pillow_1675487373585/work
 platformdirs==2.6.2

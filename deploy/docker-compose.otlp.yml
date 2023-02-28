@@ -24,7 +24,7 @@ services:
     # The OTLP receiver must be enabled via COLLECTOR_OTLP_ENABLED=true
     environment:
     - COLLECTOR_OTLP_ENABLED=true
-    - DJAEGER_AGENT_HOST=0.0.0.0
+    - JAEGER_AGENT_HOST=0.0.0.0
       # - COLLECTOR_ZIPKIN_HOST_PORT=":9411"
     # SOURCE: https://www.jaegertracing.io/docs/next-release/getting-started/
     # Port	Protocol	Component	Function

@@ -6,13 +6,28 @@ import os.path
 import pathlib
 from pathlib import Path
 import shutil
-from typing import Any, Generator
+from typing import Any, Generator, List, TypeVar
 
 import aiofiles
 import aiofiles.os
+from fastai.data.transforms import get_image_files
 
 # from fastapi.responses import StreamingResponse
 from rich import print
+
+PathLike = TypeVar("PathLike", str, pathlib.Path, None)
+
+
+def go_get_image_files(path_to_image_from_cli: str) -> List[str]:
+    """Leverage fastai's get_image_files function.
+
+    Args:
+        path_to_image_from_cli (str): str of directory
+
+    Returns:
+        List[str]: List of image files
+    """
+    return get_image_files(path_to_image_from_cli, recurse=True)
 
 
 # SOURCE: https://github.com/tgbugs/pyontutils/blob/05dc32b092b015233f4a6cefa6c157577d029a40/ilxutils/tools.py
