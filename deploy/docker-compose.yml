@@ -82,7 +82,7 @@ services:
   #       condition: service_healthy
 
   redis:
-    image: bitnami/redis:6.2.5
+    image: bitnami/redis:6.2.10
     hostname: "fastapi_pytorch_postgresql_sandbox-redis"
     restart: always
     environment:
