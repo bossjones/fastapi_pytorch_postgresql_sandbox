@@ -61,7 +61,9 @@ async def fetch(client: httpx.AsyncClient, request: httpx.Request) -> JSONType:
     return response.json()
 
 
-async def aio_get_images(path_to_dir: str = DEFAULT_PATH_TO_DIR) -> List[PathLike]:
+async def aio_get_images(
+    loop: asyncio.AbstractEventLoop, path_to_dir: str = DEFAULT_PATH_TO_DIR,
+) -> List[PathLike]:
     """Get all images inside of a directory
 
     Returns:
@@ -105,7 +107,9 @@ def get_chunked_lists(
     ]
 
 
-async def go_partial(loop: Any, args: argparse.Namespace) -> List[PathLike]:
+async def go_partial(
+    loop: asyncio.AbstractEventLoop, args: argparse.Namespace,
+) -> List[PathLike]:
     """entrypoint
 
     Args:
@@ -114,7 +118,7 @@ async def go_partial(loop: Any, args: argparse.Namespace) -> List[PathLike]:
     Returns:
         _type_: _description_
     """
-    images = await aio_get_images(args.predict)
+    images = await aio_get_images(loop, args.predict)
 
     # ---------------------------------------------------------
     # chunked_lists = list(misc.divide_chunks(file_to_upload, n=10))
@@ -140,7 +144,9 @@ async def go_partial(loop: Any, args: argparse.Namespace) -> List[PathLike]:
                 headers=headers,
                 data=data,
             )
-            _ = await api_request.aread()
+            _ = (
+                await api_request.aread()
+            )  # sourcery skip: avoid-single-character-names-variables
             requests.append(api_request)
 
         jobs = [functools.partial(fetch, session, request) for request in requests]
