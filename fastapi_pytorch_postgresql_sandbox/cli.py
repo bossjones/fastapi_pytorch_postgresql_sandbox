@@ -16,7 +16,6 @@ from typing import Any, List
 import aiometer
 from codetiming import Timer
 import httpx
-from icecream import ic
 import rich
 from rich.pretty import pprint
 
@@ -46,7 +45,11 @@ session = httpx.AsyncClient()
 # }
 
 
-async def fetch(client, request):
+def run_inspect(obj: Any):
+    rich.inspect(obj, all=True)
+
+
+async def fetch(client: httpx.AsyncClient, request: httpx.Request):
     import bpdb
 
     response = await client.send(request)
@@ -54,33 +57,33 @@ async def fetch(client, request):
     return response.json()
 
 
-async def send_to_classify_api(url: PathLike, client: Any):
-    """_summary_
+# async def send_to_classify_api(url: PathLike, client: Any):
+#     """_summary_
 
-    Args:
-        url (PathLike): _description_
+#     Args:
+#         url (PathLike): _description_
 
-    Returns:
-        _type_: _description_
-    """
-    mime_type: tuple[str | None, str | None] = mime.guess_type(f"{url}")
-    import bpdb
+#     Returns:
+#         _type_: _description_
+#     """
+#     mime_type: tuple[str | None, str | None] = mime.guess_type(f"{url}")
+#     import bpdb
 
-    # files = {"upload-file": (f"{url}", open(f"{url}", "rb"), mime_type[0])}
-    files = {"image": (f"{url}", open(f"{url}", "rb"), f"{mime_type[0]}")}
-    # headers = headers = {
-    #     "accept": "application/json",
-    #     # "content-type": "multipart/form-data; charset=utf-8",
-    # }
-    response = await client.post(
-        "http://localhost:8008/api/screennet/classify",
-        # headers=headers,
-        files=files,
-    )
-    bpdb.set_trace()
+#     # files = {"upload-file": (f"{url}", open(f"{url}", "rb"), mime_type[0])}
+#     files = {"image": (f"{url}", open(f"{url}", "rb"), f"{mime_type[0]}")}
+#     # headers = headers = {
+#     #     "accept": "application/json",
+#     #     # "content-type": "multipart/form-data; charset=utf-8",
+#     # }
+#     response = await client.post(
+#         "http://localhost:8008/api/screennet/classify",
+#         # headers=headers,
+#         files=files,
+#     )
+#     bpdb.set_trace()
 
-    # response = await session.get(url)
-    return response.json()
+#     # response = await session.get(url)
+#     return response.json()
 
 
 async def go_partial(loop: Any) -> List[PathLike]:
@@ -101,7 +104,7 @@ async def go_partial(loop: Any) -> List[PathLike]:
         with concurrent.futures.ThreadPoolExecutor() as pool:
             images = await loop.run_in_executor(pool, handle_go_get_image_files_func)
 
-            pprint(images)
+            # pprint(images)
             print(f"Found {len(images)} images")
     # urls = ["http://httpbin.org/html" for i in range(10)]
     # with Timer(text="\nTotal elapsed time: {:.1f}"):
@@ -112,22 +115,46 @@ async def go_partial(loop: Any) -> List[PathLike]:
     #         max_per_second=1,  # here we can set max rate per second
     #     )
 
-    requests = []
-    for img in images:
-        mime_type: tuple[str | None, str | None] = mime.guess_type(f"{img}")
-        files = {"image": (f"{img}", open(f"{img}", "rb"), f"{mime_type[0]}")}
-        requests.append(
-            httpx.Request(
-                "POST", "http://localhost:8008/api/screennet/classify", files=files,
-            ),
-        )
+    # ---------------------------------------------------------
+    # chunked_lists = list(misc.divide_chunks(file_to_upload, n=10))
+    # discord has a limit of 10 media uploads per api call. break them up.
+    # SOURCE: https://www.geeksforgeeks.org/break-list-chunks-size-n-python/
+    num = 2
+    final = [
+        images[i * num : (i + 1) * num] for i in range((len(images) + num - 1) // num)
+    ]
 
-    # await aiometer.run_all()
-    # jobs = [functools.partial(send_to_classify_api, image, session) for image in images]
-    jobs = [functools.partial(fetch, session, request) for request in requests]
-    results = await aiometer.run_all(jobs, max_at_once=10, max_per_second=5)
-    rich.print(" -> results: \n")
-    pprint(results)
+    for count, chunk in enumerate(final):
+        print(f"count = {count}")
+        requests = []
+        for img in chunk:
+            mime_type: tuple[str | None, str | None] = mime.guess_type(f"{img}")
+            # files = {"file": (None, open(f"{img}", "rb"), f"{mime_type[0]}")}
+            files = {"upload-file": (None, open(f"{img}", "rb"), f"{mime_type[0]}")}
+            headers = headers = {
+                "accept": "application/json",
+            }
+            data = {"file": f"{img}", "type": f"{mime_type[0]}"}
+            api_request = httpx.Request(
+                "POST",
+                "http://localhost:8008/api/screennet/classify",
+                files=files,
+                headers=headers,
+                data=data,
+            )
+            _ = await api_request.aread()
+            requests.append(api_request)
+
+        # import bpdb
+
+        # bpdb.set_trace()
+        # pprint(requests)
+        # await aiometer.run_all()
+        # jobs = [functools.partial(send_to_classify_api, image, session) for image in images]
+        jobs = [functools.partial(fetch, session, request) for request in requests]
+        results = await aiometer.run_all(jobs, max_at_once=10, max_per_second=5)
+        rich.print(" -> results: \n")
+        pprint(results)
 
     return images
 
