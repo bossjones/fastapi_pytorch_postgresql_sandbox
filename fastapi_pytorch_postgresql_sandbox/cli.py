@@ -2,6 +2,7 @@
 # sourcery skip: avoid-global-variables
 # pylint: disable=no-name-in-module
 # pylint: disable=no-member
+# pylint: disable=consider-using-with
 
 # NOTE: For more examples tqdm + aiofile, search https://github.com/search?l=Python&q=aiofile+tqdm&type=Code
 from __future__ import annotations
@@ -11,18 +12,20 @@ import concurrent.futures
 import functools
 from mimetypes import MimeTypes
 import time
-from typing import Any, List
+from typing import Any, Dict, List
 
 import aiometer
 from codetiming import Timer
 import httpx
+from icecream import ic
 import rich
-from rich.pretty import pprint
 
 from fastapi_pytorch_postgresql_sandbox.utils.file_functions import (
     PathLike,
     go_get_image_files,
 )
+
+JSONType = str | int | float | bool | None | Dict | List
 
 WORKERS = 100
 
@@ -40,7 +43,7 @@ def run_inspect(obj: Any) -> None:
     rich.inspect(obj, all=True)
 
 
-async def fetch(client: httpx.AsyncClient, request: httpx.Request):
+async def fetch(client: httpx.AsyncClient, request: httpx.Request) -> JSONType:
     """_summary_
 
     Args:
@@ -50,15 +53,12 @@ async def fetch(client: httpx.AsyncClient, request: httpx.Request):
     Returns:
         _type_: _description_
     """
-    response = await client.send(request)
+    response: httpx.Response = await client.send(request)
     return response.json()
 
 
-async def go_partial(loop: Any) -> List[PathLike]:
-    """entrypoint
-
-    Args:
-        loop (_type_): _description_
+async def aio_get_images() -> List[PathLike]:
+    """Get all images inside of a directory
 
     Returns:
         _type_: _description_
@@ -74,21 +74,56 @@ async def go_partial(loop: Any) -> List[PathLike]:
 
             print(f"Found {len(images)} images")
 
+    return images
+
+
+def get_chunked_lists(
+    img_paths: List[PathLike], num: int = WORKERS,
+) -> list[list[PathLike]]:
+    """Chunked_lists = list(misc.divide_chunks(file_to_upload, n=10)).
+    discord has a limit of 10 media uploads per api call. break them up.
+
+    Args:
+        img_paths (List[PathLike]): _description_
+        num (int, optional): _description_. Defaults to WORKERS.
+
+    Returns:
+        list[list[PathLike]]: _description_
+    """
     # ---------------------------------------------------------
     # chunked_lists = list(misc.divide_chunks(file_to_upload, n=10))
     # discord has a limit of 10 media uploads per api call. break them up.
     # SOURCE: https://www.geeksforgeeks.org/break-list-chunks-size-n-python/
-    num = WORKERS
-    final = [
-        images[i * num : (i + 1) * num] for i in range((len(images) + num - 1) // num)
+
+    return [
+        img_paths[i * num : (i + 1) * num]
+        for i in range((len(img_paths) + num - 1) // num)
     ]
+
+
+async def go_partial(loop: Any) -> List[PathLike]:
+    """entrypoint
+
+    Args:
+        loop (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    images = await aio_get_images()
+
+    # ---------------------------------------------------------
+    # chunked_lists = list(misc.divide_chunks(file_to_upload, n=10))
+    # discord has a limit of 10 media uploads per api call. break them up.
+    # SOURCE: https://www.geeksforgeeks.org/break-list-chunks-size-n-python/
+    final = get_chunked_lists(images)
 
     for count, chunk in enumerate(final):
         print(f"count = {count}")
         requests = []
         for img in chunk:
             mime_type: tuple[str | None, str | None] = mime.guess_type(f"{img}")
-            files = {"file": (img.name, open(f"{img}", "rb"), f"{mime_type[0]}")}
+            files = {"file": (img.name, open(f"{img}", "rb"), f"{mime_type[0]}")}  # type: ignore
             headers = headers = {
                 "accept": "application/json",
             }
@@ -105,12 +140,14 @@ async def go_partial(loop: Any) -> List[PathLike]:
             requests.append(api_request)
 
         jobs = [functools.partial(fetch, session, request) for request in requests]
-        # results = await aiometer.run_all(jobs, max_at_once=10, max_per_second=10)
+
         results = await aiometer.run_all(
-            jobs, max_at_once=WORKERS, max_per_second=WORKERS,
+            jobs,
+            max_at_once=WORKERS,
+            max_per_second=WORKERS,
         )
-        # rich.print(" -> results: \n")
-        # pprint(results)
+
+        ic(results)
 
     return images
 
