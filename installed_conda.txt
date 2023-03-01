@@ -230,7 +230,7 @@ https://conda.anaconda.org/conda-forge/noarch/markdown-3.4.1-pyhd8ed1ab_0.tar.bz
 https://conda.anaconda.org/conda-forge/osx-arm64/pydantic-1.10.4-py310h8e9501a_1.conda
 https://conda.anaconda.org/conda-forge/noarch/rich-12.6.0-pyhd8ed1ab_0.tar.bz2
 https://conda.anaconda.org/conda-forge/noarch/sacremoses-0.0.53-pyhd8ed1ab_0.tar.bz2
-https://conda.anaconda.org/conda-forge/noarch/torchmetrics-0.11.1-pyhd8ed1ab_0.conda
+https://conda.anaconda.org/conda-forge/noarch/torchmetrics-0.11.3-pyhd8ed1ab_0.conda
 https://conda.anaconda.org/conda-forge/osx-arm64/aiohttp-3.8.3-py310h8e9501a_1.tar.bz2
 https://conda.anaconda.org/conda-forge/osx-arm64/aws-c-s3-0.1.29-h6db2689_0.tar.bz2
 https://conda.anaconda.org/conda-forge/osx-arm64/confection-0.0.4-py310hc469350_1.conda

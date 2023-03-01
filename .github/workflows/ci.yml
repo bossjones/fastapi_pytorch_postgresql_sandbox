@@ -189,22 +189,25 @@ jobs:
       uses: actions/cache@v3
       env:
         # Increase this value to reset cache if etc/example-environment.yml has not changed
-        CACHE_NUMBER: 0
+        CACHE_NUMBER: 2
       with:
         path: ~/conda_pkgs_dir
         key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('conda.requirements.txt') }}
+      # id: conda_cache
 
     - name: Cache pip for ${{ matrix.os }} on ${{ matrix.arch }}
       uses: actions/cache@v3
       env:
         # Increase this value to reset cache if etc/example-environment.yml has not changed
-        CACHE_NUMBER: 0
+        CACHE_NUMBER: 2
       with:
         path: ${{ matrix.path }}
         key: ${{ runner.os }}-pip-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
+      # id: pip_cache
 
+    # NOTE: see https://github.com/conda-incubator/setup-miniconda/blob/main/.github/workflows/caching-example.yml
     - name: Set up Python for ${{ matrix.os }} on ${{ matrix.arch }}
       uses: conda-incubator/setup-miniconda@v2.2.0
       env:
@@ -213,9 +216,9 @@ jobs:
         # miniforge-variant: Mambaforge
         # use-mamba: true
         # architecture: ${{ matrix.arch }}
-        miniconda-version: "latest"
+        # miniconda-version: "latest"
         python-version: ${{ matrix.python }}
-        auto-update-conda: true
+        # auto-update-conda: true
         # channel-priority: strict
         activate-environment: fastapi_pytorch_postgresql_sandbox3
         environment-file: environment.yml
@@ -242,6 +245,9 @@ jobs:
         python -c 'import torch; print("Torch version %s" % torch.__version__)'
         python -c 'import tensorflow; print("Tensorflow version %s" % tensorflow.__version__)'
         inv ci.pytest -vvvvv
+      # NOTE: check this out
+      # SOURCE: https://github.com/conda-incubator/setup-miniconda/blob/main/.github/workflows/caching-envs-example.yml
+      # if: steps.cache.outputs.cache-hit != 'true'
 
     - name: Upload pytest test results
       if: always()

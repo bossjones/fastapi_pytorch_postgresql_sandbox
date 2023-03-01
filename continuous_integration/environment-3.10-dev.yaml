@@ -8,14 +8,14 @@ channels:
 dependencies:
 - python=3.10
 - pip>=22.2
-- pytorch
-- torchmetrics
-- torch-fidelity
-- torchtext
-- torchvision
-- fastai=2.7.10
-- albumentations=1.3.0
-- timm
+- pytorch::pytorch
+- conda-forge::torchmetrics
+- conda-forge::torch-fidelity
+- pytorch::torchtext
+- pytorch::torchvision
+- conda-forge::fastai=2.7.10
+- conda-forge::albumentations=1.3.0
+- conda-forge::timm
   # I suggest to keep the other deps sorted for convenience.
   # To determine what the latest versions should be, run:
   #
@@ -24,21 +24,21 @@ dependencies:
   # CONDA_SUBDIR=osx-arm64 conda env create -f environment-mac-updated.yml && conda list -n invokeai-updated | awk ' {print "  - " $1 "==" $2;} '
   # ```
 # - apple::tensorflow-deps
-- coloredlogs=15.0
-- eventlet
-- humanfriendly=10.0
-- imageio-ffmpeg=0.4
-- imageio=2.21
-- imgaug=0.4
-- matplotlib=3.6.2
-- numpy=1.23
-- openh264=2.3
+- conda-forge::coloredlogs=15.0
+- conda-forge::eventlet
+- conda-forge::humanfriendly=10.0
+- conda-forge::imageio-ffmpeg=0.4
+- conda-forge::imageio=2.21
+- conda-forge::imgaug=0.4
+- conda-forge::matplotlib=3.6.2
+- conda-forge::numpy=1.23
+- conda-forge::openh264=2.3
 - py-opencv=4.6
-- scikit-image
-- scikit-learn
-- scipy=1.9
+- conda-forge::scikit-image
+- conda-forge::scikit-learn
+- conda-forge::scipy=1.9
 # - tensorboard=2.11.0
-- transformers=4.23
+- conda-forge::transformers=4.23
 - pip:
   - tqdm
   - better_exceptions
@@ -123,6 +123,7 @@ dependencies:
   - ray[serve]
   - codetiming
   - types-aiofiles
+  - aiometer
   - -e .
 variables:
   PYTORCH_ENABLE_MPS_FALLBACK: 1
