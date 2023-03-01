@@ -64,20 +64,21 @@ jobs:
         LC_CTYPE: en_US.UTF-8
         HOMEBREW_NO_INSTALL_CLEANUP: 1
       run: |
-        brew update
-        brew install icu4c || true
-        brew install readline || true
-        brew install libxslt || true
-        brew install perl || true
-        brew install docker || true
-        brew install colima || true
-        brew install docker-compose || true
-        # brew install tree || true
-        brew install qemu || true
-        brew install bash || true
-        brew install lima || true
-        brew install jq || true
-        brew install curl || true
+        # brew update
+        # # brew install icu4c || true
+        # # brew install readline || true
+        # brew install libxslt || true
+        # # brew install perl || true
+        # brew install docker || true
+        # # brew install colima || true
+        # brew install docker-compose || true
+        # # brew install tree || true
+        # # brew install qemu || true
+        # brew install bash || true
+        # brew install lima || true
+        # # brew install jq || true
+        # brew install curl || true
+        brew install libxslt docker docker-compose tree bash lima curl || true
 
     - name: Cache ~/Library/Caches/colima for ${{ matrix.os }} on ${{ matrix.arch }}
       uses: actions/cache@v3
@@ -114,41 +115,41 @@ jobs:
         LANG: en_US.UTF-8
         LC_CTYPE: en_US.UTF-8
       run: |
-        # brew install cmake || true  # macos image has cmake installed, but a new version may exist; ignore it if so
-        # brew install doxygen || true
-        # brew install hdf5 || true
-        # brew install pkg-config || true
-        # brew install wget || true
-        # brew install jpeg || true
-        # brew install libpng || true
-        # brew install libtiff || true
-        # brew install openexr || true
-        # brew install eigen || true
-        # brew install tbb || true
-        # brew install hdf5 || true
-        # pytorch
-        brew install openblas || true
-        # brew install libomp || true
-        brew install openmpi || true
-        brew install tcl-tk || true
-        # brew install openssl || true
-        # brew install readline || true
-        brew install sqlite3 || true
-        # brew install xz || true
-        # brew install zlib || true
-        # https://techblog.willshouse.com/2013/05/20/brew-install-gnu-stat/
-        brew install coreutils || true
-        brew install findutils || true
-        # brew install gnu-tar || true
-        brew install gnu-sed || true
-        brew install gawk || true
-        # brew install gnutls || true
-        brew install gnu-getopt || true
-        brew install libmagic || true
-        brew install libffi || true
-        # brew install atomicparsley || true
-        # brew install tree || true
-        # brew install tesseract || true
+        # # brew install cmake || true  # macos image has cmake installed, but a new version may exist; ignore it if so
+        # # brew install doxygen || true
+        # # brew install hdf5 || true
+        # # brew install pkg-config || true
+        # # brew install wget || true
+        # # brew install jpeg || true
+        # # brew install libpng || true
+        # # brew install libtiff || true
+        # # brew install openexr || true
+        # # brew install eigen || true
+        # # brew install tbb || true
+        # # brew install hdf5 || true
+        # # pytorch
+        # brew install openblas || true
+        # # brew install libomp || true
+        # brew install openmpi || true
+        # brew install tcl-tk || true
+        # # brew install openssl || true
+        # # brew install readline || true
+        # brew install sqlite3 || true
+        # # brew install xz || true
+        # # brew install zlib || true
+        # # https://techblog.willshouse.com/2013/05/20/brew-install-gnu-stat/
+        # brew install coreutils || true
+        # brew install findutils || true
+        # # brew install gnu-tar || true
+        # brew install gnu-sed || true
+        # brew install gawk || true
+        # # brew install gnutls || true
+        # brew install gnu-getopt || true
+        # brew install libmagic || true
+        # brew install libffi || true
+        # # brew install atomicparsley || true
+        # # brew install tree || true
+        # # brew install tesseract || true
 
         # https://github.com/jiaaro/pydub#installation
         # libav
@@ -159,6 +160,8 @@ jobs:
         # brew install ffmpeg || true
         # brew install sdl2 || true
         # brew install sdl2_mixer || true
+
+        brew install openblas openmpi tcl-tk sqlite3 coreutils findutils gnu-sed gawk gnu-getopt libmagic libffi || true
 
         make start-docker-services-d
 
@@ -212,7 +215,7 @@ jobs:
         # architecture: ${{ matrix.arch }}
         miniconda-version: "latest"
         python-version: ${{ matrix.python }}
-        # auto-update-conda: true
+        auto-update-conda: true
         # channel-priority: strict
         activate-environment: fastapi_pytorch_postgresql_sandbox3
         environment-file: environment.yml
