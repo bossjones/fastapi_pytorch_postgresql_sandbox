@@ -114,11 +114,11 @@ jobs:
         LANG: en_US.UTF-8
         LC_CTYPE: en_US.UTF-8
       run: |
-        brew install cmake || true  # macos image has cmake installed, but a new version may exist; ignore it if so
+        # brew install cmake || true  # macos image has cmake installed, but a new version may exist; ignore it if so
         # brew install doxygen || true
         # brew install hdf5 || true
-        brew install pkg-config || true
-        brew install wget || true
+        # brew install pkg-config || true
+        # brew install wget || true
         # brew install jpeg || true
         # brew install libpng || true
         # brew install libtiff || true
@@ -128,21 +128,21 @@ jobs:
         # brew install hdf5 || true
         # pytorch
         brew install openblas || true
-        brew install libomp || true
+        # brew install libomp || true
         brew install openmpi || true
         brew install tcl-tk || true
-        brew install openssl || true
-        brew install readline || true
+        # brew install openssl || true
+        # brew install readline || true
         brew install sqlite3 || true
-        brew install xz || true
-        brew install zlib || true
+        # brew install xz || true
+        # brew install zlib || true
         # https://techblog.willshouse.com/2013/05/20/brew-install-gnu-stat/
         brew install coreutils || true
         brew install findutils || true
-        brew install gnu-tar || true
+        # brew install gnu-tar || true
         brew install gnu-sed || true
         brew install gawk || true
-        brew install gnutls || true
+        # brew install gnutls || true
         brew install gnu-getopt || true
         brew install libmagic || true
         brew install libffi || true
@@ -152,7 +152,7 @@ jobs:
 
         # https://github.com/jiaaro/pydub#installation
         # libav
-        brew install libav || true
+        # brew install libav || true
         ####    OR    #####
         # SOURCE: https://matham.github.io/ffpyplayer/installation.html#using-binary-wheels
         # ffmpeg
@@ -186,7 +186,7 @@ jobs:
       uses: actions/cache@v3
       env:
         # Increase this value to reset cache if etc/example-environment.yml has not changed
-        CACHE_NUMBER: 1
+        CACHE_NUMBER: 0
       with:
         path: ~/conda_pkgs_dir
         key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('conda.requirements.txt') }}
