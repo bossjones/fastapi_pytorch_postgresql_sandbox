@@ -82,7 +82,7 @@ fakeredis==2.9.2
 fancycompleter==0.9.1
 fastai @ file:///home/conda/feedstock_root/build_artifacts/fastai_1675786314653/work
 fastapi==0.90.0
--e git+ssh://git@github.com/bossjones/fastapi_pytorch_postgresql_sandbox.git@b6ac36e33dbc6113fa64ff2ca446ede044acc653#egg=fastapi_pytorch_postgresql_sandbox
+-e git+ssh://git@github.com/bossjones/fastapi_pytorch_postgresql_sandbox.git@b13f61f42b95beb44d5406880365e3dbdcb20045#egg=fastapi_pytorch_postgresql_sandbox
 fastcore @ file:///home/conda/feedstock_root/build_artifacts/fastcore_1663188308722/work
 fastdownload @ file:///home/jhoward/mambaforge/conda-bld/fastdownload_1657219113869/work
 fastprogress @ file:///home/conda/feedstock_root/build_artifacts/fastprogress_1658690818839/work
@@ -290,6 +290,7 @@ srsly @ file:///Users/runner/miniforge3/conda-bld/srsly_1666955508343/work
 stack-data==0.6.2
 starlette==0.23.0
 tabulate==0.9.0
+tenacity==8.2.2
 tensorboard @ file:///home/conda/feedstock_root/build_artifacts/tensorboard_1667970813026/work/tensorboard-2.11.0-py3-none-any.whl
 tensorboard-data-server @ file:///Users/runner/miniforge3/conda-bld/tensorboard-data-server_1670043875829/work/tensorboard_data_server-0.6.1-py3-none-macosx_11_0_arm64.whl
 tensorboard-plugin-wit @ file:///home/conda/feedstock_root/build_artifacts/tensorboard-plugin-wit_1641458951060/work/tensorboard_plugin_wit-1.8.1-py3-none-any.whl

@@ -125,6 +125,7 @@ dependencies:
   - aiofiles
   - types-aiofiles
   - aiometer
+  - tenacity
   - -e .
 # variables:
 #   PYTORCH_ENABLE_MPS_FALLBACK: 1
