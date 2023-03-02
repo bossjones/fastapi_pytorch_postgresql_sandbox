@@ -1,6 +1,7 @@
 absl-py @ file:///home/conda/feedstock_root/build_artifacts/absl-py_1673535674859/work
 accelerate==0.16.0
 aio-pika==9.0.4
+aiocsv==1.2.3
 aiofiles==23.1.0
 aiohttp @ file:///Users/runner/miniforge3/conda-bld/aiohttp_1666878637568/work
 aiohttp-cors==0.7.0
@@ -82,7 +83,7 @@ fakeredis==2.9.2
 fancycompleter==0.9.1
 fastai @ file:///home/conda/feedstock_root/build_artifacts/fastai_1675786314653/work
 fastapi==0.90.0
--e git+ssh://git@github.com/bossjones/fastapi_pytorch_postgresql_sandbox.git@b13f61f42b95beb44d5406880365e3dbdcb20045#egg=fastapi_pytorch_postgresql_sandbox
+-e git+ssh://git@github.com/bossjones/fastapi_pytorch_postgresql_sandbox.git@a8b93cde8ea04f89963adc5af53d4d5bd150c6fd#egg=fastapi_pytorch_postgresql_sandbox
 fastcore @ file:///home/conda/feedstock_root/build_artifacts/fastcore_1663188308722/work
 fastdownload @ file:///home/jhoward/mambaforge/conda-bld/fastdownload_1657219113869/work
 fastprogress @ file:///home/conda/feedstock_root/build_artifacts/fastprogress_1658690818839/work

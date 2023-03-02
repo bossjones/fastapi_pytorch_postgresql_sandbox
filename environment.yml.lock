@@ -292,6 +292,7 @@ dependencies:
   - pip:
       - accelerate==0.16.0
       - aio-pika==9.0.4
+      - aiocsv==1.2.3
       - aiofiles==23.1.0
       - aiohttp-cors==0.7.0
       - aiokafka==0.8.0

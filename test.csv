@@ -1,0 +1,2 @@
+file_name,classifyed_pred_prob,pred_prob_pred_class,pred_prob_time_for_pred,ts
+fastapi_pytorch_postgresql_sandbox/tests/fixtures/test1.jpg,0.6357,twitter,0.3002,2023-03-02T14:10:50Z

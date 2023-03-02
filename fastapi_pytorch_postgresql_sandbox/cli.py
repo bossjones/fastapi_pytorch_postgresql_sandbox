@@ -12,11 +12,15 @@ import asyncio
 import concurrent.futures
 from datetime import datetime
 import functools
+import json
 from mimetypes import MimeTypes
+import os
 import sys
 import time
 from typing import Any, Dict, List, Union
 
+from aiocsv import AsyncDictReader, AsyncDictWriter, AsyncReader, AsyncWriter
+import aiofiles
 import aiometer
 from codetiming import Timer
 import httpx
@@ -44,6 +48,18 @@ session = httpx.AsyncClient()
 DEFAULT_PATH_TO_DIR = "/Users/malcolm/Downloads/datasets/twitter_facebook_tiktok/"
 
 
+def convert_datetime_to_iso_8601_with_z_suffix(dt: datetime) -> str:
+    """convert dattime object to string format
+
+    Args:
+        dt (datetime): _description_
+
+    Returns:
+        str: _description_
+    """
+    return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 class PredictionDataRow(BaseModel):
     """Dataclass for line that will be written to a CSV file
 
@@ -57,6 +73,13 @@ class PredictionDataRow(BaseModel):
     pred_prob_pred_class: str
     pred_prob_time_for_pred: Union[float, str]
     ts: datetime = Field(default_factory=datetime.now)
+
+    # SOURCE: https://stackoverflow.com/questions/66548586/how-to-change-date-format-in-pydantic
+    class Config:
+        json_encoders = {
+            # custom output conversion for datetime
+            datetime: convert_datetime_to_iso_8601_with_z_suffix,
+        }
 
 
 class FileInfo(BaseModel):
@@ -92,22 +115,9 @@ def run_inspect(obj: Any) -> None:
     rich.inspect(obj, all=True)
 
 
-# async def fetch(client: httpx.AsyncClient, request: httpx.Request, file_info: FileInfo) -> JSONType:
-#     """_summary_
-
-#     Args:
-#         client (httpx.AsyncClient): _description_
-#         request (httpx.Request): _description_
-
-#     Returns:
-#         _type_: _description_
-#     """
-#     response: httpx.Response = await client.send(request)
-#     return response.json()
-
-
 async def api_request_prediction(
-    client: httpx.AsyncClient, file_info: FileInfo,
+    client: httpx.AsyncClient,
+    file_info: FileInfo,
 ) -> FileInfoDTO:
     """Peform POST request to classify a given image against our api.
 
@@ -133,7 +143,8 @@ async def api_request_prediction(
     )
 )
 async def api_get_prediction_results(
-    client: httpx.AsyncClient, file_info_dto: FileInfoDTO,
+    client: httpx.AsyncClient,
+    file_info_dto: FileInfoDTO,
 ) -> PredictionDataRow:
     """Peform GET request to pull back classify results for an image against our api.
 
@@ -161,7 +172,8 @@ async def api_get_prediction_results(
 
 
 async def aio_run_api_classify(
-    completed: list, final: list[list[PathLike]],
+    completed: list,
+    final: list[list[PathLike]],
 ) -> List[List[FileInfoDTO]]:
     """wrapper function to peform classify request
 
@@ -217,7 +229,8 @@ async def aio_run_api_classify(
 
 
 async def aio_run_api_get_classify_results(
-    completed: list, final: List[List[FileInfoDTO]],
+    completed: list,
+    final: List[List[FileInfoDTO]],
 ) -> List[List[PredictionDataRow]]:
     """wrapper function to peform classify request
 
@@ -315,6 +328,58 @@ def get_chunked_lists(
     ]
 
 
+def run_seralize_prediction_data_row(pdr: PredictionDataRow) -> JSONType:
+    """Prepare Prediction Data Row for storage in csv
+
+    Args:
+        pdr (PredictionDataRow): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    to_jsons = pdr.json()
+    return json.loads(to_jsons)
+
+
+async def aio_write_csv(path_to_csv: PathLike, prediction_data_rows: List[JSONType]):
+
+    if not os.path.isfile(path_to_csv):  # type: ignore
+        # dict writing, all quoted, "NULL" for missing fields
+        async with aiofiles.open(
+            path_to_csv, mode="w", encoding="utf-8", newline="",
+        ) as afp:  # type: ignore
+            writer = AsyncDictWriter(
+                afp,
+                [
+                    "file_name",
+                    "classifyed_pred_prob",
+                    "pred_prob_pred_class",
+                    "pred_prob_time_for_pred",
+                    "ts",
+                ],
+                restval="NULL",
+            )
+            await writer.writeheader()
+            await writer.writerows(prediction_data_rows)  # type: ignore
+    else:
+        # dict writing, all quoted, "NULL" for missing fields
+        async with aiofiles.open(
+            path_to_csv, mode="a", encoding="utf-8", newline="",
+        ) as afp:  # type: ignore
+            writer = AsyncDictWriter(
+                afp,
+                [
+                    "file_name",
+                    "classifyed_pred_prob",
+                    "pred_prob_pred_class",
+                    "pred_prob_time_for_pred",
+                    "ts",
+                ],
+                restval="NULL",
+            )
+            await writer.writerows(prediction_data_rows)  # type: ignore
+
+
 async def go_partial(
     loop: asyncio.AbstractEventLoop,
     args: argparse.Namespace,
@@ -379,14 +444,16 @@ async def go_partial(
     #     completed.append(results)
     # Ask api to perform classify actions
     completed_file_info_dtos: List[List[FileInfoDTO]] = await aio_run_api_classify(
-        file_info_dtos, final,
+        file_info_dtos,
+        final,
     )
 
     # Get the prediction results back
     completed_prediction_data_rows: List[
         List[PredictionDataRow]
     ] = await aio_run_api_get_classify_results(
-        prediction_data_rows, completed_file_info_dtos,
+        prediction_data_rows,
+        completed_file_info_dtos,
     )
 
     # [[PredictionDataRow(file_name='fastapi_pytorch_postgresql_sandbox/tests/fixtures/test1.jpg', classifyed_pred_prob=0.6357, pred_prob_pred_class='twitter', pred_prob_time_for_pred=0.2469, ts=datetime.datetime(2023, 3, 2, 13, 24, 55, 760148))]]
@@ -394,7 +461,20 @@ async def go_partial(
     ic(completed_prediction_data_rows)
 
     # How to flatten list in Python?
-    # flat_completed = [element for sublist in completed for element in sublist]
+    flat_completed = [
+        element for sublist in completed_prediction_data_rows for element in sublist
+    ]
+
+    seralized_prediction_data_rows = [
+        run_seralize_prediction_data_row(pdr) for pdr in flat_completed
+    ]
+
+    # import bpdb
+
+    # bpdb.set_trace()
+
+    await aio_write_csv("./test.csv", seralized_prediction_data_rows)
+
     # print(flat_completed)
 
     # completed List[List[FileInfoDTO]]= [[FileInfoDTO(path_to_file='fastapi_pytorch_postgresql_sandbox/tests/fixtures/test1.jpg', request=<Request('POST', 'http://localhost:8008/api/screennet/classify')>, response=<Response [202 Accepted]>)]]
