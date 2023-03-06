@@ -347,6 +347,6 @@ wheel==0.38.4
 widgetsnbextension==4.0.5
 wmctrl==0.4
 wrapt==1.14.1
-xxhash==0.0.0
+xxhash
 yarl==1.8.2
 zipp==3.12.1
