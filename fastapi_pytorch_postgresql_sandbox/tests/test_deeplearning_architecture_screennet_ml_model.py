@@ -3,6 +3,7 @@
 from io import BytesIO
 import os
 import pathlib
+import sys
 
 from PIL import Image
 import pytest
@@ -35,7 +36,7 @@ class TestImageClassifier:
             "~/Documents/my_models/ScreenNetV1.pth",
         )
 
-        if not IS_RUNNING_ON_GITHUB_ACTIONS:
+        if not IS_RUNNING_ON_GITHUB_ACTIONS and sys.platform == "darwin":
             assert str(test_model.device) == "mps"
 
         # import bpdb
@@ -105,6 +106,7 @@ class TestImageClassifier:
 #     reason="Looks like the model from state file is still busted, need to fix",
 # )
 class TestMlModelFunctions:
+    @pytest.mark.skipif(sys.platform != "darwin", reason="Only runs on MacOS")
     def test_create_effnetb0_model(self):
         test_settings = settings.Settings()
         test_effnetb0 = (
@@ -121,5 +123,5 @@ class TestMlModelFunctions:
             )
         )
         test_device = next(test_effnetb0.parameters()).device
-        if not IS_RUNNING_ON_GITHUB_ACTIONS:
+        if not IS_RUNNING_ON_GITHUB_ACTIONS and sys.platform == "darwin":
             assert str(test_device) == "mps:0"
