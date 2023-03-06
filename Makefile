@@ -105,3 +105,6 @@ cli:
 doku:
 	docker pull amerkurev/doku:latest || true
 	docker run --rm --name doku -d -v /var/run/docker.sock:/var/run/docker.sock:ro -v /:/hostroot:ro -p 9090:9090 amerkurev/doku
+
+view-memray:
+	python -m http.server 8848 --bind 0.0.0.0 --directory ${HOME}/dev/bossjones/fastapi_pytorch_postgresql_sandbox
