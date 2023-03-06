@@ -6,7 +6,7 @@ import os.path
 import pathlib
 from pathlib import Path
 import shutil
-from typing import Any, Generator, List, TypeVar
+from typing import Any, Generator, List
 
 import aiofiles
 import aiofiles.os
@@ -15,10 +15,11 @@ from fastai.data.transforms import get_image_files
 # from fastapi.responses import StreamingResponse
 from rich import print
 
-PathLike = TypeVar("PathLike", str, pathlib.Path, None)
+# PathLike = TypeVar("PathLike", str, pathlib.Path, None)
+PathLike = str | pathlib.Path | None
 
 
-def go_get_image_files(path_to_image_from_cli: str) -> List[str]:
+def go_get_image_files(path_to_image_from_cli: str) -> List[PathLike]:
     """Leverage fastai's get_image_files function.
 
     Args:

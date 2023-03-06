@@ -64,20 +64,21 @@ jobs:
         LC_CTYPE: en_US.UTF-8
         HOMEBREW_NO_INSTALL_CLEANUP: 1
       run: |
-        brew update
-        brew install icu4c || true
-        brew install readline || true
-        brew install libxslt || true
-        brew install perl || true
-        brew install docker || true
-        brew install colima || true
-        brew install docker-compose || true
-        # brew install tree || true
-        brew install qemu || true
-        brew install bash || true
-        brew install lima || true
-        brew install jq || true
-        brew install curl || true
+        # brew update
+        # # brew install icu4c || true
+        # # brew install readline || true
+        # brew install libxslt || true
+        # # brew install perl || true
+        # brew install docker || true
+        # # brew install colima || true
+        # brew install docker-compose || true
+        # # brew install tree || true
+        # # brew install qemu || true
+        # brew install bash || true
+        # brew install lima || true
+        # # brew install jq || true
+        # brew install curl || true
+        brew install libxslt docker docker-compose tree bash lima curl || true
 
     - name: Cache ~/Library/Caches/colima for ${{ matrix.os }} on ${{ matrix.arch }}
       uses: actions/cache@v3
@@ -114,51 +115,53 @@ jobs:
         LANG: en_US.UTF-8
         LC_CTYPE: en_US.UTF-8
       run: |
-        brew install cmake || true  # macos image has cmake installed, but a new version may exist; ignore it if so
-        # brew install doxygen || true
-        # brew install hdf5 || true
-        brew install pkg-config || true
-        brew install wget || true
-        # brew install jpeg || true
-        # brew install libpng || true
-        # brew install libtiff || true
-        # brew install openexr || true
-        # brew install eigen || true
-        # brew install tbb || true
-        # brew install hdf5 || true
-        # pytorch
-        brew install openblas || true
-        brew install libomp || true
-        brew install openmpi || true
-        brew install tcl-tk || true
-        brew install openssl || true
-        brew install readline || true
-        brew install sqlite3 || true
-        brew install xz || true
-        brew install zlib || true
-        # https://techblog.willshouse.com/2013/05/20/brew-install-gnu-stat/
-        brew install coreutils || true
-        brew install findutils || true
-        brew install gnu-tar || true
-        brew install gnu-sed || true
-        brew install gawk || true
-        brew install gnutls || true
-        brew install gnu-getopt || true
-        brew install libmagic || true
-        brew install libffi || true
-        # brew install atomicparsley || true
-        # brew install tree || true
-        # brew install tesseract || true
+        # # brew install cmake || true  # macos image has cmake installed, but a new version may exist; ignore it if so
+        # # brew install doxygen || true
+        # # brew install hdf5 || true
+        # # brew install pkg-config || true
+        # # brew install wget || true
+        # # brew install jpeg || true
+        # # brew install libpng || true
+        # # brew install libtiff || true
+        # # brew install openexr || true
+        # # brew install eigen || true
+        # # brew install tbb || true
+        # # brew install hdf5 || true
+        # # pytorch
+        # brew install openblas || true
+        # # brew install libomp || true
+        # brew install openmpi || true
+        # brew install tcl-tk || true
+        # # brew install openssl || true
+        # # brew install readline || true
+        # brew install sqlite3 || true
+        # # brew install xz || true
+        # # brew install zlib || true
+        # # https://techblog.willshouse.com/2013/05/20/brew-install-gnu-stat/
+        # brew install coreutils || true
+        # brew install findutils || true
+        # # brew install gnu-tar || true
+        # brew install gnu-sed || true
+        # brew install gawk || true
+        # # brew install gnutls || true
+        # brew install gnu-getopt || true
+        # brew install libmagic || true
+        # brew install libffi || true
+        # # brew install atomicparsley || true
+        # # brew install tree || true
+        # # brew install tesseract || true
 
         # https://github.com/jiaaro/pydub#installation
         # libav
-        brew install libav || true
+        # brew install libav || true
         ####    OR    #####
         # SOURCE: https://matham.github.io/ffpyplayer/installation.html#using-binary-wheels
         # ffmpeg
         # brew install ffmpeg || true
         # brew install sdl2 || true
         # brew install sdl2_mixer || true
+
+        brew install openblas openmpi tcl-tk sqlite3 coreutils findutils gnu-sed gawk gnu-getopt libmagic libffi || true
 
         make start-docker-services-d
 
@@ -186,22 +189,25 @@ jobs:
       uses: actions/cache@v3
       env:
         # Increase this value to reset cache if etc/example-environment.yml has not changed
-        CACHE_NUMBER: 0
+        CACHE_NUMBER: 2
       with:
         path: ~/conda_pkgs_dir
         key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('conda.requirements.txt') }}
+      # id: conda_cache
 
     - name: Cache pip for ${{ matrix.os }} on ${{ matrix.arch }}
       uses: actions/cache@v3
       env:
         # Increase this value to reset cache if etc/example-environment.yml has not changed
-        CACHE_NUMBER: 0
+        CACHE_NUMBER: 2
       with:
         path: ${{ matrix.path }}
         key: ${{ runner.os }}-pip-${{ env.CACHE_NUMBER }}-${{ hashFiles('requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
+      # id: pip_cache
 
+    # NOTE: see https://github.com/conda-incubator/setup-miniconda/blob/main/.github/workflows/caching-example.yml
     - name: Set up Python for ${{ matrix.os }} on ${{ matrix.arch }}
       uses: conda-incubator/setup-miniconda@v2.2.0
       env:
@@ -210,7 +216,7 @@ jobs:
         # miniforge-variant: Mambaforge
         # use-mamba: true
         # architecture: ${{ matrix.arch }}
-        miniconda-version: "latest"
+        # miniconda-version: "latest"
         python-version: ${{ matrix.python }}
         # auto-update-conda: true
         # channel-priority: strict
@@ -239,6 +245,9 @@ jobs:
         python -c 'import torch; print("Torch version %s" % torch.__version__)'
         python -c 'import tensorflow; print("Tensorflow version %s" % tensorflow.__version__)'
         inv ci.pytest -vvvvv
+      # NOTE: check this out
+      # SOURCE: https://github.com/conda-incubator/setup-miniconda/blob/main/.github/workflows/caching-envs-example.yml
+      # if: steps.cache.outputs.cache-hit != 'true'
 
     - name: Upload pytest test results
       if: always()

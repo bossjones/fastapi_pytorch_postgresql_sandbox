@@ -1,6 +1,7 @@
 absl-py @ file:///home/conda/feedstock_root/build_artifacts/absl-py_1673535674859/work
 accelerate==0.16.0
 aio-pika==9.0.4
+aiocsv==1.2.3
 aiofiles==23.1.0
 aiohttp @ file:///Users/runner/miniforge3/conda-bld/aiohttp_1666878637568/work
 aiohttp-cors==0.7.0
@@ -82,7 +83,7 @@ fakeredis==2.9.2
 fancycompleter==0.9.1
 fastai @ file:///home/conda/feedstock_root/build_artifacts/fastai_1675786314653/work
 fastapi==0.90.0
--e git+ssh://git@github.com/bossjones/fastapi_pytorch_postgresql_sandbox.git@ac2e05e1b729e04b9aa1e6ee0c8687eb03a2bf00#egg=fastapi_pytorch_postgresql_sandbox
+-e git+ssh://git@github.com/bossjones/fastapi_pytorch_postgresql_sandbox.git@a8b93cde8ea04f89963adc5af53d4d5bd150c6fd#egg=fastapi_pytorch_postgresql_sandbox
 fastcore @ file:///home/conda/feedstock_root/build_artifacts/fastcore_1663188308722/work
 fastdownload @ file:///home/jhoward/mambaforge/conda-bld/fastdownload_1657219113869/work
 fastprogress @ file:///home/conda/feedstock_root/build_artifacts/fastprogress_1658690818839/work
@@ -207,7 +208,7 @@ Pillow @ file:///Users/runner/miniforge3/conda-bld/pillow_1675487373585/work
 platformdirs==2.6.2
 pluggy==1.0.0
 pprintpp==0.4.0
-pre-commit==3.1.0
+pre-commit==3.1.1
 preshed @ file:///Users/runner/miniforge3/conda-bld/preshed_1666991318984/work
 prometheus-client==0.16.0
 prometheus-fastapi-instrumentator==5.9.1
@@ -247,7 +248,7 @@ pytest-sugar==0.9.6
 pytest-timeout==2.1.0
 python-dateutil @ file:///home/conda/feedstock_root/build_artifacts/python-dateutil_1626286286081/work
 python-dotenv==0.21.1
-python-multipart==0.0.5
+python-multipart==0.0.6
 pytype==2023.2.17
 pytz @ file:///home/conda/feedstock_root/build_artifacts/pytz_1673864280276/work
 pyu2f @ file:///home/conda/feedstock_root/build_artifacts/pyu2f_1604248910016/work
@@ -266,7 +267,7 @@ responses @ file:///home/conda/feedstock_root/build_artifacts/responses_16438396
 rfc3986==1.5.0
 rich==13.3.1
 rsa @ file:///home/conda/feedstock_root/build_artifacts/rsa_1658328885051/work
-ruff==0.0.252
+ruff==0.0.253
 sacremoses @ file:///home/conda/feedstock_root/build_artifacts/sacremoses_1651557636210/work
 scikit-image @ file:///Users/runner/miniforge3/conda-bld/scikit-image_1667117210012/work
 scikit-learn @ file:///Users/runner/miniforge3/conda-bld/scikit-learn_1674599166167/work
@@ -281,7 +282,7 @@ smart-open @ file:///home/conda/feedstock_root/build_artifacts/smart_open_163023
 smmap==5.0.0
 sniffio==1.3.0
 sortedcontainers==2.4.0
-sourcery==1.0.5
+sourcery==1.0.6
 spacy @ file:///Users/runner/miniforge3/conda-bld/spacy_1674544556152/work
 spacy-legacy @ file:///home/conda/feedstock_root/build_artifacts/spacy-legacy_1674550301837/work
 spacy-loggers @ file:///home/conda/feedstock_root/build_artifacts/spacy-loggers_1672303484730/work
@@ -290,6 +291,7 @@ srsly @ file:///Users/runner/miniforge3/conda-bld/srsly_1666955508343/work
 stack-data==0.6.2
 starlette==0.23.0
 tabulate==0.9.0
+tenacity==8.2.2
 tensorboard @ file:///home/conda/feedstock_root/build_artifacts/tensorboard_1667970813026/work/tensorboard-2.11.0-py3-none-any.whl
 tensorboard-data-server @ file:///Users/runner/miniforge3/conda-bld/tensorboard-data-server_1670043875829/work/tensorboard_data_server-0.6.1-py3-none-macosx_11_0_arm64.whl
 tensorboard-plugin-wit @ file:///home/conda/feedstock_root/build_artifacts/tensorboard-plugin-wit_1641458951060/work/tensorboard_plugin_wit-1.8.1-py3-none-any.whl
@@ -312,7 +314,7 @@ torch-fidelity @ file:///home/conda/feedstock_root/build_artifacts/torch-fidelit
 torch-tb-profiler==0.4.1
 torchdiffeq==0.2.3
 torchinfo==1.7.2
-torchmetrics @ file:///home/conda/feedstock_root/build_artifacts/torchmetrics_1675164785138/work
+torchmetrics @ file:///home/conda/feedstock_root/build_artifacts/torchmetrics_1677692441297/work
 torchsde==0.2.5
 torchsummary==1.5.1
 torchtext==0.14.1

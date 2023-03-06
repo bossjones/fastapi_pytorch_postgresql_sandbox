@@ -20,7 +20,8 @@ from aio_pika.pool import Pool
 import aiofiles
 import bpdb
 from codetiming import Timer
-from fastapi import APIRouter, Depends, UploadFile
+from fastapi import APIRouter, Depends, UploadFile, status
+from fastapi.responses import JSONResponse
 from redis.asyncio import ConnectionPool, Redis
 import rich
 
@@ -208,7 +209,7 @@ async def classify(
 async def get_classify_value(
     inference_id: str,
     redis_pool: ConnectionPool = Depends(get_redis_pool),
-) -> Union[RedisPredictionValueDTO, PendingClassificationDTO]:
+) -> Union[RedisPredictionValueDTO, PendingClassificationDTO, JSONResponse]:
     """
     Get value from redis.
 
@@ -221,7 +222,12 @@ async def get_classify_value(
         # exists = await redis.hexists(inference_id, "pred_prob")
         exists = await redis.exists(inference_id)
         if not exists:
-            return PendingClassificationDTO(inference_id=inference_id)
+            pending_classification_dto = {"inference_id": inference_id}
+            # return PendingClassificationDTO(inference_id=inference_id)
+            return JSONResponse(
+                status_code=status.HTTP_202_ACCEPTED, content=pending_classification_dto,
+            )
+            # return status.HTTP_202_ACCEPTED
 
         redis_value = await redis.hgetall(inference_id)
     return RedisPredictionValueDTO(data=redis_value)

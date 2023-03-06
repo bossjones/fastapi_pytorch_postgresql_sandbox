@@ -7,12 +7,18 @@ link-conda-env-intel:
 link-conda-ci:
 	ln -sfv continuous_integration/environment-3.10-dev.yaml environment.yml
 
-conda-update: conda-lock-env
+# conda-update: conda-lock-env
+# 	conda env update
+# 	conda list --explicit > installed_conda.txt
+# 	pip freeze > installed_pip.txt
+
+conda-update-lock:
 	conda env update
+	conda env export > environment.yml.lock
+	conda list -e > conda.requirements.txt
+	pip list --format=freeze > requirements.txt
 	conda list --explicit > installed_conda.txt
 	pip freeze > installed_pip.txt
-
-conda-update-lock: conda-update conda-lock-env
 
 conda-update-prune:
 	conda env update --prune
