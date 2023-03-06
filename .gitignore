@@ -145,3 +145,4 @@ cov.xml
 junit/
 .envrc
 prom/
+environment.yml
