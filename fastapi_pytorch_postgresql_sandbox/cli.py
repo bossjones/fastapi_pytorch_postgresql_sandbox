@@ -178,7 +178,8 @@ async def api_get_prediction_results(
     ic(pred_data_row)
 
     # free up file descriptor
-    # await response.aclose()
+    await file_info_dto.request.stream.aclose()  # type: ignore
+    await response.aclose()
     # await
 
     return pred_data_row
@@ -306,7 +307,7 @@ async def aio_get_images(
 
     handle_go_get_image_files_func = functools.partial(go_get_image_files, path_to_dir)
 
-    with Timer(text="\nTotal elapsed time: {:.1f}"):
+    with Timer(text="\n [aio_get_images] Total elapsed time: {:.5f}"):
         # 2. Run in a custom thread pool:
         with concurrent.futures.ThreadPoolExecutor() as pool:
             images = await loop.run_in_executor(pool, handle_go_get_image_files_func)
