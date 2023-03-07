@@ -132,7 +132,7 @@ async def api_request_prediction(
 
     # free up file descriptors
     # await response.aclose()
-    # await file_info.request.stream.aclose()  # type: ignore
+    await file_info.request.stream.aclose()  # type: ignore
 
     return FileInfoDTO(
         path_to_file=file_info.path_to_file,
