@@ -350,3 +350,8 @@ wrapt==1.14.1
 xxhash
 yarl==1.8.2
 zipp==3.12.1
+# memory tools
+visidata
+memory_profiler
+objgraph
+xdot

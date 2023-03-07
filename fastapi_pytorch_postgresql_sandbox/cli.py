@@ -199,7 +199,8 @@ async def api_request_prediction(
     #     response=response,
     # )
     return OutputApiClassifyData(
-        path_to_file=f"{file_info.path_to_file}", inference_id=inference_id,
+        path_to_file=f"{file_info.path_to_file}",
+        inference_id=inference_id,
     )
 
 
@@ -284,7 +285,8 @@ async def aio_run_api_classify(
 
             # NOTE: ORIG # a_file_info = FileInfo(path_to_file=f"{img}", request=api_request)
             a_file_info: InputApiClassifyData = InputApiClassifyData(
-                path_to_file=f"{img}", request=api_request,
+                path_to_file=f"{img}",
+                request=api_request,
             )
             file_infos.append(a_file_info)
             # gc.collect()
@@ -504,7 +506,8 @@ async def go_partial(
     #     args.workers,
     # )
     completed_file_info_dtos: Union[
-        List[List[FileInfoDTO]], List[List[OutputApiClassifyData]],
+        List[List[FileInfoDTO]],
+        List[List[OutputApiClassifyData]],
     ] = await aio_run_api_classify(
         file_info_dtos,
         final,
@@ -519,6 +522,8 @@ async def go_partial(
         completed_file_info_dtos,
         args.workers,
     )
+
+    await session.aclose()
 
     # [[PredictionDataRow(file_name='fastapi_pytorch_postgresql_sandbox/tests/fixtures/test1.jpg', classifyed_pred_prob=0.6357, pred_prob_pred_class='twitter', pred_prob_time_for_pred=0.2469, ts=datetime.datetime(2023, 3, 2, 13, 24, 55, 760148))]]
 
@@ -601,6 +606,7 @@ if __name__ == "__main__":
     loop.run_until_complete(go_partial(loop, cli_args))
     duration = time.time() - start_time
     print(f"Computed in {duration} seconds")
+
 
 # SOURCE: https://realpython.com/async-io-python/
 # async def main(nprod: int, ncon: int):
