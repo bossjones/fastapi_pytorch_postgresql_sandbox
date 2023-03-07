@@ -128,6 +128,9 @@ async def api_request_prediction(
     Returns:
         _type_: _description_
     """
+
+    await file_info.request.aread()
+
     response: httpx.Response = await client.send(file_info.request)
 
     # free up file descriptors
@@ -200,7 +203,7 @@ async def aio_run_api_classify(
     """
     # send post request to perform prediction
     for count, chunk in enumerate(final):
-        print(f"count = {count}")
+        print(f"[aio_run_api_classify] count = {count}")
         # requests = []
         file_infos: list = []
         for img in chunk:
@@ -218,9 +221,9 @@ async def aio_run_api_classify(
                 headers=headers,
                 data=data,
             )
-            _ = (
-                await api_request.aread()
-            )  # sourcery skip: avoid-single-character-names-variables
+            # _ = (
+            #     await api_request.aread()
+            # )  # sourcery skip: avoid-single-character-names-variables
             # requests.append(api_request)
             a_file_info = FileInfo(path_to_file=f"{img}", request=api_request)
             file_infos.append(a_file_info)
@@ -259,7 +262,7 @@ async def aio_run_api_get_classify_results(
     for count, chunk in enumerate(final):
         rich.print("aio_run_api_get_classify_results")
         ic(chunk)
-        print(f"count = {count}")
+        print(f"[aio_run_api_get_classify_results] count = {count}")
         updated_file_info_dtos: list = []
         for _fi_dto in chunk:
             headers = headers = {
