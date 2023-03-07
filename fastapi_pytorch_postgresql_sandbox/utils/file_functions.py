@@ -1,4 +1,5 @@
 """ file_functions """
+# pylint: disable=consider-using-sys-exit
 from __future__ import annotations
 
 import os
@@ -56,7 +57,7 @@ def is_directory(path: str) -> bool:
     return bool(pathlib.Path(path).is_dir())
 
 
-def tilda(obj: Any):
+def tilda(obj: Any) -> List[str | Any] | str | Any:
     """wrapper for linux ~/ shell notation
 
     Args:
@@ -75,14 +76,14 @@ def tilda(obj: Any):
         return obj
 
 
-def fix_path(path: str):
+def fix_path(path: str) -> Any:
     """Automatically convert path to fully qualifies file uri.
 
     Args:
         path (_type_): _description_
     """
-
-    def __fix_path(path):
+    # Either all return statements in a function should return an expression, or none of them should.
+    def __fix_path(path):  # pylint: disable=inconsistent-return-statements
         if not isinstance(path, str):
             return path
         elif "~" == path[0]:
@@ -106,7 +107,7 @@ def fix_path(path: str):
         return path
 
 
-def walk_through_dir(dir_path: str):
+def walk_through_dir(dir_path: str) -> List[str]:
     """
     Walks through dir_path returning its contents.
     Args:

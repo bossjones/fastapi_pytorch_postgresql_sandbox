@@ -12,7 +12,8 @@ import asyncio
 import concurrent.futures
 from datetime import datetime
 import functools
-import gc
+
+# import gc
 import json
 from mimetypes import MimeTypes
 import os
@@ -20,7 +21,7 @@ import sys
 import time
 from typing import Any, Dict, List, Union
 
-from aiocsv import AsyncDictReader, AsyncDictWriter, AsyncReader, AsyncWriter
+from aiocsv import AsyncDictWriter
 import aiofiles
 import aiometer
 from codetiming import Timer
@@ -199,7 +200,8 @@ async def api_request_prediction(
     #     response=response,
     # )
     return OutputApiClassifyData(
-        path_to_file=f"{file_info.path_to_file}", inference_id=inference_id,
+        path_to_file=f"{file_info.path_to_file}",
+        inference_id=inference_id,
     )
 
 
@@ -261,6 +263,7 @@ async def aio_run_api_classify(
     Returns:
         List[List[FileInfoDTO]]: _description_
     """
+    session = httpx.AsyncClient()
     # send post request to perform prediction
     for count, chunk in enumerate(final):
         print(f"[aio_run_api_classify] count = {count}")
@@ -284,7 +287,8 @@ async def aio_run_api_classify(
 
             # NOTE: ORIG # a_file_info = FileInfo(path_to_file=f"{img}", request=api_request)
             a_file_info: InputApiClassifyData = InputApiClassifyData(
-                path_to_file=f"{img}", request=api_request,
+                path_to_file=f"{img}",
+                request=api_request,
             )
             file_infos.append(a_file_info)
             # gc.collect()
@@ -303,6 +307,8 @@ async def aio_run_api_classify(
 
         completed.append(results)
 
+    await session.aclose()
+
     return completed
 
 
@@ -320,6 +326,7 @@ async def aio_run_api_get_classify_results(
     Returns:
         List[List[PredictionDataRow]]: _description_
     """
+    session = httpx.AsyncClient()
     # send post request to perform prediction
     for count, chunk in enumerate(final):
         rich.print("aio_run_api_get_classify_results")
@@ -360,6 +367,8 @@ async def aio_run_api_get_classify_results(
         )
 
         completed.append(results)
+
+    await session.aclose()
 
     return completed
 
@@ -504,7 +513,8 @@ async def go_partial(
     #     args.workers,
     # )
     completed_file_info_dtos: Union[
-        List[List[FileInfoDTO]], List[List[OutputApiClassifyData]],
+        List[List[FileInfoDTO]],
+        List[List[OutputApiClassifyData]],
     ] = await aio_run_api_classify(
         file_info_dtos,
         final,
@@ -593,7 +603,7 @@ def main(args: Union[None, Any] = None) -> argparse.Namespace:
 if __name__ == "__main__":
     # SOURCE: https://stackoverflow.com/questions/2831597/processing-command-line-arguments-in-prefix-notation-in-python
     cli_args = main(sys.argv[1:])
-    session = httpx.AsyncClient()
+    # session = httpx.AsyncClient()
     start_time = time.time()
     # loop = asyncio.get_event_loop()
     # NOTE: https://github.com/pytest-dev/pytest-asyncio/pull/214/files#diff-cc48ab986692b5999611086a9c031ed6d88fd37496e706865aaefedb3acb9fe9
@@ -601,6 +611,7 @@ if __name__ == "__main__":
     loop.run_until_complete(go_partial(loop, cli_args))
     duration = time.time() - start_time
     print(f"Computed in {duration} seconds")
+
 
 # SOURCE: https://realpython.com/async-io-python/
 # async def main(nprod: int, ncon: int):

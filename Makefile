@@ -108,3 +108,8 @@ doku:
 
 view-memray:
 	python -m http.server 8848 --bind 0.0.0.0 --directory ${HOME}/dev/bossjones/fastapi_pytorch_postgresql_sandbox
+
+basic-mem-profile:
+	python -m memray run -f -o lel.bin -m fastapi_pytorch_postgresql_sandbox.cli --predict ~/Downloads/icloud_photos_downloader/hyenawhite/screenshots/screenshots --workers 100
+	memray flamegraph --leaks --split-threads -f --temporary-allocations lel.bin
+	memray summary lel.bin
