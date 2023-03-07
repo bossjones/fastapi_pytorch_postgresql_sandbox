@@ -129,6 +129,11 @@ async def api_request_prediction(
         _type_: _description_
     """
     response: httpx.Response = await client.send(file_info.request)
+
+    # free up file descriptors
+    # await response.aclose()
+    # await file_info.request.stream.aclose()  # type: ignore
+
     return FileInfoDTO(
         path_to_file=file_info.path_to_file,
         request=file_info.request,
@@ -156,6 +161,10 @@ async def api_get_prediction_results(
         _type_: _description_
     """
     response: httpx.Response = await client.send(file_info_dto.request)
+
+    # import bpdb
+
+    # bpdb.set_trace()
     # Prediction results are not ready yet, retry
     if response.status_code == 202:
         raise TryAgain
@@ -167,6 +176,10 @@ async def api_get_prediction_results(
     )
 
     ic(pred_data_row)
+
+    # free up file descriptor
+    # await response.aclose()
+    # await
 
     return pred_data_row
 
@@ -187,7 +200,7 @@ async def aio_run_api_classify(
     # send post request to perform prediction
     for count, chunk in enumerate(final):
         print(f"count = {count}")
-        requests = []
+        # requests = []
         file_infos: list = []
         for img in chunk:
             mime_type: tuple[str | None, str | None] = mime.guess_type(f"{img}")
@@ -207,7 +220,7 @@ async def aio_run_api_classify(
             _ = (
                 await api_request.aread()
             )  # sourcery skip: avoid-single-character-names-variables
-            requests.append(api_request)
+            # requests.append(api_request)
             a_file_info = FileInfo(path_to_file=f"{img}", request=api_request)
             file_infos.append(a_file_info)
 
@@ -342,11 +355,20 @@ def run_seralize_prediction_data_row(pdr: PredictionDataRow) -> JSONType:
 
 
 async def aio_write_csv(path_to_csv: PathLike, prediction_data_rows: List[JSONType]):
+    """_summary_
+
+    Args:
+        path_to_csv (PathLike): _description_
+        prediction_data_rows (List[JSONType]): _description_
+    """
 
     if not os.path.isfile(path_to_csv):  # type: ignore
         # dict writing, all quoted, "NULL" for missing fields
         async with aiofiles.open(
-            path_to_csv, mode="w", encoding="utf-8", newline="",
+            path_to_csv,
+            mode="w",
+            encoding="utf-8",
+            newline="",
         ) as afp:  # type: ignore
             writer = AsyncDictWriter(
                 afp,
@@ -364,7 +386,10 @@ async def aio_write_csv(path_to_csv: PathLike, prediction_data_rows: List[JSONTy
     else:
         # dict writing, all quoted, "NULL" for missing fields
         async with aiofiles.open(
-            path_to_csv, mode="a", encoding="utf-8", newline="",
+            path_to_csv,
+            mode="a",
+            encoding="utf-8",
+            newline="",
         ) as afp:  # type: ignore
             writer = AsyncDictWriter(
                 afp,
@@ -402,46 +427,6 @@ async def go_partial(
     # SOURCE: https://www.geeksforgeeks.org/break-list-chunks-size-n-python/
     final: list[list[PathLike]] = get_chunked_lists(images)
 
-    # send post request to perform prediction
-    # for count, chunk in enumerate(final):
-    #     print(f"count = {count}")
-    #     requests = []
-    #     file_infos: list = []
-    #     for img in chunk:
-    #         mime_type: tuple[str | None, str | None] = mime.guess_type(f"{img}")
-    #         files = {"file": (img.name, open(f"{img}", "rb"), f"{mime_type[0]}")}  # type: ignore
-    #         headers = headers = {
-    #             "accept": "application/json",
-    #         }
-
-    #         data = {"type": f"{mime_type[0]}"}
-    #         api_request = httpx.Request(
-    #             "POST",
-    #             "http://localhost:8008/api/screennet/classify",
-    #             files=files,
-    #             headers=headers,
-    #             data=data,
-    #         )
-    #         _ = (
-    #             await api_request.aread()
-    #         )  # sourcery skip: avoid-single-character-names-variables
-    #         requests.append(api_request)
-    #         a_file_info = FileInfo(path_to_file=f"{img}", request=api_request)
-    #         file_infos.append(a_file_info)
-
-    #     # jobs = [functools.partial(fetch, session, request) for request in requests]
-    #     jobs = [
-    #         functools.partial(api_request_prediction, session, fi_obj)
-    #         for fi_obj in file_infos
-    #     ]
-
-    #     results = await aiometer.run_all(
-    #         jobs,
-    #         max_at_once=WORKERS,
-    #         max_per_second=WORKERS,
-    #     )
-
-    #     completed.append(results)
     # Ask api to perform classify actions
     completed_file_info_dtos: List[List[FileInfoDTO]] = await aio_run_api_classify(
         file_info_dtos,
@@ -468,10 +453,6 @@ async def go_partial(
     seralized_prediction_data_rows = [
         run_seralize_prediction_data_row(pdr) for pdr in flat_completed
     ]
-
-    # import bpdb
-
-    # bpdb.set_trace()
 
     await aio_write_csv("./test.csv", seralized_prediction_data_rows)
 
