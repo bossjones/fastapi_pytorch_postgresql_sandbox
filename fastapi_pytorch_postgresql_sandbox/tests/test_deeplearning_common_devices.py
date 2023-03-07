@@ -1,4 +1,5 @@
 import os
+import sys
 
 import pytest
 
@@ -13,6 +14,7 @@ class TestDevices:
         IS_RUNNING_ON_GITHUB_ACTIONS,
         reason="Not sure if mps is enabled on github actions yet, disabling",
     )
+    @pytest.mark.skipif(sys.platform != "darwin", reason="Only runs on MacOS")
     @pytest.mark.torchtests
     def test_has_mps(
         self,
