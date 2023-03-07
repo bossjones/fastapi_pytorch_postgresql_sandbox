@@ -12,6 +12,7 @@ import asyncio
 import concurrent.futures
 from datetime import datetime
 import functools
+import gc
 import json
 from mimetypes import MimeTypes
 import os
@@ -189,7 +190,9 @@ async def api_get_prediction_results(
 
 
 async def aio_run_api_classify(
-    completed: list, final: list[list[PathLike]], workers: int,
+    completed: list,
+    final: list[list[PathLike]],
+    workers: int,
 ) -> List[List[FileInfoDTO]]:
     """wrapper function to peform classify request
 
@@ -226,6 +229,7 @@ async def aio_run_api_classify(
             # requests.append(api_request)
             a_file_info = FileInfo(path_to_file=f"{img}", request=api_request)
             file_infos.append(a_file_info)
+            gc.collect()
 
         # jobs = [functools.partial(fetch, session, request) for request in requests]
         jobs = [
@@ -245,7 +249,9 @@ async def aio_run_api_classify(
 
 
 async def aio_run_api_get_classify_results(
-    completed: list, final: List[List[FileInfoDTO]], workers: int,
+    completed: list,
+    final: List[List[FileInfoDTO]],
+    workers: int,
 ) -> List[List[PredictionDataRow]]:
     """wrapper function to peform classify request
 
@@ -431,14 +437,18 @@ async def go_partial(
 
     # Ask api to perform classify actions
     completed_file_info_dtos: List[List[FileInfoDTO]] = await aio_run_api_classify(
-        file_info_dtos, final, args.workers,
+        file_info_dtos,
+        final,
+        args.workers,
     )
 
     # Get the prediction results back
     completed_prediction_data_rows: List[
         List[PredictionDataRow]
     ] = await aio_run_api_get_classify_results(
-        prediction_data_rows, completed_file_info_dtos, args.workers,
+        prediction_data_rows,
+        completed_file_info_dtos,
+        args.workers,
     )
 
     # [[PredictionDataRow(file_name='fastapi_pytorch_postgresql_sandbox/tests/fixtures/test1.jpg', classifyed_pred_prob=0.6357, pred_prob_pred_class='twitter', pred_prob_time_for_pred=0.2469, ts=datetime.datetime(2023, 3, 2, 13, 24, 55, 760148))]]
