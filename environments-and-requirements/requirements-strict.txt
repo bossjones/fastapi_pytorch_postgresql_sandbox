@@ -355,3 +355,5 @@ visidata
 memory_profiler
 objgraph
 xdot
+# version management
+commitizen

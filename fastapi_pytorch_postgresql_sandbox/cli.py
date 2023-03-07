@@ -12,7 +12,8 @@ import asyncio
 import concurrent.futures
 from datetime import datetime
 import functools
-import gc
+
+# import gc
 import json
 from mimetypes import MimeTypes
 import os
@@ -20,7 +21,7 @@ import sys
 import time
 from typing import Any, Dict, List, Union
 
-from aiocsv import AsyncDictReader, AsyncDictWriter, AsyncReader, AsyncWriter
+from aiocsv import AsyncDictWriter
 import aiofiles
 import aiometer
 from codetiming import Timer
@@ -262,6 +263,7 @@ async def aio_run_api_classify(
     Returns:
         List[List[FileInfoDTO]]: _description_
     """
+    session = httpx.AsyncClient()
     # send post request to perform prediction
     for count, chunk in enumerate(final):
         print(f"[aio_run_api_classify] count = {count}")
@@ -305,6 +307,8 @@ async def aio_run_api_classify(
 
         completed.append(results)
 
+    await session.aclose()
+
     return completed
 
 
@@ -322,6 +326,7 @@ async def aio_run_api_get_classify_results(
     Returns:
         List[List[PredictionDataRow]]: _description_
     """
+    session = httpx.AsyncClient()
     # send post request to perform prediction
     for count, chunk in enumerate(final):
         rich.print("aio_run_api_get_classify_results")
@@ -362,6 +367,8 @@ async def aio_run_api_get_classify_results(
         )
 
         completed.append(results)
+
+    await session.aclose()
 
     return completed
 
@@ -523,8 +530,6 @@ async def go_partial(
         args.workers,
     )
 
-    await session.aclose()
-
     # [[PredictionDataRow(file_name='fastapi_pytorch_postgresql_sandbox/tests/fixtures/test1.jpg', classifyed_pred_prob=0.6357, pred_prob_pred_class='twitter', pred_prob_time_for_pred=0.2469, ts=datetime.datetime(2023, 3, 2, 13, 24, 55, 760148))]]
 
     ic(completed_prediction_data_rows)
@@ -598,7 +603,7 @@ def main(args: Union[None, Any] = None) -> argparse.Namespace:
 if __name__ == "__main__":
     # SOURCE: https://stackoverflow.com/questions/2831597/processing-command-line-arguments-in-prefix-notation-in-python
     cli_args = main(sys.argv[1:])
-    session = httpx.AsyncClient()
+    # session = httpx.AsyncClient()
     start_time = time.time()
     # loop = asyncio.get_event_loop()
     # NOTE: https://github.com/pytest-dev/pytest-asyncio/pull/214/files#diff-cc48ab986692b5999611086a9c031ed6d88fd37496e706865aaefedb3acb9fe9
