@@ -44,7 +44,7 @@ WORKERS = 100
 
 mime = MimeTypes()
 
-session = httpx.AsyncClient()
+# session = httpx.AsyncClient()
 
 DEFAULT_PATH_TO_DIR = "/Users/malcolm/Downloads/datasets/twitter_facebook_tiktok/"
 
@@ -83,6 +83,20 @@ class PredictionDataRow(BaseModel):
         }
 
 
+class MemSafeFileInfo(BaseModel):
+    """Data Container for all the info we need to lookup the specific values later
+
+    Args:
+        FileInfo (_type_): _description_
+    """
+
+    path_to_file: str
+    request: Request
+
+    class Config:
+        arbitrary_types_allowed = True
+
+
 class FileInfo(BaseModel):
     """Data Container for all the info we need to lookup the specific values later
 
@@ -116,10 +130,49 @@ def run_inspect(obj: Any) -> None:
     rich.inspect(obj, all=True)
 
 
+class InputApiClassifyData(BaseModel):
+    """Data Container for all the info we need to lookup the specific values later
+
+    Args:
+        FileInfo (_type_): _description_
+    """
+
+    path_to_file: str
+    request: Request
+
+    class Config:
+        arbitrary_types_allowed = True
+
+
+class OutputApiClassifyData(BaseModel):
+    """Data Container for all the info we need to lookup the specific values later
+
+    Args:
+        FileInfo (_type_): _description_
+    """
+
+    path_to_file: str
+    inference_id: str
+
+
+class InputGetPredictionData(BaseModel):
+    """Data Container for all the info we need to lookup the specific values later
+
+    Args:
+        FileInfo (_type_): _description_
+    """
+
+    path_to_file: str
+    request: Request
+
+    class Config:
+        arbitrary_types_allowed = True
+
+
 async def api_request_prediction(
     client: httpx.AsyncClient,
-    file_info: FileInfo,
-) -> FileInfoDTO:
+    file_info: Union[FileInfo, InputApiClassifyData],
+) -> Union[FileInfoDTO, OutputApiClassifyData]:
     """Peform POST request to classify a given image against our api.
 
     Args:
@@ -138,10 +191,15 @@ async def api_request_prediction(
     # await response.aclose()
     await file_info.request.stream.aclose()  # type: ignore
 
-    return FileInfoDTO(
-        path_to_file=file_info.path_to_file,
-        request=file_info.request,
-        response=response,
+    inference_id: str = response.json()["inference_id"]
+
+    # return FileInfoDTO(
+    #     path_to_file=file_info.path_to_file,
+    #     request=file_info.request,
+    #     response=response,
+    # )
+    return OutputApiClassifyData(
+        path_to_file=f"{file_info.path_to_file}", inference_id=inference_id,
     )
 
 
@@ -153,7 +211,7 @@ async def api_request_prediction(
 )
 async def api_get_prediction_results(
     client: httpx.AsyncClient,
-    file_info_dto: FileInfoDTO,
+    file_info_dto: Union[FileInfoDTO, InputGetPredictionData],
 ) -> PredictionDataRow:
     """Peform GET request to pull back classify results for an image against our api.
 
@@ -173,7 +231,7 @@ async def api_get_prediction_results(
     if response.status_code == 202:
         raise TryAgain
     pred_data_row = PredictionDataRow(
-        file_name=file_info_dto.path_to_file,
+        file_name=f"{file_info_dto.path_to_file}",
         classifyed_pred_prob=float(response.json()["data"]["pred_prob"]),
         pred_prob_pred_class=response.json()["data"]["pred_class"],
         pred_prob_time_for_pred=float(response.json()["data"]["time_for_pred"]),
@@ -193,7 +251,7 @@ async def aio_run_api_classify(
     completed: list,
     final: list[list[PathLike]],
     workers: int,
-) -> List[List[FileInfoDTO]]:
+) -> Union[List[List[FileInfoDTO]], List[List[OutputApiClassifyData]]]:
     """wrapper function to peform classify request
 
     Args:
@@ -223,13 +281,13 @@ async def aio_run_api_classify(
                 headers=headers,
                 data=data,
             )
-            # _ = (
-            #     await api_request.aread()
-            # )  # sourcery skip: avoid-single-character-names-variables
-            # requests.append(api_request)
-            a_file_info = FileInfo(path_to_file=f"{img}", request=api_request)
+
+            # NOTE: ORIG # a_file_info = FileInfo(path_to_file=f"{img}", request=api_request)
+            a_file_info: InputApiClassifyData = InputApiClassifyData(
+                path_to_file=f"{img}", request=api_request,
+            )
             file_infos.append(a_file_info)
-            gc.collect()
+            # gc.collect()
 
         # jobs = [functools.partial(fetch, session, request) for request in requests]
         jobs = [
@@ -250,7 +308,7 @@ async def aio_run_api_classify(
 
 async def aio_run_api_get_classify_results(
     completed: list,
-    final: List[List[FileInfoDTO]],
+    final: Union[List[List[FileInfoDTO]], List[List[OutputApiClassifyData]]],
     workers: int,
 ) -> List[List[PredictionDataRow]]:
     """wrapper function to peform classify request
@@ -272,17 +330,21 @@ async def aio_run_api_get_classify_results(
             headers = headers = {
                 "accept": "application/json",
             }
-            inference_id = _fi_dto.response.json()["inference_id"]
+            # inference_id = _fi_dto.response.json()["inference_id"]
 
             api_request = httpx.Request(
                 "GET",
-                f"http://localhost:8008/api/screennet/result/{inference_id}",
+                f"http://localhost:8008/api/screennet/result/{_fi_dto.inference_id}",
                 headers=headers,
             )
-            a_file_info_dto = FileInfoDTO(
+            # a_file_info_dto = FileInfoDTO(
+            #     path_to_file=f"{_fi_dto.path_to_file}",
+            #     request=api_request,
+            #     response=_fi_dto.response,
+            # )
+            a_file_info_dto = InputGetPredictionData(
                 path_to_file=f"{_fi_dto.path_to_file}",
                 request=api_request,
-                response=_fi_dto.response,
             )
             updated_file_info_dtos.append(a_file_info_dto)
 
@@ -436,7 +498,14 @@ async def go_partial(
     final: list[list[PathLike]] = get_chunked_lists(images)
 
     # Ask api to perform classify actions
-    completed_file_info_dtos: List[List[FileInfoDTO]] = await aio_run_api_classify(
+    # completed_file_info_dtos: List[List[FileInfoDTO]] = await aio_run_api_classify(
+    #     file_info_dtos,
+    #     final,
+    #     args.workers,
+    # )
+    completed_file_info_dtos: Union[
+        List[List[FileInfoDTO]], List[List[OutputApiClassifyData]],
+    ] = await aio_run_api_classify(
         file_info_dtos,
         final,
         args.workers,
