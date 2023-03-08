@@ -111,5 +111,6 @@ view-memray:
 
 basic-mem-profile:
 	python -m memray run -f -o lel.bin -m fastapi_pytorch_postgresql_sandbox.cli --predict ~/Downloads/icloud_photos_downloader/hyenawhite/screenshots/screenshots --workers 100
-	memray flamegraph --leaks --split-threads -f --temporary-allocations lel.bin
+# memray flamegraph --leaks --split-threads -f --temporary-allocations lel.bin
+	memray flamegraph lel.bin
 	memray summary lel.bin
