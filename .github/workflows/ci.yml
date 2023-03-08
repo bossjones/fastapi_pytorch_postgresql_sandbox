@@ -253,8 +253,8 @@ jobs:
       if: ${{ success() }}
       uses: codecov/codecov-action@v3
       with:
-        DIRECTORY: ./junit
-        files: ./test-results.xml
+        # directory: ./junit
+        files: ./junit/test-results.xml
         verbose: true
 
     - name: Upload pytest test results
