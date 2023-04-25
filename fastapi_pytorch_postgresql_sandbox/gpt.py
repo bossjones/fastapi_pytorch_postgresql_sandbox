@@ -13,7 +13,6 @@ from llama_index import (
     ServiceContext,
     download_loader,
 )
-from llama_index.node_parser import SimpleNodeParser
 import streamlit as st
 
 from fastapi_pytorch_postgresql_sandbox.settings import settings
@@ -52,7 +51,7 @@ if uploaded_file is not None:
     documents = loader.load_data()
     sidebar_placeholder.header("Current Processing Document:")
     sidebar_placeholder.subheader(uploaded_file.name)
-    sidebar_placeholder.write(documents[0].get_text()[:10000] + "...")
+    sidebar_placeholder.write(f"{documents[0].get_text()[:10000]}...")
 
     llm_predictor = LLMPredictor(
         llm=OpenAI(temperature=0, model_name="text-davinci-003"),
@@ -64,11 +63,13 @@ if uploaded_file is not None:
     prompt_helper = PromptHelper(max_input_size, num_output, max_chunk_overlap)
 
     service_context = ServiceContext.from_defaults(
-        llm_predictor=llm_predictor, prompt_helper=prompt_helper,
+        llm_predictor=llm_predictor,
+        prompt_helper=prompt_helper,
     )
 
     index = GPTSimpleVectorIndex.from_documents(
-        documents, service_context=service_context,
+        documents,
+        service_context=service_context,
     )
 
     index.save_to_disk(INDEX_FILE)
@@ -82,7 +83,7 @@ elif os.path.exists(INDEX_FILE):
     doc_filename = os.listdir(DOC_PATH)[0]
     sidebar_placeholder.header("Current Processing Document:")
     sidebar_placeholder.subheader(doc_filename)
-    sidebar_placeholder.write(documents[0].get_text()[:10000] + "...")
+    sidebar_placeholder.write(f"{documents[0].get_text()[:10000]}...")
 
 if index != None:
     st.text_input("Ask something: ", key="prompt")

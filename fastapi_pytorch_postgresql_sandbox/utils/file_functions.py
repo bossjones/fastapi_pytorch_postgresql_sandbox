@@ -42,7 +42,7 @@ def is_file(path: str) -> bool:
     Returns:
         _type_: _description_
     """
-    return bool(pathlib.Path(path).is_file())
+    return pathlib.Path(path).is_file()
 
 
 def is_directory(path: str) -> bool:
@@ -54,7 +54,7 @@ def is_directory(path: str) -> bool:
     Returns:
         _type_: _description_
     """
-    return bool(pathlib.Path(path).is_dir())
+    return pathlib.Path(path).is_dir()
 
 
 def tilda(obj: Any) -> List[str | Any] | str | Any:
@@ -82,6 +82,7 @@ def fix_path(path: str) -> Any:
     Args:
         path (_type_): _description_
     """
+
     # Either all return statements in a function should return an expression, or none of them should.
     def __fix_path(path):  # pylint: disable=inconsistent-return-statements
         if not isinstance(path, str):
