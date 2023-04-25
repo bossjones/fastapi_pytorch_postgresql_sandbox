@@ -17,7 +17,6 @@ import streamlit as st
 
 from fastapi_pytorch_postgresql_sandbox.settings import settings
 
-os.environ["OPENAI_API_KEY"] = settings.openai_token
 DOC_PATH = "./gpt_data/"
 INDEX_FILE = "index.json"
 
@@ -54,7 +53,11 @@ if uploaded_file is not None:
     sidebar_placeholder.write(f"{documents[0].get_text()[:10000]}...")
 
     llm_predictor = LLMPredictor(
-        llm=OpenAI(temperature=0, model_name="text-davinci-003"),
+        llm=OpenAI(
+            openai_api_key=settings.openai_token,
+            temperature=0,
+            model_name="text-davinci-003",
+        ),
     )
 
     max_input_size = 4096
