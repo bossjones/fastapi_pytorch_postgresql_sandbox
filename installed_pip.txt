@@ -86,7 +86,7 @@ fakeredis==2.11.0
 fancycompleter==0.9.1
 fastai @ file:///home/conda/feedstock_root/build_artifacts/fastai_1675786314653/work
 fastapi==0.90.0
--e git+ssh://git@github.com/bossjones/fastapi_pytorch_postgresql_sandbox.git@ae2b33c30cb4e4e77bbe3d6c4b883f6203a1c1f6#egg=fastapi_pytorch_postgresql_sandbox
+-e git+ssh://git@github.com/bossjones/fastapi_pytorch_postgresql_sandbox.git@69f1ef8a9156599e10385d411c1a1a0d76b74281#egg=fastapi_pytorch_postgresql_sandbox
 fastcore @ file:///home/conda/feedstock_root/build_artifacts/fastcore_1663188308722/work
 fastdownload @ file:///home/jhoward/mambaforge/conda-bld/fastdownload_1657219113869/work
 fastprogress @ file:///home/conda/feedstock_root/build_artifacts/fastprogress_1658690818839/work
@@ -250,6 +250,7 @@ Pympler==1.0.1
 pynguin==0.6.3
 pyOpenSSL @ file:///home/conda/feedstock_root/build_artifacts/pyopenssl_1672659226110/work
 pyparsing @ file:///home/conda/feedstock_root/build_artifacts/pyparsing_1652235407899/work
+PyPDF2==3.0.1
 pyrepl==0.9.0
 pyrsistent==0.19.3
 PySocks @ file:///home/conda/feedstock_root/build_artifacts/pysocks_1661604839144/work
@@ -338,7 +339,7 @@ torchsummary==1.5.1
 torchtext==0.14.1
 torchvision==0.14.1
 tornado @ file:///Users/runner/miniforge3/conda-bld/tornado_1666788685513/work
-tqdm==4.65.0
+tqdm @ file:///home/conda/feedstock_root/build_artifacts/tqdm_1677948868469/work
 traitlets==5.9.0
 trampoline==0.1.2
 transformers @ file:///home/conda/feedstock_root/build_artifacts/transformers_1665546244975/work
@@ -361,6 +362,7 @@ virtualenv==20.18.0
 viztracer==0.15.6
 wandb==0.13.9
 wasabi @ file:///Users/runner/miniforge3/conda-bld/wasabi_1673946074681/work
+watchdog==3.0.0
 watermark==2.3.1
 wcwidth==0.2.6
 wemake-python-styleguide==0.0.1
@@ -369,5 +371,5 @@ widgetsnbextension==4.0.5
 wmctrl==0.4
 wrapt==1.14.1
 xxhash @ file:///Users/runner/miniforge3/conda-bld/python-xxhash_1672695101485/work
-yarl==1.9.1
+yarl @ file:///Users/runner/miniforge3/conda-bld/yarl_1682426738484/work
 zipp @ file:///home/conda/feedstock_root/build_artifacts/zipp_1675635285714/work

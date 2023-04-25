@@ -261,6 +261,7 @@ dependencies:
   - torchtext=0.14.1=py310
   - torchvision=0.14.1=py310_cpu
   - tornado=6.2=py310h8e9501a_1
+  - tqdm=4.65.0=pyhd8ed1ab_1
   - transformers=4.23.1=pyhd8ed1ab_0
   - typer=0.7.0=pyhd8ed1ab_0
   - typing-extensions=4.4.0=hd8ed1ab_0
@@ -277,6 +278,7 @@ dependencies:
   - xxhash=0.8.1=h1a8c8d9_0
   - xz=5.2.6=h57fd34a_0
   - yaml=0.2.5=h3422bc3_2
+  - yarl=1.9.1=py310h2aa6e3c_0
   - zfp=1.0.0=hb6e4faa_3
   - zipp=3.12.1=pyhd8ed1ab_0
   - zlib=1.2.13=h03a7124_4
@@ -454,6 +456,7 @@ dependencies:
       - pylint==2.17.3
       - pympler==1.0.1
       - pynguin==0.6.3
+      - pypdf2==3.0.1
       - pyrepl==0.9.0
       - pyrsistent==0.19.3
       - pytest==7.3.1
@@ -505,7 +508,6 @@ dependencies:
       - torchinfo==1.7.2
       - torchsde==0.2.5
       - torchsummary==1.5.1
-      - tqdm==4.65.0
       - traitlets==5.9.0
       - trampoline==0.1.2
       - types-aiofiles==23.1.0.1
@@ -522,13 +524,13 @@ dependencies:
       - virtualenv==20.18.0
       - viztracer==0.15.6
       - wandb==0.13.9
+      - watchdog==3.0.0
       - watermark==2.3.1
       - wcwidth==0.2.6
       - wemake-python-styleguide==0.0.1
       - widgetsnbextension==4.0.5
       - wmctrl==0.4
       - wrapt==1.14.1
-      - yarl==1.9.1
 variables:
   PYTORCH_ENABLE_MPS_FALLBACK: 1
 prefix: /Users/malcolm/.pyenv/versions/anaconda3-2022.05/envs/fastapi_pytorch_postgresql_sandbox3

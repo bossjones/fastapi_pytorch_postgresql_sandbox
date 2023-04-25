@@ -251,6 +251,7 @@ Pympler==1.0.1
 pynguin==0.6.3
 pyOpenSSL==23.0.0
 pyparsing==3.0.9
+PyPDF2==3.0.1
 pyrepl==0.9.0
 pyrsistent==0.19.3
 PySocks==1.7.1
@@ -363,6 +364,7 @@ virtualenv==20.18.0
 viztracer==0.15.6
 wandb==0.13.9
 wasabi==1.1.1
+watchdog==3.0.0
 watermark==2.3.1
 wcwidth==0.2.6
 wemake-python-styleguide==0.0.1

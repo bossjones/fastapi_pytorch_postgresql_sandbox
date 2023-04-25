@@ -114,3 +114,6 @@ basic-mem-profile:
 # memray flamegraph --leaks --split-threads -f --temporary-allocations lel.bin
 	memray flamegraph lel.bin
 	memray summary lel.bin
+
+gpt:
+	python -m streamlit run fastapi_pytorch_postgresql_sandbox/gpt.py

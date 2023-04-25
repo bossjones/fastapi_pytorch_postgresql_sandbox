@@ -129,6 +129,7 @@ dependencies:
   - aiocsv
   - llama-index
   - streamlit
+  - watchdog
   - -e .
 # variables:
 #   PYTORCH_ENABLE_MPS_FALLBACK: 1
