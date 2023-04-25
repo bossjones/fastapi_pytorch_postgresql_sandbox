@@ -95,6 +95,8 @@ class Settings(BaseSettings):
     # E.G. http://localhost:4317
     opentelemetry_endpoint: Union[Optional[str], None] = None
 
+    openai_token: str = ""
+
     # kafka_bootstrap_servers: list[str] = [
     #     "fastapi_pytorch_postgresql_sandbox-kafka:9092",
     # ]
