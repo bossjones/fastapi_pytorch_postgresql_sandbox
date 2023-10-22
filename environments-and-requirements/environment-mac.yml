@@ -8,11 +8,11 @@ channels:
 dependencies:
 - python=3.10
 - pip>=22.2
-- pytorch::pytorch
-- conda-forge::torchmetrics
-- conda-forge::torch-fidelity
-- pytorch::torchtext
-- pytorch::torchvision
+- pytorch::pytorch=1.13.1
+- conda-forge::torchmetrics=0.11.3
+- conda-forge::torch-fidelity=0.3.0
+- pytorch::torchtext=0.14.1
+- pytorch::torchvision=0.14.1
 - conda-forge::fastai=2.7.10
 - conda-forge::albumentations=1.3.0
 - conda-forge::timm
@@ -127,6 +127,9 @@ dependencies:
   - aiometer
   - tenacity
   - aiocsv
+  - llama-index
+  - streamlit
+  - watchdog
   - -e .
 # variables:
 #   PYTORCH_ENABLE_MPS_FALLBACK: 1

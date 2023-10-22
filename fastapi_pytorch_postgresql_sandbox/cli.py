@@ -37,6 +37,7 @@ from fastapi_pytorch_postgresql_sandbox import retry
 from fastapi_pytorch_postgresql_sandbox.utils.file_functions import (
     PathLike,
     go_get_image_files,
+    go_get_video_files,
 )
 
 JSONType = str | int | float | bool | None | Dict | List
@@ -171,6 +172,41 @@ class InputGetPredictionData(BaseModel):
 
 
 async def api_request_prediction(
+    client: httpx.AsyncClient,
+    file_info: Union[FileInfo, InputApiClassifyData],
+) -> Union[FileInfoDTO, OutputApiClassifyData]:
+    """Peform POST request to classify a given image against our api.
+
+    Args:
+        client (httpx.AsyncClient): _description_
+        request (httpx.Request): _description_
+
+    Returns:
+        _type_: _description_
+    """
+
+    await file_info.request.aread()
+
+    response: httpx.Response = await client.send(file_info.request)
+
+    # free up file descriptors
+    # await response.aclose()
+    await file_info.request.stream.aclose()  # type: ignore
+
+    inference_id: str = response.json()["inference_id"]
+
+    # return FileInfoDTO(
+    #     path_to_file=file_info.path_to_file,
+    #     request=file_info.request,
+    #     response=response,
+    # )
+    return OutputApiClassifyData(
+        path_to_file=f"{file_info.path_to_file}",
+        inference_id=inference_id,
+    )
+
+
+async def api_request_crop(
     client: httpx.AsyncClient,
     file_info: Union[FileInfo, InputApiClassifyData],
 ) -> Union[FileInfoDTO, OutputApiClassifyData]:
@@ -373,6 +409,134 @@ async def aio_run_api_get_classify_results(
     return completed
 
 
+# -----------------------------------------------------------
+
+
+async def aio_run_api_videocrop(
+    completed: list,
+    final: list[list[PathLike]],
+    workers: int,
+) -> Union[List[List[FileInfoDTO]], List[List[OutputApiClassifyData]]]:
+    """wrapper function to peform classify request
+
+    Args:
+        completed (list): _description_
+        final (list[list[PathLike]]): _description_
+
+    Returns:
+        List[List[FileInfoDTO]]: _description_
+    """
+    session = httpx.AsyncClient()
+    # send post request to perform prediction
+    for count, chunk in enumerate(final):
+        print(f"[aio_run_api_videocrop] count = {count}")
+        # requests = []
+        file_infos: list = []
+        for file_media in chunk:
+            mime_type: tuple[str | None, str | None] = mime.guess_type(f"{file_media}")
+            files = {"file": (file_media.name, open(f"{file_media}", "rb"), f"{mime_type[0]}")}  # type: ignore
+            headers = headers = {
+                "accept": "application/json",
+            }
+
+            data = {"type": f"{mime_type[0]}"}
+            api_request = httpx.Request(
+                "POST",
+                "http://localhost:8008/api/videocrop/crop",
+                files=files,
+                headers=headers,
+                data=data,
+            )
+
+            a_file_info: InputApiClassifyData = InputApiClassifyData(
+                path_to_file=f"{file_media}",
+                request=api_request,
+            )
+            file_infos.append(a_file_info)
+            # gc.collect()
+
+        jobs = [
+            functools.partial(api_request_prediction, session, fi_obj)
+            for fi_obj in file_infos
+        ]
+
+        results = await aiometer.run_all(
+            jobs,
+            max_at_once=workers,
+            max_per_second=workers,
+        )
+
+        completed.append(results)
+
+    await session.aclose()
+
+    return completed
+
+
+# async def aio_run_api_get_videocrop_results(
+#     completed: list,
+#     final: Union[List[List[FileInfoDTO]], List[List[OutputApiClassifyData]]],
+#     workers: int,
+# ) -> List[List[PredictionDataRow]]:
+#     """wrapper function to peform videocrop request
+
+#     Args:
+#         completed (list): _description_
+#         final (list[list[PathLike]]): _description_
+
+#     Returns:
+#         List[List[PredictionDataRow]]: _description_
+#     """
+#     session = httpx.AsyncClient()
+#     # send post request to perform prediction
+#     for count, chunk in enumerate(final):
+#         rich.print("aio_run_api_get_classify_results")
+#         ic(chunk)
+#         print(f"[aio_run_api_get_classify_results] count = {count}")
+#         updated_file_info_dtos: list = []
+#         for _fi_dto in chunk:
+#             headers = headers = {
+#                 "accept": "application/json",
+#             }
+#             # inference_id = _fi_dto.response.json()["inference_id"]
+
+#             api_request = httpx.Request(
+#                 "GET",
+#                 f"http://localhost:8008/api/screennet/result/{_fi_dto.inference_id}",
+#                 headers=headers,
+#             )
+#             # a_file_info_dto = FileInfoDTO(
+#             #     path_to_file=f"{_fi_dto.path_to_file}",
+#             #     request=api_request,
+#             #     response=_fi_dto.response,
+#             # )
+#             a_file_info_dto = InputGetPredictionData(
+#                 path_to_file=f"{_fi_dto.path_to_file}",
+#                 request=api_request,
+#             )
+#             updated_file_info_dtos.append(a_file_info_dto)
+
+#         jobs = [
+#             functools.partial(api_get_prediction_results, session, fi_dto_obj)
+#             for fi_dto_obj in updated_file_info_dtos
+#         ]
+
+#         results = await aiometer.run_all(
+#             jobs,
+#             max_at_once=workers,
+#             max_per_second=workers,
+#         )
+
+#         completed.append(results)
+
+#     await session.aclose()
+
+#     return completed
+
+
+# -----------------------------------------------------------
+
+
 async def aio_get_images(
     loop: asyncio.AbstractEventLoop,
     path_to_dir: str = DEFAULT_PATH_TO_DIR,
@@ -393,6 +557,28 @@ async def aio_get_images(
             print(f"Found {len(images)} images")
 
     return images
+
+
+async def aio_get_videos(
+    loop: asyncio.AbstractEventLoop,
+    path_to_dir: str = DEFAULT_PATH_TO_DIR,
+) -> List[PathLike]:
+    """Get all videos inside of a directory
+
+    Returns:
+        _type_: _description_
+    """
+
+    handle_go_get_video_files_func = functools.partial(go_get_video_files, path_to_dir)
+
+    with Timer(text="\n [aio_get_videos] Total elapsed time: {:.5f}"):
+        # 2. Run in a custom thread pool:
+        with concurrent.futures.ThreadPoolExecutor() as pool:
+            videos = await loop.run_in_executor(pool, handle_go_get_video_files_func)
+
+            print(f"Found {len(videos)} videos")
+
+    return videos
 
 
 def get_chunked_lists(
@@ -496,6 +682,18 @@ async def go_partial(
     Returns:
         _type_: _description_
     """
+    if args.cmd == "predict":
+        data = await go_predict(loop, args)
+    elif args.cmd == "crop":
+        data = await go_crop(loop, args)
+
+    return data
+
+
+async def go_predict(
+    loop: asyncio.AbstractEventLoop,
+    args: argparse.Namespace,
+) -> List[PathLike]:
     images = await aio_get_images(loop, args.predict)
 
     file_info_dtos = []  # type: ignore
@@ -566,6 +764,80 @@ async def go_partial(
     return images
 
 
+async def go_crop(
+    loop: asyncio.AbstractEventLoop,
+    args: argparse.Namespace,
+) -> List[PathLike]:
+    videos = await aio_get_videos(loop, args.predict)
+
+    file_info_dtos = []  # type: ignore
+    prediction_data_rows = []  # type: ignore
+    # ---------------------------------------------------------
+    # chunked_lists = list(misc.divide_chunks(file_to_upload, n=10))
+    # discord has a limit of 10 media uploads per api call. break them up.
+    # SOURCE: https://www.geeksforgeeks.org/break-list-chunks-size-n-python/
+    final: list[list[PathLike]] = get_chunked_lists(videos)
+
+    # Ask api to perform classify actions
+    # completed_file_info_dtos: List[List[FileInfoDTO]] = await aio_run_api_classify(
+    #     file_info_dtos,
+    #     final,
+    #     args.workers,
+    # )
+    completed_file_info_dtos: Union[
+        List[List[FileInfoDTO]],
+        List[List[OutputApiClassifyData]],
+    ] = await aio_run_api_videocrop(
+        file_info_dtos,
+        final,
+        args.workers,
+    )
+
+    # # Get the prediction results back
+    # completed_prediction_data_rows: List[
+    #     List[PredictionDataRow]
+    # ] = await aio_run_api_get_videocrop_results(
+    #     prediction_data_rows,
+    #     completed_file_info_dtos,
+    #     args.workers,
+    # )
+
+    # # [[PredictionDataRow(file_name='fastapi_pytorch_postgresql_sandbox/tests/fixtures/test1.jpg', classifyed_pred_prob=0.6357, pred_prob_pred_class='twitter', pred_prob_time_for_pred=0.2469, ts=datetime.datetime(2023, 3, 2, 13, 24, 55, 760148))]]
+
+    # ic(completed_prediction_data_rows)
+
+    # # How to flatten list in Python?
+    # flat_completed = [
+    #     element for sublist in completed_prediction_data_rows for element in sublist
+    # ]
+
+    # seralized_prediction_data_rows = [
+    #     run_seralize_prediction_data_row(pdr) for pdr in flat_completed
+    # ]
+
+    # await aio_write_csv("./test.csv", seralized_prediction_data_rows)
+
+    # # print(flat_completed)
+
+    # # completed List[List[FileInfoDTO]]= [[FileInfoDTO(path_to_file='fastapi_pytorch_postgresql_sandbox/tests/fixtures/test1.jpg', request=<Request('POST', 'http://localhost:8008/api/screennet/classify')>, response=<Response [202 Accepted]>)]]
+    # # {'inference_id': '29c5b85d-fbfa-4654-bf73-9e142f95a3c4'}
+    # # inference_id =  completed[0][0].response.json()["inference_id"]
+    # # path_to_file = completed[0][0].path_to_file
+    # # prediction
+    # # curl -X 'GET' \
+    # #   'http://localhost:8008/api/screennet/result/29c5b85d-fbfa-4654-bf73-9e142f95a3c4' \
+    # #   -H 'accept: application/json'
+    # # {
+    # #   "data": {
+    # #     "pred_prob": "0.6357",
+    # #     "pred_class": "twitter",
+    # #     "time_for_pred": "0.3787"
+    # #   }
+    # # }
+
+    return videos
+
+
 parser = argparse.ArgumentParser(description="Screennet cli tool")
 parser.add_argument(
     "--predict",
@@ -573,6 +845,14 @@ parser.add_argument(
     type=str,
     metavar="PREDICT_PATH",
     help="path to image to run prediction on (default: none)",
+)
+parser.add_argument(
+    "--cmd",
+    type=str,
+    default="predict",
+    metavar="CMD",
+    choices=["predict", "crop"],
+    help="Command to run (default: none)",
 )
 parser.add_argument(
     "--workers",

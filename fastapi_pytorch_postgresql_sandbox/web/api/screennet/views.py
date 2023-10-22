@@ -225,7 +225,8 @@ async def get_classify_value(
             pending_classification_dto = {"inference_id": inference_id}
             # return PendingClassificationDTO(inference_id=inference_id)
             return JSONResponse(
-                status_code=status.HTTP_202_ACCEPTED, content=pending_classification_dto,
+                status_code=status.HTTP_202_ACCEPTED,
+                content=pending_classification_dto,
             )
             # return status.HTTP_202_ACCEPTED
 
