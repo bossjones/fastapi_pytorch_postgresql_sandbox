@@ -32,7 +32,9 @@ from fastapi.responses import JSONResponse
 from icecream import ic
 from redis.asyncio import ConnectionPool, Redis
 import rich
+import uritools
 
+from fastapi_pytorch_postgresql_sandbox.factories import cmd_factory
 from fastapi_pytorch_postgresql_sandbox.services.rabbit.dependencies import (
     get_rmq_channel_pool,
 )
@@ -44,7 +46,10 @@ from fastapi_pytorch_postgresql_sandbox.utils.imgops import (
 from fastapi_pytorch_postgresql_sandbox.utils.mlops import (
     convert_pil_image_to_rgb_channels,
 )
-from fastapi_pytorch_postgresql_sandbox.utils.shell import run_coroutine_subprocess
+from fastapi_pytorch_postgresql_sandbox.utils.shell import (
+    PREPARE_FOR_IG_SMALL,
+    run_coroutine_subprocess,
+)
 from fastapi_pytorch_postgresql_sandbox.web.api.screennet.schema import (
     PendingClassificationDTO,
     RedisPredictionValueDTO,
@@ -97,6 +102,8 @@ async def crop(
         "upload_file_obj": file,
     }
 
+    # ic(video_container)
+
     # contents = await file.read()
     # pil_image = Image.open(BytesIO(image_payload_bytes))  # orig
     # pil_image: Image = Image.open(file.file)  # orig
@@ -129,11 +136,40 @@ async def crop(
                     await asyncio.sleep(1)
                     print(f"video_fpaths: {video_fpaths}")
                     ic(video_fpaths)
-                    # s = time.time()
-                    # tasks = [asyncio.create_task(run_coroutine_subprocess(cmd, uri, semaphore, text)) for text in text_list]
-                    # encrypted_text = await asyncio.gather(*tasks)
-                    # e = time.time()
-                    # print(f"Total time: {e - s}")
+                    dl_uri = uritools.urisplit(video_fpaths[0])
+                    ic(dl_uri)
+                    p = pathlib.Path(video_fpaths)
+                    full_path_input_file = f"{p.stem}{p.suffix}"
+                    full_path_output_file = (
+                        f"{pathlib.Path(video_fpaths).stem}_smaller.mp4"
+                    )
+                    cmd_args = ["crop"]
+                    cmd_kargs = {
+                        "cmd": PREPARE_FOR_IG_SMALL.format(
+                            full_path_input_file=full_path_input_file,
+                            full_path_output_file=full_path_output_file,
+                            source_dir="/Users/malcolm/testing/",
+                        ),
+                        "uri": f"{dl_uri.geturi()}",
+                    }
+
+                    cmd_metadata = cmd_factory.CmdSerializer(*cmd_args, **cmd_kargs)
+
+                    print(f"cmd_metadata = {cmd_metadata}")
+                    s = time.time()
+                    tasks = [
+                        asyncio.create_task(
+                            run_coroutine_subprocess(
+                                cmd_metadata.cmd,
+                                semaphore,
+                                working_dir=f"{tmpdirname}",
+                            ),
+                        ),
+                    ]
+                    cropped_vids = await asyncio.gather(*tasks)
+                    e = time.time()
+                    print(f"Total time: {e - s}")
+                    ic(cropped_vids)
                     # # nuke the originals
                     # convert_func = functools.partial(
                     #     convert_pil_image_to_rgb_channels,

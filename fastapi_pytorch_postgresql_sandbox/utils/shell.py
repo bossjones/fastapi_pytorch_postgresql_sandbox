@@ -6,13 +6,14 @@ import pathlib
 import random
 import string
 import time
+from typing import Dict, Optional
 
 import uritools
 
 PREPARE_FOR_IG_SMALL = """
     time ffmpeg -y \
     -hide_banner -loglevel warning \
-    -i "${full_path_input_file}" \
+    -i '{full_path_input_file}' \
     -c:v h264_videotoolbox \
     -bufsize 5200K \
     -b:v 5200K \
@@ -27,13 +28,15 @@ PREPARE_FOR_IG_SMALL = """
     -c:a aac \
     -ar 44100 \
     -ac 2 \
-    "${full_path_output_file}"
+    '{full_path_output_file}'
+
+    cp -a '{full_path_output_file}' '{source_dir}'
 """
 
 
 async def run_coroutine_subprocess(
-    cmd: str,
-    uri: str,
+    cmd: Optional[str],
+    # uri: str,
     sem: Semaphore,
     working_dir: str = f"{pathlib.Path('./').absolute()}",
 ):
@@ -42,10 +45,10 @@ async def run_coroutine_subprocess(
     env = {}
     env |= os.environ
 
-    dl_uri = uritools.urisplit(uri)
+    # dl_uri = uritools.urisplit(uri)
 
-    full_path_input_file = "/Users/malcolm/dev/bossjones/fastapi_pytorch_postgresql_sandbox/fixtures/NoEmmeG-1705218065640694069-20230922_095042-vid1.mp4"
-    full_path_output_file = "/Users/malcolm/dev/bossjones/fastapi_pytorch_postgresql_sandbox/fixtures/NoEmmeG-1705218065640694069-20230922_095042-vid1_smaller.mp4"
+    # full_path_input_file = "/Users/malcolm/dev/bossjones/fastapi_pytorch_postgresql_sandbox/fixtures/NoEmmeG-1705218065640694069-20230922_095042-vid1.mp4"
+    # full_path_output_file = "/Users/malcolm/dev/bossjones/fastapi_pytorch_postgresql_sandbox/fixtures/NoEmmeG-1705218065640694069-20230922_095042-vid1_smaller.mp4"
 
     result = "0"
     cmd = f"{cmd}"
