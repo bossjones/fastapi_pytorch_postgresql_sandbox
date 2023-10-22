@@ -8,6 +8,7 @@ import string
 import time
 from typing import Dict, Optional
 
+from icecream import ic
 import uritools
 
 PREPARE_FOR_IG_SMALL = """
@@ -30,7 +31,7 @@ PREPARE_FOR_IG_SMALL = """
     -ac 2 \
     '{full_path_output_file}'
 
-    cp -a '{full_path_output_file}' '{source_dir}'
+    cp -av '{full_path_output_file}' '{source_dir}'
 """
 
 
@@ -62,6 +63,8 @@ async def run_coroutine_subprocess(
             stdin=asyncio.subprocess.PIPE,
         )
         stdout, stderr = await process.communicate()
+        # ic(stdout.decode("utf-8").strip())
+        # ic(stderr.decode("utf-8").strip())
         result = stdout.decode("utf-8").strip()
         return result
 
