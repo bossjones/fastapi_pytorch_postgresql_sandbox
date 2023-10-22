@@ -11,7 +11,7 @@ from typing import Any, Generator, List
 
 import aiofiles
 import aiofiles.os
-from fastai.data.transforms import get_image_files
+from fastai.data.transforms import get_files, get_image_files
 
 # from fastapi.responses import StreamingResponse
 from rich import print
@@ -30,6 +30,23 @@ def go_get_image_files(path_to_image_from_cli: str) -> List[PathLike]:
         List[str]: List of image files
     """
     return get_image_files(path_to_image_from_cli, recurse=True)
+
+
+def get_video_files(path, recurse=True, folders=None):
+    "Get text files in `path` recursively, only in `folders`, if specified."
+    return get_files(path, extensions=[".mp4"], recurse=recurse, folders=folders)
+
+
+def go_get_video_files(path_to_videos_from_cli: str) -> List[PathLike]:
+    """Leverage fastai's get_video_files function.
+
+    Args:
+        path_to_videos_from_cli (str): str of directory
+
+    Returns:
+        List[str]: List of image files
+    """
+    return get_video_files(path_to_videos_from_cli, recurse=True)
 
 
 # SOURCE: https://github.com/tgbugs/pyontutils/blob/05dc32b092b015233f4a6cefa6c157577d029a40/ilxutils/tools.py

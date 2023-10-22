@@ -117,3 +117,6 @@ basic-mem-profile:
 
 gpt:
 	python -m streamlit run fastapi_pytorch_postgresql_sandbox/gpt.py
+
+cli-video:
+	python -m fastapi_pytorch_postgresql_sandbox.cli --cmd crop --predict ~/dev/bossjones/fastapi_pytorch_postgresql_sandbox/fixtures --workers 100

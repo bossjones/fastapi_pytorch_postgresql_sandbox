@@ -181,3 +181,18 @@ docker run -p "5432:5432" -e "POSTGRES_PASSWORD=fastapi_pytorch_postgresql_sandb
 ```bash
 pytest -vv .
 ```
+
+
+# Contrib
+
+```
+# start dev env
+
+pyenv activate anaconda3-2022.05
+conda activate fastapi_pytorch_postgresql_sandbox3
+python -c "import sys;print(sys.executable)"
+
+make start-docker-services-d
+make web
+make worker
+```
